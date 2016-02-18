@@ -10,7 +10,7 @@ import edu.self.kraken.api.KrakenApi;
 import edu.self.kraken.api.KrakenApi.Method;
 
 public class Examples {
-    
+
     public static void main(String[] args) throws IOException, InvalidKeyException, NoSuchAlgorithmException {
 
         KrakenApi api = new KrakenApi();
