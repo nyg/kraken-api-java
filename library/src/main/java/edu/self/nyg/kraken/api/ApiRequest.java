@@ -1,4 +1,4 @@
-package edu.self.kraken.api;
+package edu.self.nyg.kraken.api;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,7 +12,7 @@ import java.util.Map.Entry;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import edu.self.kraken.api.KrakenApi.Method;
+import edu.self.nyg.kraken.api.KrakenApi.Method;
 
 /**
  * Represents an HTTPS request for querying the Kraken API.

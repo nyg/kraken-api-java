@@ -1,4 +1,4 @@
-package edu.self.kraken.api;
+package edu.self.nyg.kraken.api;
 
 import java.io.IOException;
 import java.security.InvalidKeyException;
@@ -6,25 +6,27 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+
 /**
  * A KrakenApi instance allows querying the Kraken API.
  *
  * @author nyg
  */
+@Getter
+@Setter
+@NoArgsConstructor
+@RequiredArgsConstructor
 public class KrakenApi {
 
     private static final String OTP = "otp";
     private static final String NONCE = "nonce";
     private static final String MICRO_SECONDS = "000";
 
-    /**
-     * The API key.
-     */
     private String key;
-
-    /**
-     * The API secret.
-     */
     private String secret;
 
     /**
@@ -130,24 +132,6 @@ public class KrakenApi {
      */
     public String queryPrivate(Method method, Map<String, String> parameters) throws IOException, InvalidKeyException, NoSuchAlgorithmException {
         return queryPrivate(method, null, parameters);
-    }
-
-    /**
-     * Sets the API key.
-     *
-     * @param key the API key
-     */
-    public void setKey(String key) {
-        this.key = key;
-    }
-
-    /**
-     * Sets the API secret.
-     *
-     * @param secret the API secret
-     */
-    public void setSecret(String secret) {
-        this.secret = secret;
     }
 
     /**

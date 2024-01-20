@@ -1,4 +1,4 @@
-package edu.self.kraken.api;
+package edu.self.nyg.kraken.api;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -20,8 +20,6 @@ final class KrakenUtils {
 
     private static final String ERROR_NULL_INPUT = "Input can't be null.";
     private static final String ERROR_NULL_ARRAYS = "Given arrays can't be null.";
-
-    private static final String UTF8 = "UTF-8";
 
     private static final String SHA256 = "SHA-256";
     private static final String HMAC_SHA512 = "HmacSHA512";
@@ -69,7 +67,7 @@ final class KrakenUtils {
     }
 
     public static String urlEncode(String input) throws UnsupportedEncodingException {
-        return URLEncoder.encode(input, UTF8);
+        return URLEncoder.encode(input, StandardCharsets.UTF_8);
     }
 
     private KrakenUtils() {
