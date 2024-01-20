@@ -2,7 +2,7 @@ package edu.self.kraken.api;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -53,24 +53,26 @@ final class KrakenUtils {
         mac.init(new SecretKeySpec(key, HMAC_SHA512));
         return mac.doFinal(message);
     }
-    
+
     public static byte[] sha256(String message) throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance(SHA256);
         return md.digest(stringToBytes(message));
     }
-    
+
     public static byte[] stringToBytes(String input) {
 
         if (input == null) {
             throw new IllegalArgumentException(ERROR_NULL_INPUT);
         }
 
-        return input.getBytes(Charset.forName(UTF8));
+        return input.getBytes(StandardCharsets.UTF_8);
     }
 
     public static String urlEncode(String input) throws UnsupportedEncodingException {
         return URLEncoder.encode(input, UTF8);
     }
 
-    private KrakenUtils() {}
+    private KrakenUtils() {
+        throw new IllegalStateException();
+    }
 }

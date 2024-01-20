@@ -12,25 +12,29 @@ import java.util.Map;
  * @author nyg
  */
 public class KrakenApi {
-    
+
     private static final String OTP = "otp";
     private static final String NONCE = "nonce";
     private static final String MICRO_SECONDS = "000";
 
-    /** The API key. */
+    /**
+     * The API key.
+     */
     private String key;
 
-    /** The API secret. */
+    /**
+     * The API secret.
+     */
     private String secret;
 
     /**
      * Query a public method of the API with the given parameters.
      *
-     * @param method the API method
+     * @param method     the API method
      * @param parameters the method parameters
      * @return the API response
      * @throws IllegalArgumentException if the API method is null
-     * @throws IOException if the request could not be created or executed
+     * @throws IOException              if the request could not be created or executed
      */
     public String queryPublic(Method method, Map<String, String> parameters) throws IOException {
 
@@ -58,16 +62,17 @@ public class KrakenApi {
     /**
      * Query a private method of the API with the given parameters.
      *
-     * @param method the private API method
-     * @param otp the one-time password
+     * @param method     the private API method
+     * @param otp        the one-time password
      * @param parameters the method parameters
      * @return the API response
-     * @throws IOException if the request could not be created or executed
+     * @throws IOException              if the request could not be created or executed
      * @throws NoSuchAlgorithmException if the SHA-256 or HmacSha512 algorithm
-     *         could not be found
-     * @throws InvalidKeyException if the HMAC key is invalid
+     *                                  could not be found
+     * @throws InvalidKeyException      if the HMAC key is invalid
      */
-    public String queryPrivate(Method method, String otp, Map<String, String> parameters) throws IOException, NoSuchAlgorithmException, InvalidKeyException {
+    public String queryPrivate(Method method, String otp, Map<String, String> parameters)
+            throws IOException, NoSuchAlgorithmException, InvalidKeyException {
 
         ApiRequest request = new ApiRequest();
         request.setKey(key);
@@ -182,7 +187,7 @@ public class KrakenApi {
         WITHDRAW_INFO("WithdrawInfo", false),
         WITHDRAW("Withdraw", false),
         WITHDRAW_STATUS("WithdrawStatus", false),
-        WITHDRAW_CANCEL("WithdrawCancel", false),;
+        WITHDRAW_CANCEL("WithdrawCancel", false);
 
         public final String name;
         public final boolean isPublic;
