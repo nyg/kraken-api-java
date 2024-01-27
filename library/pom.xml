@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>edu.self.nyg</groupId>
+        <groupId>dev.andstuff.kraken</groupId>
         <artifactId>kraken-api-parent</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>0.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>kraken-api</artifactId>

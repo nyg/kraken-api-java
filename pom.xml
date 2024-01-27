@@ -4,23 +4,66 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>edu.self.nyg</groupId>
+    <groupId>dev.andstuff.kraken</groupId>
     <artifactId>kraken-api-parent</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>0.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
+
+    <name>Java Kraken API Client</name>
+    <description>A Kraken.com API client written in Java</description>
+    <url>https://github.com/nyg/kraken-api-java</url>
+    <inceptionYear>2015</inceptionYear>
+
+    <licenses>
+        <license>
+            <name>ISC License</name>
+            <url>https://github.com/nyg/kraken-api-java/blob/master/LICENSE</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>nyg</name>
+            <url>https://github.com/nyg</url>
+        </developer>
+    </developers>
+
+    <modules>
+        <module>library</module>
+        <module>examples</module>
+    </modules>
+
+    <scm>
+        <url>https://github.com/nyg/kraken-api-java</url>
+        <connection>scm:git:https://github.com/nyg/kraken-api-java.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/nyg/kraken-api-java.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
+    <issueManagement>
+        <url>https://github.com/nyg/kraken-api-java/issues</url>
+        <system>GitHub Issues</system>
+    </issueManagement>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>21</maven.compiler.release>
 
         <!-- Third-party dependencies -->
-        <lombok.version>1.18.28</lombok.version>
-    </properties>
+        <lombok.version>1.18.30</lombok.version>
 
-    <modules>
-        <module>library</module>
-        <module>examples</module>
-    </modules>
+        <!-- Maven plugins -->
+        <maven-deploy-plugin.version>3.1.1</maven-deploy-plugin.version>
+        <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
+        <maven-javadoc-plugin.version>3.6.3</maven-javadoc-plugin.version>
+        <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
+        <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
+
+        <!-- Third-party plugins -->
+        <central-publishing-maven-plugin.version>0.2.0</central-publishing-maven-plugin.version>
+        <exec-maven-plugin.version>3.1.1</exec-maven-plugin.version>
+    </properties>
 
     <dependencyManagement>
         <dependencies>
@@ -32,5 +75,98 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>${exec-maven-plugin.version}</version>
+                <configuration>
+                    <executable>./changelog.sh</executable>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>${maven-release-plugin.version}</version>
+                <configuration>
+                    <!-- release:prepare -->
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <tagNameFormat>v@{version}</tagNameFormat>
+                    <signTag>true</signTag>
+                    <preparationGoals>clean verify exec:exec</preparationGoals>
+                    <pushChanges>false</pushChanges>
+                    <!-- release:perform -->
+                    <releaseProfiles>maven-central</releaseProfiles>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>maven-central</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>${maven-source-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>${maven-javadoc-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${maven-gpg-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <keyname>F8E60A60EB7F12AA</keyname>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>${central-publishing-maven-plugin.version}</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <publishingServerId>central</publishingServerId>
+                            <tokenEnabled>true</tokenEnabled>
+                            <excludeArtifacts>
+                                <artifact>kraken-api-examples</artifact>
+                            </excludeArtifacts>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>

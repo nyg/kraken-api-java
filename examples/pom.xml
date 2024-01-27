@@ -5,19 +5,32 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>edu.self.nyg</groupId>
+        <groupId>dev.andstuff.kraken</groupId>
         <artifactId>kraken-api-parent</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>0.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>kraken-api-examples</artifactId>
 
     <dependencies>
         <dependency>
-            <groupId>edu.self.nyg</groupId>
+            <groupId>dev.andstuff.kraken</groupId>
             <artifactId>kraken-api</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>${maven-deploy-plugin.version}</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
