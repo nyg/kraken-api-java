@@ -1,8 +1,24 @@
 # A Kraken API Client in Java
 
-Query the Kraken API in Java.
+![Maven Central](https://img.shields.io/maven-central/v/dev.andstuff.kraken/kraken-api)
 
-Execute `mvn clean package` and the JAR will be in the `target` folder. After that, `Examples.java` can also be executed
-using `java -cp target/classes edu/self/kraken/Examples`.
+Query the [Kraken API][1] in Java.
 
-https://www.kraken.com/en-us/help/api
+### Examples
+
+Run the examples with:
+
+```shell
+# input your API keys in api-keys.properties
+cp examples/src/main/resources/api-keys.properties.example \
+   examples/src/main/resources/api-keys.properties
+ 
+# build project
+mvn clean install
+
+# run Examples class
+mvn -q -pl examples exec:java -Dexec.mainClass=dev.andstuff.kraken.example.Examples
+```
+
+
+[1]: https://www.kraken.com/en-us/help/api
