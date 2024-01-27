@@ -6,9 +6,3 @@ Execute `mvn clean package` and the JAR will be in the `target` folder. After th
 using `java -cp target/classes edu/self/kraken/Examples`.
 
 https://www.kraken.com/en-us/help/api
-
-TODO:
-
-* return json objects instead of string
-* return objects for method calls
-* SLF4J
