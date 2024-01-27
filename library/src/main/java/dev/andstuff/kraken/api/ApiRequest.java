@@ -1,4 +1,4 @@
-package edu.self.nyg.kraken.api;
+package dev.andstuff.kraken.api;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,8 +11,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.net.ssl.HttpsURLConnection;
-
-import edu.self.nyg.kraken.api.KrakenApi.Method;
 
 /**
  * Represents an HTTPS request for querying the Kraken API.
@@ -127,7 +125,7 @@ class ApiRequest {
      * @throws MalformedURLException if the request URL could not be created
      *                               with the method name
      */
-    public String setMethod(Method method) throws MalformedURLException {
+    public String setMethod(KrakenApi.Method method) throws MalformedURLException {
 
         if (method == null) {
             throw new IllegalArgumentException(ERROR_NULL_METHOD);

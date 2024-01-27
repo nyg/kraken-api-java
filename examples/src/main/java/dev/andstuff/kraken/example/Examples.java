@@ -1,4 +1,4 @@
-package edu.self.nyg.kraken.example;
+package dev.andstuff.kraken.example;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import edu.self.nyg.kraken.api.KrakenApi;
+import dev.andstuff.kraken.api.KrakenApi;
 
 public class Examples {
 

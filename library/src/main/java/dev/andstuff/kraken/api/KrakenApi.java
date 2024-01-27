@@ -1,4 +1,4 @@
-package edu.self.nyg.kraken.api;
+package dev.andstuff.kraken.api;
 
 import java.io.IOException;
 import java.security.InvalidKeyException;
