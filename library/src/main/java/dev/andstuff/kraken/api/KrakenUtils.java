@@ -67,7 +67,7 @@ final class KrakenUtils {
     }
 
     public static String urlEncode(String input) throws UnsupportedEncodingException {
-        return URLEncoder.encode(input, StandardCharsets.UTF_8);
+        return URLEncoder.encode(input, "UTF-8");
     }
 
     private KrakenUtils() {
