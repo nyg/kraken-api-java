@@ -20,5 +20,4 @@ mvn clean install
 mvn -q -pl examples exec:java -Dexec.mainClass=dev.andstuff.kraken.example.Examples
 ```
 
-
-[1]: https://www.kraken.com/en-us/help/api
+[1]: https://docs.kraken.com/rest/

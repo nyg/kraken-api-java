@@ -9,7 +9,13 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Generate changelog
+        uses: orhun/git-cliff-action@v2
+        with:
+          args: -vv --latest --strip all
       - name: Create release
-        run: gh release create ${{ github.ref_name}} -F CHANGELOG.md
+        run: gh release create ${{ github.ref_name}} -F git-cliff/CHANGELOG.md
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -85,7 +84,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>${exec-maven-plugin.version}</version>
                 <configuration>
-                    <executable>./changelog.sh</executable>
+                    <executable>./scripts/generate-changelog.sh</executable>
                 </configuration>
             </plugin>
             <plugin>
@@ -95,10 +94,10 @@
                 <configuration>
                     <!-- release:prepare -->
                     <autoVersionSubmodules>true</autoVersionSubmodules>
-                    <tagNameFormat>v@{version}</tagNameFormat>
-                    <signTag>true</signTag>
                     <preparationGoals>clean verify exec:exec</preparationGoals>
-                    <pushChanges>false</pushChanges>
+                    <scmCommentPrefix>chore(release):&#32;</scmCommentPrefix>
+                    <signTag>true</signTag>
+                    <tagNameFormat>v@{version}</tagNameFormat>
                     <!-- release:perform -->
                     <releaseProfiles>maven-central</releaseProfiles>
                 </configuration>
