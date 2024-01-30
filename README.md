@@ -1,6 +1,6 @@
 # A Kraken API Client in Java
 
-![Maven Central](https://img.shields.io/maven-central/v/dev.andstuff.kraken/kraken-api)
+[![Maven Central](https://img.shields.io/maven-central/v/dev.andstuff.kraken/kraken-api)](https://central.sonatype.com/artifact/dev.andstuff.kraken/kraken-api)
 
 Query the [Kraken API][1] in Java.
 
