@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import dev.andstuff.kraken.api.KrakenApi;
 
 public class Examples {
@@ -20,7 +22,7 @@ public class Examples {
         api.setKey(apiKeys.getProperty("key"));
         api.setSecret(apiKeys.getProperty("secret"));
 
-        String response;
+        JsonNode response;
         Map<String, String> input = new HashMap<>();
 
         input.put("pair", "XBTEUR");
@@ -32,21 +34,21 @@ public class Examples {
         response = api.queryPublic(KrakenApi.Method.ASSET_PAIRS, input);
         System.out.println(response);
 
-        input.clear();
-        input.put("asset", "ZEUR");
-        response = api.queryPrivate(KrakenApi.Method.BALANCE, input);
-        System.out.println(response);
-
-        input.clear();
-        input.put("ordertype", "limit");
-        input.put("type", "sell");
-        input.put("volume", "1");
-        input.put("pair", "XLTCZUSD");
-        input.put("price", "1000");
-        input.put("oflags", "post,fciq");
-        input.put("validate", "true");
-        response = api.queryPrivate(KrakenApi.Method.ADD_ORDER, input);
-        System.out.println(response);
+        //        input.clear();
+        //        input.put("asset", "ZEUR");
+        //        response = api.queryPrivate(KrakenApi.Method.BALANCE, input);
+        //        System.out.println(response);
+        //
+        //        input.clear();
+        //        input.put("ordertype", "limit");
+        //        input.put("type", "sell");
+        //        input.put("volume", "1");
+        //        input.put("pair", "XLTCZUSD");
+        //        input.put("price", "1000");
+        //        input.put("oflags", "post,fciq");
+        //        input.put("validate", "true");
+        //        response = api.queryPrivate(KrakenApi.Method.ADD_ORDER, input);
+        //        System.out.println(response);
 
     }
 

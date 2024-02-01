@@ -1,8 +1,6 @@
 package dev.andstuff.kraken.api;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -11,6 +9,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.net.ssl.HttpsURLConnection;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Represents an HTTPS request for querying the Kraken API.
@@ -37,6 +38,8 @@ class ApiRequest {
 
     private static final String AMPERSAND = "&";
     private static final String EQUAL_SIGN = "=";
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     /**
      * The request URL.
@@ -70,7 +73,7 @@ class ApiRequest {
      * @throws IOException if the underlying {@link HttpsURLConnection} could
      *                     not be set up or executed
      */
-    public String execute() throws IOException {
+    public JsonNode execute() throws IOException {
 
         HttpsURLConnection connection = null;
         try {
@@ -100,17 +103,7 @@ class ApiRequest {
             }
 
             // execute request and read response
-            try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-
-                StringBuilder response = new StringBuilder();
-                String line;
-
-                while ((line = in.readLine()) != null) {
-                    response.append(line);
-                }
-
-                return response.toString();
-            }
+            return OBJECT_MAPPER.readTree(connection.getInputStream());
         }
         finally {
             connection.disconnect();

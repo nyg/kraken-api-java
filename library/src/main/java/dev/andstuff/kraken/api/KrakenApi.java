@@ -6,6 +6,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -36,7 +38,7 @@ public class KrakenApi {
      * @throws IllegalArgumentException if the API method is null
      * @throws IOException              if the request could not be created or executed
      */
-    public String queryPublic(Method method, Map<String, String> parameters) throws IOException {
+    public JsonNode queryPublic(Method method, Map<String, String> parameters) throws IOException {
 
         ApiRequest request = new ApiRequest();
         request.setMethod(method);
@@ -55,7 +57,7 @@ public class KrakenApi {
      * @return the API response
      * @throws IOException if the request could not be created or executed
      */
-    public String queryPublic(Method method) throws IOException {
+    public JsonNode queryPublic(Method method) throws IOException {
         return queryPublic(method, null);
     }
 
@@ -71,7 +73,7 @@ public class KrakenApi {
      *                                  could not be found
      * @throws InvalidKeyException      if the HMAC key is invalid
      */
-    public String queryPrivate(Method method, String otp, Map<String, String> parameters)
+    public JsonNode queryPrivate(Method method, String otp, Map<String, String> parameters)
             throws IOException, NoSuchAlgorithmException, InvalidKeyException {
 
         ApiRequest request = new ApiRequest();
@@ -114,21 +116,22 @@ public class KrakenApi {
     /**
      * @see #queryPrivate(Method, String, Map)
      */
-    public String queryPrivate(Method method) throws IOException, InvalidKeyException, NoSuchAlgorithmException {
+    public JsonNode queryPrivate(Method method) throws IOException, InvalidKeyException, NoSuchAlgorithmException {
         return queryPrivate(method, null, null);
     }
 
     /**
      * @see #queryPrivate(Method, String, Map)
      */
-    public String queryPrivate(Method method, String otp) throws IOException, InvalidKeyException, NoSuchAlgorithmException {
+    public JsonNode queryPrivate(Method method, String otp) throws IOException, InvalidKeyException, NoSuchAlgorithmException {
         return queryPrivate(method, otp, null);
     }
 
     /**
      * @see #queryPrivate(Method, String, Map)
      */
-    public String queryPrivate(Method method, Map<String, String> parameters) throws IOException, InvalidKeyException, NoSuchAlgorithmException {
+    public JsonNode queryPrivate(Method method, Map<String, String> parameters)
+            throws IOException, InvalidKeyException, NoSuchAlgorithmException {
         return queryPrivate(method, null, parameters);
     }
 
