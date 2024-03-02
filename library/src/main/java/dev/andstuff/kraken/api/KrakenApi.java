@@ -88,7 +88,7 @@ public class KrakenApi {
         }
 
         // generate nonce
-        String nonce = String.valueOf(System.currentTimeMillis()) + MICRO_SECONDS;
+        String nonce = System.currentTimeMillis() + MICRO_SECONDS;
         parameters.put(NONCE, nonce);
 
         // set the parameters and retrieve the POST data
@@ -143,36 +143,67 @@ public class KrakenApi {
     public enum Method {
 
         /* Public methods */
-        TIME("Time", true),
-        ASSETS("Assets", true),
         ASSET_PAIRS("AssetPairs", true),
-        TICKER("Ticker", true),
-        OHLC("OHLC", true),
+        ASSETS("Assets", true),
         DEPTH("Depth", true),
-        TRADES("Trades", true),
+        OHLC("OHLC", true),
         SPREAD("Spread", true),
+        SYSTEM_STATUS("SystemStatus", true),
+        TICKER("Ticker", true),
+        TIME("Time", true),
+        TRADES("Trades", true),
+
+        // TODO Missing methods
+        //        "/private/AccountTransfer",
+        //        "/private/AddExport",
+        //        "/private/AddOrderBatch",
+        //        "/private/BalanceEx",
+        //        "/private/CancelAll",
+        //        "/private/CancelAllOrdersAfter",
+        //        "/private/CancelOrderBatch",
+        //        "/private/CreateSubaccount",
+        //        "/private/DepositMethods",
+        //        "/private/Earn/Allocate",
+        //        "/private/Earn/AllocateStatus",
+        //        "/private/Earn/Allocations",
+        //        "/private/Earn/Deallocate",
+        //        "/private/Earn/DeallocateStatus",
+        //        "/private/Earn/Strategies",
+        //        "/private/EditOrder",
+        //        "/private/ExportStatus",
+        //        "/private/GetWebSocketsToken",
+        //        "/private/RemoveExport",
+        //        "/private/RetrieveExport",
+        //        "/private/Stake",
+        //        "/private/Staking/Assets",
+        //        "/private/Staking/Pending",
+        //        "/private/Staking/Transactions",
+        //        "/private/Unstake",
+        //        "/private/WalletTransfer",
+        //        "/private/WithdrawAddresses",
+        //        "/private/WithdrawMethods",
 
         /* Private methods */
-        BALANCE("Balance", false),
-        TRADE_BALANCE("TradeBalance", false),
-        OPEN_ORDERS("OpenOrders", false),
-        CLOSED_ORDERS("ClosedOrders", false),
-        QUERY_ORDERS("QueryOrders", false),
-        TRADES_HISTORY("TradesHistory", false),
-        QUERY_TRADES("QueryTrades", false),
-        OPEN_POSITIONS("OpenPositions", false),
-        LEDGERS("Ledgers", false),
-        QUERY_LEDGERS("QueryLedgers", false),
-        TRADE_VOLUME("TradeVolume", false),
         ADD_ORDER("AddOrder", false),
+        BALANCE("Balance", false),
         CANCEL_ORDER("CancelOrder", false),
-        DEPOSIT_METHODS("DepositMethods", false),
+        CLOSED_ORDERS("ClosedOrders", false),
         DEPOSIT_ADDRESSES("DepositAddresses", false),
+        DEPOSIT_METHODS("DepositMethods", false),
         DEPOSIT_STATUS("DepositStatus", false),
-        WITHDRAW_INFO("WithdrawInfo", false),
+        LEDGERS("Ledgers", false),
+        OPEN_ORDERS("OpenOrders", false),
+        OPEN_POSITIONS("OpenPositions", false),
+        QUERY_LEDGERS("QueryLedgers", false),
+        QUERY_ORDERS("QueryOrders", false),
+        QUERY_TRADES("QueryTrades", false),
+        TRADES_HISTORY("TradesHistory", false),
+        TRADE_BALANCE("TradeBalance", false),
+        TRADE_VOLUME("TradeVolume", false),
         WITHDRAW("Withdraw", false),
-        WITHDRAW_STATUS("WithdrawStatus", false),
-        WITHDRAW_CANCEL("WithdrawCancel", false);
+        WITHDRAW_CANCEL("WithdrawCancel", false),
+        WITHDRAW_INFO("WithdrawInfo", false),
+        WITHDRAW_STATUS("WithdrawStatus", false);
 
         public final String name;
         public final boolean isPublic;

@@ -11,16 +11,4 @@
 
     <artifactId>kraken-api</artifactId>
 
-    <dependencies>
-        <!-- Third-party dependencies -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
-    </dependencies>
-
 </project>
