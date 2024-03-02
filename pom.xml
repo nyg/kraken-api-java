@@ -52,6 +52,7 @@
         <maven.compiler.target>8</maven.compiler.target>
 
         <!-- Third-party dependencies -->
+        <jackson.version>2.16.1</jackson.version>
         <lombok.version>1.18.30</lombok.version>
 
         <!-- Maven plugins -->
@@ -68,6 +69,14 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- Third-party dependencies -->
+            <dependency>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${jackson.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
@@ -76,6 +85,18 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <dependencies>
+        <!-- Third-party dependencies -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>

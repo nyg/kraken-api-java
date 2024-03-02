@@ -1,12 +1,15 @@
 package dev.andstuff.kraken.example;
 
+import static dev.andstuff.kraken.example.ExampleHelper.readPropertiesFromFile;
+
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 import dev.andstuff.kraken.api.KrakenApi;
 
@@ -20,7 +23,7 @@ public class Examples {
         api.setKey(apiKeys.getProperty("key"));
         api.setSecret(apiKeys.getProperty("secret"));
 
-        String response;
+        JsonNode response;
         Map<String, String> input = new HashMap<>();
 
         input.put("pair", "XBTEUR");
@@ -47,18 +50,5 @@ public class Examples {
         input.put("validate", "true");
         response = api.queryPrivate(KrakenApi.Method.ADD_ORDER, input);
         System.out.println(response);
-
-    }
-
-    private static Properties readPropertiesFromFile(String path) {
-        try {
-            InputStream stream = Examples.class.getResourceAsStream(path);
-            Properties properties = new Properties();
-            properties.load(stream);
-            return properties;
-        }
-        catch (IOException e) {
-            throw new RuntimeException(String.format("Could not read properties file: %s", path));
-        }
     }
 }
