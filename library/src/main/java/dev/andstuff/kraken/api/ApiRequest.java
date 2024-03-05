@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -106,7 +108,9 @@ class ApiRequest {
             return OBJECT_MAPPER.readTree(connection.getInputStream());
         }
         finally {
-            connection.disconnect();
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
     }
 
@@ -115,18 +119,21 @@ class ApiRequest {
      *
      * @param method the API method
      * @return the path of the request taking the method into account
-     * @throws MalformedURLException if the request URL could not be created
-     *                               with the method name
      */
-    public String setMethod(KrakenApi.Method method) throws MalformedURLException {
+    public String setMethod(KrakenApi.Method method) {
 
         if (method == null) {
             throw new IllegalArgumentException(ERROR_NULL_METHOD);
         }
 
         isPublic = method.isPublic;
-        url = new URL((isPublic ? PUBLIC_URL : PRIVATE_URL) + method.name);
-        return url.getPath();
+        try {
+            url = new URI((isPublic ? PUBLIC_URL : PRIVATE_URL) + method.name).toURL();
+            return url.getPath();
+        }
+        catch (MalformedURLException | URISyntaxException e) {
+            throw new IllegalStateException("Could not set method URL", e);
+        }
     }
 
     /**
