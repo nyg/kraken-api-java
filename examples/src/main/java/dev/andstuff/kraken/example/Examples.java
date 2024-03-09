@@ -44,6 +44,9 @@ public class Examples {
         JsonNode ticker = publicAPI.query(KrakenAPI.Public.TICKER, Map.of("pair", "XBTEUR"));
         System.out.println(ticker);
 
+        JsonNode trades = publicAPI.queryPublic("Trades", Map.of("pair", "XBTUSD", "count", "1"));
+        System.out.println(trades);
+
         /* Private endpoint example */
 
         Properties apiKeys = readFromFile("/api-keys.properties");
