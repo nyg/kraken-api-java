@@ -1,6 +1,6 @@
 package dev.andstuff.kraken.example;
 
-import static dev.andstuff.kraken.example.ExampleHelper.readPropertiesFromFile;
+import static dev.andstuff.kraken.example.PropertiesHelper.readFromFile;
 
 import java.util.List;
 import java.util.Map;
@@ -8,12 +8,11 @@ import java.util.Properties;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import dev.andstuff.kraken.api.KrakenApi;
-import dev.andstuff.kraken.api.neo.KrakenAPI;
-import dev.andstuff.kraken.api.neo.model.endpoint.market.response.AssetInfo;
-import dev.andstuff.kraken.api.neo.model.endpoint.market.response.AssetPair;
-import dev.andstuff.kraken.api.neo.model.endpoint.market.response.ServerTime;
-import dev.andstuff.kraken.api.neo.model.endpoint.market.response.SystemStatus;
+import dev.andstuff.kraken.api.KrakenAPI;
+import dev.andstuff.kraken.api.model.endpoint.market.response.AssetInfo;
+import dev.andstuff.kraken.api.model.endpoint.market.response.AssetPair;
+import dev.andstuff.kraken.api.model.endpoint.market.response.ServerTime;
+import dev.andstuff.kraken.api.model.endpoint.market.response.SystemStatus;
 
 public class Examples {
 
@@ -42,42 +41,26 @@ public class Examples {
         Map<String, AssetPair> pairs2 = publicAPI.assetPairs(List.of("DOT/USD", "ADA/USD"), AssetPair.Info.MARGIN);
         System.out.println(pairs2);
 
-        JsonNode ticker = publicAPI.fetchPublic(KrakenApi.Method.TICKER.name, Map.of("pair", "XBTEUR"));
+        JsonNode ticker = publicAPI.query(KrakenAPI.Public.TICKER, Map.of("pair", "XBTEUR"));
         System.out.println(ticker);
 
         /* Private endpoint example */
 
-        Properties apiKeys = readPropertiesFromFile("/api-keys.properties");
+        Properties apiKeys = readFromFile("/api-keys.properties");
 
         KrakenAPI api = new KrakenAPI(apiKeys.getProperty("key"), apiKeys.getProperty("secret"));
 
-        //
-        //        JsonNode response;
-        //        Map<String, String> input = new HashMap<>();
-        //
-        //        input.put("pair", "XBTEUR");
-        //        response = api.queryPublic(KrakenApi.Method.TICKER, input);
-        //        System.out.println(response);
-        //
-        //        input.clear();
-        //        input.put("pair", "XBTUSD,XLTCZUSD");
-        //        response = api.queryPublic(KrakenApi.Method.ASSET_PAIRS, input);
-        //        System.out.println(response);
-        //
-        //        input.clear();
-        //        input.put("asset", "ZEUR");
-        //        response = api.queryPrivate(KrakenApi.Method.BALANCE, input);
-        //        System.out.println(response);
-        //
-        //        input.clear();
-        //        input.put("ordertype", "limit");
-        //        input.put("type", "sell");
-        //        input.put("volume", "1");
-        //        input.put("pair", "XLTCZUSD");
-        //        input.put("price", "1000");
-        //        input.put("oflags", "post,fciq");
-        //        input.put("validate", "true");
-        //        response = api.queryPrivate(KrakenApi.Method.ADD_ORDER, input);
-        //        System.out.println(response);
+        JsonNode balance = api.query(KrakenAPI.Private.BALANCE);
+        System.out.println(balance);
+
+        JsonNode order = api.query(KrakenAPI.Private.ADD_ORDER, Map.of(
+                "ordertype", "limit",
+                "type", "sell",
+                "volume", "1",
+                "pair", "XLTCZUSD",
+                "price", "1000",
+                "oflags", "post,fciq",
+                "validate", "true"));
+        System.out.println(order);
     }
 }
