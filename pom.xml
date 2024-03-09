@@ -91,6 +91,14 @@
             <artifactId>jackson-databind</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jdk8</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
@@ -114,9 +122,12 @@
                     <!-- release:prepare -->
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <preparationGoals>clean verify exec:exec</preparationGoals>
+                    <!-- @formatter:off -->
                     <scmCommentPrefix>chore(release): </scmCommentPrefix>
+                    <!-- @formatter:on -->
                     <signTag>true</signTag>
                     <tagNameFormat>v@{version}</tagNameFormat>
+
                     <!-- release:perform -->
                     <releaseProfiles>maven-central</releaseProfiles>
                 </configuration>

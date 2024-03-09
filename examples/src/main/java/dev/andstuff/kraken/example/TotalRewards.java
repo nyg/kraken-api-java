@@ -1,6 +1,6 @@
 package dev.andstuff.kraken.example;
 
-import static dev.andstuff.kraken.example.ExampleHelper.readPropertiesFromFile;
+import static dev.andstuff.kraken.example.PropertiesHelper.readFromFile;
 import static java.util.Arrays.asList;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.groupingBy;
@@ -21,7 +21,7 @@ import java.util.Properties;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import dev.andstuff.kraken.api.KrakenApi;
+import dev.andstuff.kraken.api.KrakenAPI;
 
 /**
  * TODO Group by year
@@ -30,23 +30,20 @@ public class TotalRewards {
 
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException, InvalidKeyException, InterruptedException {
 
-        Properties apiKeys = readPropertiesFromFile("/api-keys.properties");
+        Properties apiKeys = readFromFile("/api-keys.properties");
+        KrakenAPI api = new KrakenAPI(apiKeys.getProperty("key"), apiKeys.getProperty("secret"));
 
-        KrakenApi api = new KrakenApi();
-        api.setKey(apiKeys.getProperty("key"));
-        api.setSecret(apiKeys.getProperty("secret"));
-
-        Map<String, String> params = new HashMap<>();
-        params.put("type", "staking");
-        params.put("without_count", "true");
-        params.put("ofs", "0");
+        Map<String, String> params = Map.of(
+                "type", "staking",
+                "without_count", "true",
+                "ofs", "0");
 
         Map<String, JsonNode> rewards = new HashMap<>();
 
         boolean hasNext = true;
         while (hasNext) {
 
-            JsonNode response = api.queryPrivate(KrakenApi.Method.LEDGERS, params);
+            JsonNode response = api.query(KrakenAPI.Private.LEDGERS, params);
             params.put("ofs", String.valueOf(Integer.parseInt(params.get("ofs")) + 50));
             System.out.printf("Fetched %s rewards%n", params.get("ofs"));
 
@@ -107,12 +104,12 @@ public class TotalRewards {
         System.out.printf("Total USD: %s%n", totalRewardAmountUsd);
     }
 
-    private static BigDecimal fetchRate(String asset, KrakenApi api) {
+    private static BigDecimal fetchRate(String asset, KrakenAPI api) {
         try {
             Map<String, String> tickerParams = new HashMap<>();
             tickerParams.put("pair", asset + "USD");
 
-            JsonNode tickerResponse = api.queryPublic(KrakenApi.Method.TICKER, tickerParams).findValue("result");
+            JsonNode tickerResponse = api.query(KrakenAPI.Public.TICKER, tickerParams).findValue("result");
             return new BigDecimal(tickerResponse.findValue(tickerResponse.fieldNames().next()).findValue("c").get(0).textValue());
         }
         catch (Exception e) {
