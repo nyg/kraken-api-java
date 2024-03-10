@@ -13,48 +13,48 @@ import dev.andstuff.kraken.api.model.endpoint.market.response.AssetInfo;
 import dev.andstuff.kraken.api.model.endpoint.market.response.AssetPair;
 import dev.andstuff.kraken.api.model.endpoint.market.response.ServerTime;
 import dev.andstuff.kraken.api.model.endpoint.market.response.SystemStatus;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class Examples {
 
     public static void main(String[] args) {
-
 
         /* Public endpoint examples */
 
         KrakenAPI publicAPI = new KrakenAPI();
 
         ServerTime serverTime = publicAPI.serverTime();
-        System.out.println(serverTime);
+        log.info("{}", serverTime);
 
         SystemStatus systemStatus = publicAPI.systemStatus();
-        System.out.println(systemStatus);
+        log.info("{}", systemStatus);
 
         Map<String, AssetInfo> assets1 = publicAPI.assetInfo(List.of("BTC", "ETH"));
-        System.out.println(assets1);
+        log.info("{}", assets1);
 
         Map<String, AssetInfo> assets2 = publicAPI.assetInfo(List.of("DOT", "ADA"), "currency");
-        System.out.println(assets2);
+        log.info("{}", assets2);
 
         Map<String, AssetPair> pairs1 = publicAPI.assetPairs(List.of("ETH/BTC", "ETH/USD"));
-        System.out.println(pairs1);
+        log.info("{}", pairs1);
 
         Map<String, AssetPair> pairs2 = publicAPI.assetPairs(List.of("DOT/USD", "ADA/USD"), AssetPair.Info.MARGIN);
-        System.out.println(pairs2);
+        log.info("{}", pairs2);
 
         JsonNode ticker = publicAPI.query(KrakenAPI.Public.TICKER, Map.of("pair", "XBTEUR"));
-        System.out.println(ticker);
+        log.info("{}", ticker);
 
         JsonNode trades = publicAPI.queryPublic("Trades", Map.of("pair", "XBTUSD", "count", "1"));
-        System.out.println(trades);
+        log.info("{}", trades);
 
         /* Private endpoint example */
 
         Properties apiKeys = readFromFile("/api-keys.properties");
-
         KrakenAPI api = new KrakenAPI(apiKeys.getProperty("key"), apiKeys.getProperty("secret"));
 
         JsonNode balance = api.query(KrakenAPI.Private.BALANCE);
-        System.out.println(balance);
+        log.info("{}", balance);
 
         JsonNode order = api.query(KrakenAPI.Private.ADD_ORDER, Map.of(
                 "ordertype", "limit",
@@ -64,6 +64,6 @@ public class Examples {
                 "price", "1000",
                 "oflags", "post,fciq",
                 "validate", "true"));
-        System.out.println(order);
+        log.info("{}", order);
     }
 }

@@ -21,10 +21,12 @@ import dev.andstuff.kraken.api.model.endpoint.Endpoint;
 import dev.andstuff.kraken.api.model.endpoint.priv.PostParams;
 import dev.andstuff.kraken.api.model.endpoint.priv.PrivateEndpoint;
 import dev.andstuff.kraken.api.model.endpoint.pub.PublicEndpoint;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * {@link KrakenRestRequester} implementation using {@link HttpsURLConnection}.
  */
+@Slf4j
 public class DefaultKrakenRestRequester implements KrakenRestRequester {
 
     private static final ObjectMapper OBJECT_MAPPER;
@@ -51,7 +53,7 @@ public class DefaultKrakenRestRequester implements KrakenRestRequester {
     public <T> T execute(PublicEndpoint<T> endpoint) {
         try {
             HttpsURLConnection connection = createHttpsConnection(endpoint);
-            System.out.printf("Fetching %s%n", connection.getURL());
+            log.info("Fetching {}", connection.getURL());
             return parseResponse(connection.getInputStream(), endpoint);
         }
         catch (IOException e) {
@@ -72,7 +74,7 @@ public class DefaultKrakenRestRequester implements KrakenRestRequester {
 
         try {
             HttpsURLConnection connection = createHttpsConnection(endpoint);
-            System.out.printf("Fetching %s%n", connection.getURL());
+            log.info("Fetching {}", connection.getURL());
             connection.addRequestProperty("API-Key", credentials.getKey());
             connection.addRequestProperty("API-Sign", credentials.sign(connection.getURL(), nonce, postData));
             connection.setDoOutput(true);
