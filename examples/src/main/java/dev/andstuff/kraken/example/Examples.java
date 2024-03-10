@@ -51,7 +51,6 @@ public class Examples {
         /* Private endpoint example */
 
         Properties apiKeys = readFromFile("/api-keys.properties");
-
         KrakenAPI api = new KrakenAPI(apiKeys.getProperty("key"), apiKeys.getProperty("secret"));
 
         JsonNode balance = api.query(KrakenAPI.Private.BALANCE);

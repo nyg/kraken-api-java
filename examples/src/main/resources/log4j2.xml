@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Configuration status="info">
     <Properties>
-        <Property name="defaultPattern">[%d{ISO8601}] [%c{1.1.1.2.}] [%t] [%p] %m%n</Property>
+        <Property name="defaultPattern">[%d{ISO8601}] [%-20.20c{1.}] [%-7.7t] [%-5.5p] %m%n</Property>
     </Properties>
 
     <Appenders>

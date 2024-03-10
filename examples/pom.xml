@@ -11,21 +11,27 @@
 
     <artifactId>kraken-api-examples</artifactId>
 
+    <properties>
+        <log4j.version>2.23.0</log4j.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>dev.andstuff.kraken</groupId>
             <artifactId>kraken-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-        <!-- Third-party dependencies -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
+            <version>${log4j.version}</version>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j2-impl</artifactId>
+            <version>${log4j.version}</version>
+            <scope>runtime</scope>
         </dependency>
     </dependencies>
 
