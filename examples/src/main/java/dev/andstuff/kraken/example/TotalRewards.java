@@ -4,14 +4,11 @@ import static dev.andstuff.kraken.example.PropertiesHelper.readFromFile;
 import static java.util.Arrays.asList;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.math.BigDecimal;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,15 +25,15 @@ import dev.andstuff.kraken.api.KrakenAPI;
  */
 public class TotalRewards {
 
-    public static void main(String[] args) throws IOException, NoSuchAlgorithmException, InvalidKeyException, InterruptedException {
+    public static void main(String[] args) throws IOException, InterruptedException {
 
         Properties apiKeys = readFromFile("/api-keys.properties");
         KrakenAPI api = new KrakenAPI(apiKeys.getProperty("key"), apiKeys.getProperty("secret"));
 
-        Map<String, String> params = Map.of(
-                "type", "staking",
-                "without_count", "true",
-                "ofs", "0");
+        Map<String, String> params = new HashMap<>();
+        params.put("type", "staking");
+        params.put("without_count", "true");
+        params.put("ofs", "0");
 
         Map<String, JsonNode> rewards = new HashMap<>();
 
@@ -76,7 +73,7 @@ public class TotalRewards {
             List<JsonNode> assetRewards = groupedRewards.get(asset).stream()
                     .filter(e -> !asList("migration", "spottostaking").contains(e.findValue("subtype").textValue()))
                     .sorted(comparing(e -> e.get("time").asInt()))
-                    .collect(toList());
+                    .toList();
 
             BigDecimal assetTotalRewardAmount = assetRewards.stream()
                     .map(e -> new BigDecimal(e.findValue("amount").textValue())

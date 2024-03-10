@@ -52,6 +52,8 @@
         <!-- Third-party dependencies -->
         <jackson.version>2.16.1</jackson.version>
         <lombok.version>1.18.30</lombok.version>
+        <slf4j.version>2.0.12</slf4j.version>
+        <log4j.version>2.23.0</log4j.version>
 
         <!-- Maven plugins -->
         <maven-deploy-plugin.version>3.1.1</maven-deploy-plugin.version>
@@ -81,6 +83,23 @@
                 <version>${lombok.version}</version>
                 <scope>provided</scope>
             </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-core</artifactId>
+                <version>${log4j.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-slf4j2-impl</artifactId>
+                <version>${log4j.version}</version>
+                <scope>runtime</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -101,6 +120,10 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
     </dependencies>
 
