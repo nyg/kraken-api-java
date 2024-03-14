@@ -3,3 +3,4 @@ target
 *.iml
 .idea
 api-keys.properties
+*.txt

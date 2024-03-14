@@ -5,6 +5,12 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import dev.andstuff.kraken.api.model.endpoint.account.LedgerEntriesEndpoint;
+import dev.andstuff.kraken.api.model.endpoint.account.LedgerInfoEndpoint;
+import dev.andstuff.kraken.api.model.endpoint.account.params.LedgerEntriesParams;
+import dev.andstuff.kraken.api.model.endpoint.account.params.LedgerInfoParams;
+import dev.andstuff.kraken.api.model.endpoint.account.response.LedgerEntry;
+import dev.andstuff.kraken.api.model.endpoint.account.response.LedgerInfo;
 import dev.andstuff.kraken.api.model.endpoint.market.AssetInfoEndpoint;
 import dev.andstuff.kraken.api.model.endpoint.market.AssetPairEndpoint;
 import dev.andstuff.kraken.api.model.endpoint.market.ServerTimeEndpoint;
@@ -46,6 +52,7 @@ public class KrakenAPI {
         return restRequester.execute(new SystemStatusEndpoint());
     }
 
+    // TODO maybe assets() ? + return type Assets that can return both map and list
     public Map<String, AssetInfo> assetInfo(List<String> assets) {
         return restRequester.execute(new AssetInfoEndpoint(assets));
     }
@@ -60,6 +67,16 @@ public class KrakenAPI {
 
     public Map<String, AssetPair> assetPairs(List<String> pair, AssetPair.Info info) {
         return restRequester.execute(new AssetPairEndpoint(pair, info));
+    }
+
+    /* Implemented private endpoints */
+
+    public LedgerInfo ledgerInfo(LedgerInfoParams params) {
+        return restRequester.execute(new LedgerInfoEndpoint(params));
+    }
+
+    public Map<String, LedgerEntry> ledgerEntries(LedgerEntriesParams params) {
+        return restRequester.execute(new LedgerEntriesEndpoint(params));
     }
 
     /* Query unimplemented endpoints */

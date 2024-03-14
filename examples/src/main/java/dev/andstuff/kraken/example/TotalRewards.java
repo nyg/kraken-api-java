@@ -9,9 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -19,10 +17,15 @@ import java.util.Properties;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import dev.andstuff.kraken.api.KrakenAPI;
+import dev.andstuff.kraken.api.model.endpoint.account.params.LedgerInfoParams;
+import dev.andstuff.kraken.api.model.endpoint.account.response.LedgerEntry;
+import dev.andstuff.kraken.api.model.endpoint.account.response.LedgerInfo;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * TODO Group by year
  */
+@Slf4j
 public class TotalRewards {
 
     public static void main(String[] args) throws IOException, InterruptedException {
@@ -30,38 +33,30 @@ public class TotalRewards {
         Properties apiKeys = readFromFile("/api-keys.properties");
         KrakenAPI api = new KrakenAPI(apiKeys.getProperty("key"), apiKeys.getProperty("secret"));
 
-        Map<String, String> params = new HashMap<>();
-        params.put("type", "staking");
-        params.put("without_count", "true");
-        params.put("ofs", "0");
+        LedgerInfoParams params = LedgerInfoParams.builder()
+                .assetType(LedgerInfoParams.Type.STAKING)
+                .withoutCount(true)
+                .build();
 
-        Map<String, JsonNode> rewards = new HashMap<>();
+        Map<String, LedgerEntry> rewards = new HashMap<>();
 
         boolean hasNext = true;
         while (hasNext) {
 
-            JsonNode response = api.query(KrakenAPI.Private.LEDGERS, params);
-            params.put("ofs", String.valueOf(Integer.parseInt(params.get("ofs")) + 50));
-            System.out.printf("Fetched %s rewards%n", params.get("ofs"));
+            LedgerInfo ledger = api.ledgerInfo(params);
+            params = params.withNextResultOffset();
 
-            JsonNode ledgerEntries = response.findValue("result").findValue("ledger");
-            Iterator<Map.Entry<String, JsonNode>> fields = ledgerEntries.fields();
-            hasNext = ledgerEntries.size() == 50;
+            int rewardCount = ledger.entries().size();
+            log.info("Fetched {} rewards", rewardCount);
+            hasNext = rewardCount == 50;
 
-            while (fields.hasNext()) {
-                Map.Entry<String, JsonNode> rewardEntry = fields.next();
-                rewards.put(rewardEntry.getKey(), rewardEntry.getValue());
-            }
-
+            rewards.putAll(ledger.entries());
             Thread.sleep(2000);
         }
 
-        Map<String, List<JsonNode>> groupedRewards = rewards.values()
-                .stream()
-                .collect(groupingBy(e -> {
-                    String asset = e.findValue("asset").textValue();
-                    return asset.equals("XETH") ? "ETH" : asset.split("[0-9.]")[0];
-                }));
+        Map<String, List<LedgerEntry>> rewardsByAsset = rewards
+                .values().stream()
+                .collect(groupingBy(e -> e.asset().equals("XETH") ? "ETH" : e.asset().split("[0-9.]")[0]));
 
         String fileName = "rewards.txt";
         FileOutputStream fileOutputStream = new FileOutputStream(fileName);
@@ -69,15 +64,14 @@ public class TotalRewards {
         System.setOut(printStream);
 
         BigDecimal totalRewardAmountUsd = BigDecimal.ZERO;
-        for (String asset : groupedRewards.keySet()) {
-            List<JsonNode> assetRewards = groupedRewards.get(asset).stream()
-                    .filter(e -> !asList("migration", "spottostaking").contains(e.findValue("subtype").textValue()))
-                    .sorted(comparing(e -> e.get("time").asInt()))
+        for (String asset : rewardsByAsset.keySet()) {
+            List<LedgerEntry> assetRewards = rewardsByAsset.get(asset).stream()
+                    .filter(e -> !asList("migration", "spottostaking").contains(e.subType()))
+                    .sorted(comparing(LedgerEntry::time))
                     .toList();
 
             BigDecimal assetTotalRewardAmount = assetRewards.stream()
-                    .map(e -> new BigDecimal(e.findValue("amount").textValue())
-                            .subtract(new BigDecimal(e.findValue("fee").textValue())))
+                    .map(LedgerEntry::netAmount)
                     .reduce(BigDecimal::add)
                     .orElse(BigDecimal.ONE.negate());
             BigDecimal assetRate = fetchRate(asset, api);
@@ -90,11 +84,7 @@ public class TotalRewards {
             System.out.println("=================================================================");
 
             assetRewards.forEach(reward -> System.out.printf("%-10s %s %16s %16s %s%n",
-                    reward.get("asset").textValue(),
-                    Instant.ofEpochSecond(reward.get("time").asLong()),
-                    new BigDecimal(reward.get("amount").textValue()),
-                    new BigDecimal(reward.get("fee").textValue()),
-                    reward.get("subtype").textValue()));
+                    reward.asset(), reward.time(), reward.amount(), reward.fee(), reward.subType()));
         }
 
         System.out.println();
