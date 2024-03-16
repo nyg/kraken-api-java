@@ -15,10 +15,12 @@ import dev.andstuff.kraken.api.model.endpoint.market.AssetInfoEndpoint;
 import dev.andstuff.kraken.api.model.endpoint.market.AssetPairEndpoint;
 import dev.andstuff.kraken.api.model.endpoint.market.ServerTimeEndpoint;
 import dev.andstuff.kraken.api.model.endpoint.market.SystemStatusEndpoint;
+import dev.andstuff.kraken.api.model.endpoint.market.TickerEndpoint;
 import dev.andstuff.kraken.api.model.endpoint.market.response.AssetInfo;
 import dev.andstuff.kraken.api.model.endpoint.market.response.AssetPair;
 import dev.andstuff.kraken.api.model.endpoint.market.response.ServerTime;
 import dev.andstuff.kraken.api.model.endpoint.market.response.SystemStatus;
+import dev.andstuff.kraken.api.model.endpoint.market.response.Ticker;
 import dev.andstuff.kraken.api.model.endpoint.priv.JsonPrivateEndpoint;
 import dev.andstuff.kraken.api.model.endpoint.pub.JsonPublicEndpoint;
 import dev.andstuff.kraken.api.rest.DefaultKrakenRestRequester;
@@ -52,7 +54,7 @@ public class KrakenAPI {
         return restRequester.execute(new SystemStatusEndpoint());
     }
 
-    // TODO maybe assets() ? + return type Assets that can return both map and list
+    // TODO maybe return type Assets that can return both map and list
     public Map<String, AssetInfo> assetInfo(List<String> assets) {
         return restRequester.execute(new AssetInfoEndpoint(assets));
     }
@@ -61,12 +63,16 @@ public class KrakenAPI {
         return restRequester.execute(new AssetInfoEndpoint(assets, assetClass));
     }
 
-    public Map<String, AssetPair> assetPairs(List<String> pair) {
-        return restRequester.execute(new AssetPairEndpoint(pair));
+    public Map<String, AssetPair> assetPairs(List<String> pairs) {
+        return restRequester.execute(new AssetPairEndpoint(pairs));
     }
 
     public Map<String, AssetPair> assetPairs(List<String> pair, AssetPair.Info info) {
         return restRequester.execute(new AssetPairEndpoint(pair, info));
+    }
+
+    public Map<String, Ticker> ticker(List<String> pairs) {
+        return restRequester.execute(new TickerEndpoint(pairs));
     }
 
     /* Implemented private endpoints */

@@ -14,16 +14,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 import dev.andstuff.kraken.api.KrakenAPI;
+import dev.andstuff.kraken.api.model.KrakenException;
 import dev.andstuff.kraken.api.model.endpoint.account.params.LedgerInfoParams;
 import dev.andstuff.kraken.api.model.endpoint.account.response.LedgerEntry;
 import dev.andstuff.kraken.api.model.endpoint.account.response.LedgerInfo;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * TODO Group by year
+ * TODO
+ * - Group by year
+ * - One csv file with staking  rewards
+ * - Another with summary (asset, years, total)
  */
 @Slf4j
 public class TotalRewards {
@@ -56,7 +58,7 @@ public class TotalRewards {
 
         Map<String, List<LedgerEntry>> rewardsByAsset = rewards
                 .values().stream()
-                .collect(groupingBy(e -> e.asset().equals("XETH") ? "ETH" : e.asset().split("[0-9.]")[0]));
+                .collect(groupingBy(TotalRewards::extractAsset));
 
         String fileName = "rewards.txt";
         FileOutputStream fileOutputStream = new FileOutputStream(fileName);
@@ -93,15 +95,23 @@ public class TotalRewards {
 
     private static BigDecimal fetchRate(String asset, KrakenAPI api) {
         try {
-            Map<String, String> tickerParams = new HashMap<>();
-            tickerParams.put("pair", asset + "USD");
-
-            JsonNode tickerResponse = api.query(KrakenAPI.Public.TICKER, tickerParams).findValue("result");
-            return new BigDecimal(tickerResponse.findValue(tickerResponse.fieldNames().next()).findValue("c").get(0).textValue());
+            String referenceAsset = "USD";
+            return asset.equals(referenceAsset)
+                    ? BigDecimal.ONE
+                    : api.ticker(List.of(asset + referenceAsset))
+                            .values().stream()
+                            .findAny().orElseThrow()
+                            .lastTrade().price();
         }
-        catch (Exception e) {
-            System.err.printf("Couldn't fetch rate for %s%n", asset);
+        catch (KrakenException e) {
+            log.error("Couldn't fetch rate for {}", asset);
             return BigDecimal.ONE.negate();
         }
+    }
+
+    private static String extractAsset(LedgerEntry ledgerEntry) {
+        String rawAsset = ledgerEntry.asset();
+        boolean originalAsset = rawAsset.matches("^([XZ])([A-Z]{3})$");
+        return originalAsset ? rawAsset.substring(1, 4) : rawAsset.split("[0-9.]")[0];
     }
 }
