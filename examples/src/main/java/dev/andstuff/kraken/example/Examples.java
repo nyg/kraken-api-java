@@ -1,6 +1,6 @@
 package dev.andstuff.kraken.example;
 
-import static dev.andstuff.kraken.example.PropertiesHelper.readFromFile;
+import static dev.andstuff.kraken.example.helper.PropertiesHelper.readFromFile;
 
 import java.util.List;
 import java.util.Map;

@@ -4,3 +4,4 @@ target
 .idea
 api-keys.properties
 *.txt
+*.csv

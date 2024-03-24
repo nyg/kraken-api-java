@@ -13,6 +13,7 @@
 
     <properties>
         <log4j.version>2.23.0</log4j.version>
+        <opencsv.version>5.9</opencsv.version>
     </properties>
 
     <dependencies>
@@ -21,6 +22,8 @@
             <artifactId>kraken-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <!-- Logging -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
@@ -32,6 +35,13 @@
             <artifactId>log4j-slf4j2-impl</artifactId>
             <version>${log4j.version}</version>
             <scope>runtime</scope>
+        </dependency>
+
+        <!-- Third-party -->
+        <dependency>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>${opencsv.version}</version>
         </dependency>
     </dependencies>
 

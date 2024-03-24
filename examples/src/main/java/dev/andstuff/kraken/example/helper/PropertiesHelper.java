@@ -1,4 +1,4 @@
-package dev.andstuff.kraken.example;
+package dev.andstuff.kraken.example.helper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,7 +12,7 @@ public final class PropertiesHelper {
 
     public static Properties readFromFile(String path) {
         try {
-            InputStream stream = Examples.class.getResourceAsStream(path);
+            InputStream stream = PropertiesHelper.class.getResourceAsStream(path);
             Properties properties = new Properties();
             properties.load(stream);
             return properties;
