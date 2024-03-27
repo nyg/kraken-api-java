@@ -2,12 +2,13 @@ package dev.andstuff.kraken.api.model.endpoint.account.response;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.ZoneId;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.With;
 
-public record LedgerEntry(@With String id, // TODO
+public record LedgerEntry(@With String id, // FIXME
                           @JsonProperty("refid") String referenceId,
                           Instant time,
                           Type type,
@@ -18,12 +19,9 @@ public record LedgerEntry(@With String id, // TODO
                           BigDecimal fee,
                           BigDecimal balance) {
 
-    public BigDecimal netAmount() {
-        return amount.subtract(fee);
-    }
-
     /**
-     * Attempts to extract the underlying asset, e.g. DOT.28S returns DOT, XXBT returns XBT, ZUSD returns USD.
+     * Attempts to extract the underlying asset, e.g. DOT.28S returns DOT, XXBT
+     * returns XBT, ZUSD returns USD.
      *
      * @return the underlying asset
      */
@@ -31,6 +29,18 @@ public record LedgerEntry(@With String id, // TODO
         return asset.matches("^([XZ])([A-Z]{3})$")
                 ? asset.substring(1, 4)
                 : asset.split("[0-9.]")[0];
+    }
+
+    public BigDecimal netAmount() {
+        return amount.subtract(fee);
+    }
+
+    public boolean isStakingReward() {
+        return type == Type.STAKING && (subType == null || subType.isEmpty());
+    }
+
+    public int year() {
+        return time.atZone(ZoneId.of("UTC")).getYear();
     }
 
     public enum Type {
@@ -51,10 +61,10 @@ public record LedgerEntry(@With String id, // TODO
         DIVIDEND,
         SALE,
         CONVERSION,
-        NFTTRADE, // TODO
+        NFTTRADE, // FIXME
         NFTCREATORFEE,
         NFTREBATE,
         CUSTODYTRANSFER,
-        // TODO not implemented
+        // FIXME not implemented
     }
 }

@@ -45,6 +45,10 @@ public class DefaultKrakenRestRequester implements KrakenRestRequester {
         this.credentials = null;
     }
 
+    public DefaultKrakenRestRequester(KrakenCredentials credentials) {
+        this.credentials = credentials;
+    }
+
     public DefaultKrakenRestRequester(String key, String secret) {
         this.credentials = new KrakenCredentials(key, secret);
     }

@@ -16,29 +16,50 @@ import java.util.stream.Stream;
 import com.opencsv.CSVWriter;
 
 import dev.andstuff.kraken.example.reward.AssetRates;
-import dev.andstuff.kraken.example.reward.RewardAggregate;
+import dev.andstuff.kraken.example.reward.AssetRewards;
+import dev.andstuff.kraken.example.reward.StakingRewards;
 
 public class CsvYearlyAssetRewards {
 
-    private final List<String> headers;
-    private final Map<String, List<BigDecimal>> assetRewardRows;
+    private final String[] headers;
+    private final List<String[]> assetRewardRows;
 
-    public CsvYearlyAssetRewards(RewardAggregate aggregate, AssetRates rates) {
+    public CsvYearlyAssetRewards(StakingRewards rewards, AssetRates rates) {
+        this.headers = buildHeaderRow(rewards.getYears());
+        this.assetRewardRows = buildRewardRows(rewards, rates);
+    }
 
-        // build header row - adding columns for fiat valuation
-        Set<Integer> years = aggregate.getYears();
-        headers = years.stream().flatMap(e -> Stream.of(e.toString(), "")).collect(toList());
+    public void writeToFile(String fileName) {
+        try (CSVWriter writer = new CSVWriter(new FileWriter(fileName))) {
+            writer.writeNext(headers);
+            writer.writeAll(assetRewardRows);
+        } catch (IOException e) {
+            throw new RuntimeException("Couldn't write reward summary to file", e);
+        }
+    }
+
+    /**
+     * Build header row, adding columns for fiat valuation.
+     *
+     * @return an array of String: Asset, y1, _, y2, _, …, total, _
+     */
+    private static String[] buildHeaderRow(Set<Integer> years) {
+        List<String> headers = years.stream().flatMap(year -> Stream.of(year.toString(), "")).collect(toList());
         headers.addFirst("Asset");
         headers.addAll(List.of("Total", ""));
+        return headers.toArray(new String[0]);
+    }
 
-        // build asset reward rows with rates
-        Set<RewardAggregate.AssetRewards> assetRewards = aggregate.getAssetRewards();
-        assetRewardRows = assetRewards.stream()
+    /**
+     * Build reward rows with fiat valuation.
+     */
+    private static List<String[]> buildRewardRows(StakingRewards rewards, AssetRates rates) {
+        return rewards.getAssetRewards().stream()
                 .collect(toMap(
-                        RewardAggregate.AssetRewards::getAsset,
+                        AssetRewards::getAsset,
                         assetReward -> {
                             Map<Integer, BigDecimal> yearlyRewards = assetReward.getYearlyRewards();
-                            List<BigDecimal> yearlyRewardsWithRates = years.stream()
+                            List<BigDecimal> yearlyRewardsWithRates = rewards.getYears().stream()
                                     .flatMap(year -> {
                                         BigDecimal reward = yearlyRewards.getOrDefault(year, BigDecimal.ZERO);
                                         BigDecimal fiatValue = rates.evaluate(reward, assetReward.getAsset());
@@ -46,28 +67,17 @@ public class CsvYearlyAssetRewards {
                                     })
                                     .collect(toList());
                             BigDecimal totalReward = assetReward.getTotalReward();
-                            yearlyRewardsWithRates.addAll(List.of(totalReward, rates.evaluate(totalReward, assetReward.getAsset())));
+                            yearlyRewardsWithRates.addAll(
+                                    List.of(totalReward, rates.evaluate(totalReward, assetReward.getAsset())));
                             return yearlyRewardsWithRates;
-                        }));
-    }
-
-    public void writeToFile(String fileName) {
-        try (CSVWriter writer = new CSVWriter(new FileWriter(fileName))) {
-            writer.writeNext(headers.toArray(new String[0])); // Asset, y1, y2, y3, ..., total
-
-            List<String[]> array = assetRewardRows.entrySet().stream()
-                    .map(entry -> {
-                        List<String> collect = entry.getValue().stream().map(BigDecimal::toPlainString).collect(toList());
-                        collect.addFirst(entry.getKey());
-                        return collect.toArray(new String[0]);
-                    })
-                    .sorted(comparing(e -> new BigDecimal(e[e.length - 1]), reverseOrder()))
-                    .toList();
-
-            writer.writeAll(array); // ETH, xxx, xxx, xxx
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+                        }))
+                .entrySet().stream()
+                .map(entry -> {
+                    List<String> cells = entry.getValue().stream().map(BigDecimal::toPlainString).collect(toList());
+                    cells.addFirst(entry.getKey());
+                    return cells.toArray(new String[0]);
+                })
+                .sorted(comparing(e -> new BigDecimal(e[e.length - 1]), reverseOrder()))
+                .toList();
     }
 }

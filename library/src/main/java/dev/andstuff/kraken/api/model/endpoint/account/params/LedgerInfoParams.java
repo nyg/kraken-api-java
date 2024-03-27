@@ -19,8 +19,8 @@ public class LedgerInfoParams extends PostParams {
     private final Type assetType;
     private final Instant startDate;
     private final Instant endDate;
-    private final String startId; // TODO handle
-    private final String endId; // TODO naming
+    private final String startId; // FIXME handle
+    private final String endId; // FIXME naming
     private final boolean withoutCount;
 
     @With

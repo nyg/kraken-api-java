@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import dev.andstuff.kraken.api.model.KrakenCredentials;
 import dev.andstuff.kraken.api.model.endpoint.account.LedgerEntriesEndpoint;
 import dev.andstuff.kraken.api.model.endpoint.account.LedgerInfoEndpoint;
 import dev.andstuff.kraken.api.model.endpoint.account.params.LedgerEntriesParams;
@@ -34,6 +35,10 @@ public class KrakenAPI {
 
     public KrakenAPI() {
         this(new DefaultKrakenRestRequester());
+    }
+
+    public KrakenAPI(KrakenCredentials credentials) {
+        this(new DefaultKrakenRestRequester(credentials));
     }
 
     public KrakenAPI(String key, String secret) {

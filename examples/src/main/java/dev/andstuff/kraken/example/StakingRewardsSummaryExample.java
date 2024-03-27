@@ -1,44 +1,54 @@
-package dev.andstuff.kraken.example.reward;
+package dev.andstuff.kraken.example;
 
-import static dev.andstuff.kraken.example.helper.PropertiesHelper.readFromFile;
-import static java.util.Arrays.asList;
+import static dev.andstuff.kraken.example.helper.CredentialsHelper.readFromFile;
+import static java.util.function.Predicate.not;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 
 import dev.andstuff.kraken.api.KrakenAPI;
+import dev.andstuff.kraken.api.model.KrakenCredentials;
 import dev.andstuff.kraken.api.model.KrakenException;
 import dev.andstuff.kraken.api.model.endpoint.account.params.LedgerInfoParams;
 import dev.andstuff.kraken.api.model.endpoint.account.response.LedgerEntry;
 import dev.andstuff.kraken.api.model.endpoint.account.response.LedgerInfo;
+import dev.andstuff.kraken.example.reward.AssetRates;
+import dev.andstuff.kraken.example.reward.StakingRewards;
 import dev.andstuff.kraken.example.reward.csv.CsvLedgerEntries;
 import dev.andstuff.kraken.example.reward.csv.CsvYearlyAssetRewards;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Generates a CSV file containing all the ledger entries corresponding to
+ * staking rewards, and another CSV file containing the summary of staking
+ * rewards earned each year for each asset.
+ */
 @Slf4j
 @RequiredArgsConstructor
-public class StakingRewardsSummary {
+public class StakingRewardsSummaryExample {
+
+    private static final int SLEEP_BETWEEN_API_CALLS = 2000;
 
     private final KrakenAPI api;
 
     public static void main(String[] args) {
-        Properties apiKeys = readFromFile("/api-keys.properties");
-        new StakingRewardsSummary(new KrakenAPI(apiKeys.getProperty("key"), apiKeys.getProperty("secret"))).generate();
+        KrakenCredentials credentials = readFromFile("/api-keys.properties");
+        new StakingRewardsSummaryExample(new KrakenAPI(credentials))
+                .generate("rewards.csv", "rewards-summary.csv");
     }
 
-    public void generate() {
-        List<LedgerEntry> rewards = fetchAllStakingRewards();
-        RewardAggregate rewardAggregate = new RewardAggregate(rewards);
-        AssetRates rates = fetchRatesFor(rewardAggregate.getAssets());
+    public void generate(String rewardsFileName, String rewardSummaryFileName) {
+        List<LedgerEntry> rewards = fetchStakingRewards();
+        StakingRewards stakingRewards = new StakingRewards(rewards);
+        AssetRates rates = fetchRatesFor(stakingRewards.getAssets());
 
-        new CsvLedgerEntries(rewards).writeToFile("rewards.csv");
-        new CsvYearlyAssetRewards(rewardAggregate, rates).writeToFile("rewards-summary.csv");
+        new CsvLedgerEntries(rewards).writeToFile(rewardsFileName);
+        new CsvYearlyAssetRewards(stakingRewards, rates).writeToFile(rewardSummaryFileName);
     }
 
-    private List<LedgerEntry> fetchAllStakingRewards() {
+    private List<LedgerEntry> fetchStakingRewards() {
 
         List<LedgerEntry> rewards = new ArrayList<>();
         LedgerInfoParams params = LedgerInfoParams.builder()
@@ -48,21 +58,19 @@ public class StakingRewardsSummary {
 
         boolean hasNext = true;
         while (hasNext) {
-
             LedgerInfo ledgerInfo = api.ledgerInfo(params);
-            List<LedgerEntry> ledgerEntries = ledgerInfo.asList();
-            log.info("Fetched {} rewards", ledgerEntries.size());
+            log.info("Fetched {} rewards", ledgerInfo.size());
 
             params = params.withNextResultOffset();
             hasNext = ledgerInfo.hasNext();
 
-            rewards.addAll(ledgerEntries.stream().filter(StakingRewardsSummary::isStakingReward).toList());
+            rewards.addAll(ledgerInfo.stakingRewards());
 
             try {
-                Thread.sleep(2000);
+                Thread.sleep(SLEEP_BETWEEN_API_CALLS);
             }
             catch (InterruptedException e) {
-                log.warn("Thread has been interrupted");
+                log.warn("Thread was interrupted");
                 Thread.currentThread().interrupt();
             }
         }
@@ -74,16 +82,12 @@ public class StakingRewardsSummary {
         try {
             List<String> pairs = assets.stream()
                     .map(asset -> asset + AssetRates.REFERENCE_ASSET)
-                    .filter(pair -> !pair.equals("USD" + AssetRates.REFERENCE_ASSET))
+                    .filter(not(AssetRates.REFERENCE_PAIR::equals))
                     .toList();
             return new AssetRates(api.ticker(pairs));
         }
         catch (KrakenException e) {
             throw new RuntimeException("Couldn't fetch rates", e);
         }
-    }
-
-    private static boolean isStakingReward(LedgerEntry entry) {
-        return !asList("migration", "spottostaking").contains(entry.subType());
     }
 }
