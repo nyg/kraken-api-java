@@ -9,7 +9,7 @@ public record KrakenResponse<T>(List<String> error,
                                 Optional<T> result) {
 
     public Optional<T> result() {
-        // FIXME looks like an issue with jackson which returns Optional.of(NullNode.instance) instead of Optional.empty
+        // TODO looks like an issue with jackson which returns Optional.of(NullNode.instance) instead of Optional.empty
         return result.map(res -> res.equals(NullNode.getInstance()) ? null : res);
     }
 }

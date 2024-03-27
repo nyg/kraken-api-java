@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
+
 import dev.andstuff.kraken.api.model.endpoint.priv.PostParams;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,10 +19,10 @@ public class LedgerInfoParams extends PostParams {
     private final List<String> assets;
     private final String assetClass;
     private final Type assetType;
-    private final Instant startDate;
-    private final Instant endDate;
-    private final String startId; // FIXME handle
-    private final String endId; // FIXME naming
+    private final Instant fromDate;
+    private final Instant toDate;
+    private final String fromLedgerId;
+    private final String toLedgerId;
     private final boolean withoutCount;
 
     @With
@@ -33,8 +35,21 @@ public class LedgerInfoParams extends PostParams {
         putIfNonNull(params, "asset", assets, v -> String.join(",", v));
         putIfNonNull(params, "aclass", assetClass);
         putIfNonNull(params, "type", assetType, e -> e.toString().toLowerCase());
-        putIfNonNull(params, "start", startDate, d -> Long.toString(d.getEpochSecond()));
-        putIfNonNull(params, "end", endDate, d -> Long.toString(d.getEpochSecond()));
+
+        if (fromDate != null) {
+            putIfNonNull(params, "start", fromDate, d -> Long.toString(d.getEpochSecond()));
+        }
+        else {
+            putIfNonNull(params, "start", fromLedgerId);
+        }
+
+        if (toDate != null) {
+            putIfNonNull(params, "end", toDate, d -> Long.toString(d.getEpochSecond()));
+        }
+        else {
+            putIfNonNull(params, "end", toLedgerId);
+        }
+
         putIfNonNull(params, "without_count", withoutCount);
         putIfNonNull(params, "ofs", resultOffset);
         return params;
@@ -59,5 +74,8 @@ public class LedgerInfoParams extends PostParams {
         DIVIDEND,
         SALE,
         NFT_REBATE,
+
+        @JsonEnumDefaultValue
+        UNKNOWN
     }
 }

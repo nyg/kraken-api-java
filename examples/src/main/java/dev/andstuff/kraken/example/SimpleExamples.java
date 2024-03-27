@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import dev.andstuff.kraken.api.KrakenAPI;
 import dev.andstuff.kraken.api.model.KrakenCredentials;
+import dev.andstuff.kraken.api.model.endpoint.market.params.AssetPairParams;
 import dev.andstuff.kraken.api.model.endpoint.market.response.AssetInfo;
 import dev.andstuff.kraken.api.model.endpoint.market.response.AssetPair;
 import dev.andstuff.kraken.api.model.endpoint.market.response.ServerTime;
@@ -39,7 +40,7 @@ public class SimpleExamples {
         Map<String, AssetPair> pairs1 = publicAPI.assetPairs(List.of("ETH/BTC", "ETH/USD"));
         log.info("{}", pairs1);
 
-        Map<String, AssetPair> pairs2 = publicAPI.assetPairs(List.of("DOT/USD", "ADA/USD"), AssetPair.Info.MARGIN);
+        Map<String, AssetPair> pairs2 = publicAPI.assetPairs(List.of("DOT/USD", "ADA/USD"), AssetPairParams.Info.MARGIN);
         log.info("{}", pairs2);
 
         JsonNode ticker = publicAPI.query(KrakenAPI.Public.TICKER, Map.of("pair", "XBTEUR"));

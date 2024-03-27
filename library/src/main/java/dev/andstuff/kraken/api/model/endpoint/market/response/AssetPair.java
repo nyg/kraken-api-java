@@ -3,11 +3,9 @@ package dev.andstuff.kraken.api.model.endpoint.market.response;
 import java.math.BigDecimal;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 public record AssetPair(@JsonProperty("altname") String alternateName,
                         @JsonProperty("wsname") String webSocketName,
@@ -36,23 +34,14 @@ public record AssetPair(@JsonProperty("altname") String alternateName,
     @JsonFormat(shape = JsonFormat.Shape.ARRAY)
     public record FeeSchedule(BigDecimal volume, BigDecimal percentage) {}
 
-    @Getter
-    @RequiredArgsConstructor
-    public enum Info {
-
-        ALL("info"),
-        LEVERAGE("leverage"),
-        FEES("fees"),
-        MARGIN("margin");
-
-        private final String value;
-    }
-
     public enum Status {
         ONLINE,
         CANCEL_ONLY,
         POST_ONLY,
         LIMIT_ONLY,
-        REDUCE_ONLY
+        REDUCE_ONLY,
+
+        @JsonEnumDefaultValue
+        UNKNOWN
     }
 }

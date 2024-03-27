@@ -34,6 +34,7 @@ public class DefaultKrakenRestRequester implements KrakenRestRequester {
     static {
         OBJECT_MAPPER = JsonMapper.builder()
                 .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+                .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
                 .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 .addModules(new JavaTimeModule(), new Jdk8Module())
                 .build();

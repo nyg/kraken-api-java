@@ -4,11 +4,12 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
 
+import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.With;
 
-public record LedgerEntry(@With String id, // FIXME
+public record LedgerEntry(@With String id, // TODO see if jackson can set this value
                           @JsonProperty("refid") String referenceId,
                           Instant time,
                           Type type,
@@ -61,10 +62,12 @@ public record LedgerEntry(@With String id, // FIXME
         DIVIDEND,
         SALE,
         CONVERSION,
-        NFTTRADE, // FIXME
+        NFTTRADE, // TODO add underscore
         NFTCREATORFEE,
         NFTREBATE,
         CUSTODYTRANSFER,
-        // FIXME not implemented
+
+        @JsonEnumDefaultValue
+        UNKNOWN
     }
 }

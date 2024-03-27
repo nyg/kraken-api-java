@@ -17,6 +17,7 @@ import dev.andstuff.kraken.api.model.endpoint.market.AssetPairEndpoint;
 import dev.andstuff.kraken.api.model.endpoint.market.ServerTimeEndpoint;
 import dev.andstuff.kraken.api.model.endpoint.market.SystemStatusEndpoint;
 import dev.andstuff.kraken.api.model.endpoint.market.TickerEndpoint;
+import dev.andstuff.kraken.api.model.endpoint.market.params.AssetPairParams;
 import dev.andstuff.kraken.api.model.endpoint.market.response.AssetInfo;
 import dev.andstuff.kraken.api.model.endpoint.market.response.AssetPair;
 import dev.andstuff.kraken.api.model.endpoint.market.response.ServerTime;
@@ -59,7 +60,6 @@ public class KrakenAPI {
         return restRequester.execute(new SystemStatusEndpoint());
     }
 
-    // TODO maybe return type Assets that can return both map and list
     public Map<String, AssetInfo> assetInfo(List<String> assets) {
         return restRequester.execute(new AssetInfoEndpoint(assets));
     }
@@ -72,7 +72,7 @@ public class KrakenAPI {
         return restRequester.execute(new AssetPairEndpoint(pairs));
     }
 
-    public Map<String, AssetPair> assetPairs(List<String> pair, AssetPair.Info info) {
+    public Map<String, AssetPair> assetPairs(List<String> pair, AssetPairParams.Info info) {
         return restRequester.execute(new AssetPairEndpoint(pair, info));
     }
 

@@ -12,10 +12,10 @@ import dev.andstuff.kraken.api.model.endpoint.pub.PublicEndpoint;
 public class AssetPairEndpoint extends PublicEndpoint<Map<String, AssetPair>> {
 
     public AssetPairEndpoint(List<String> pairs) {
-        this(pairs, AssetPair.Info.ALL);
+        this(pairs, AssetPairParams.Info.ALL);
     }
 
-    public AssetPairEndpoint(List<String> pairs, AssetPair.Info info) {
+    public AssetPairEndpoint(List<String> pairs, AssetPairParams.Info info) {
         super("AssetPairs", new AssetPairParams(pairs, info), new TypeReference<>() {});
     }
 }
