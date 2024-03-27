@@ -59,12 +59,11 @@ public class StakingRewardsSummaryExample {
         boolean hasNext = true;
         while (hasNext) {
             LedgerInfo ledgerInfo = api.ledgerInfo(params);
-            log.info("Fetched {} rewards", ledgerInfo.size());
-
             params = params.withNextResultOffset();
             hasNext = ledgerInfo.hasNext();
 
             rewards.addAll(ledgerInfo.stakingRewards());
+            log.info("Fetched {} staking rewards", rewards.size());
 
             try {
                 Thread.sleep(SLEEP_BETWEEN_API_CALLS);
