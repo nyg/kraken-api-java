@@ -16,7 +16,7 @@ import dev.andstuff.kraken.api.model.endpoint.account.response.LedgerInfo;
 import dev.andstuff.kraken.example.reward.AssetRates;
 import dev.andstuff.kraken.example.reward.StakingRewards;
 import dev.andstuff.kraken.example.reward.csv.CsvLedgerEntries;
-import dev.andstuff.kraken.example.reward.csv.CsvYearlyAssetRewards;
+import dev.andstuff.kraken.example.reward.csv.CsvStakingRewardsSummary;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -45,7 +45,7 @@ public class StakingRewardsSummaryExample {
         AssetRates rates = fetchRatesFor(stakingRewards.getAssets());
 
         new CsvLedgerEntries(rewards).writeToFile(rewardsFileName);
-        new CsvYearlyAssetRewards(stakingRewards, rates).writeToFile(rewardSummaryFileName);
+        new CsvStakingRewardsSummary(stakingRewards, rates).writeToFile(rewardSummaryFileName);
     }
 
     private List<LedgerEntry> fetchStakingRewards() {

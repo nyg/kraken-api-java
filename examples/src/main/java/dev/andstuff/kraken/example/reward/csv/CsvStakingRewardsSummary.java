@@ -19,21 +19,25 @@ import dev.andstuff.kraken.example.reward.AssetRates;
 import dev.andstuff.kraken.example.reward.AssetRewards;
 import dev.andstuff.kraken.example.reward.StakingRewards;
 
-public class CsvYearlyAssetRewards {
+public class CsvStakingRewardsSummary {
 
-    private final String[] headers;
+    private final String[] headerRow;
     private final List<String[]> assetRewardRows;
+    private final String[] footerRow;
 
-    public CsvYearlyAssetRewards(StakingRewards rewards, AssetRates rates) {
-        this.headers = buildHeaderRow(rewards.getYears());
+    public CsvStakingRewardsSummary(StakingRewards rewards, AssetRates rates) {
+        this.headerRow = buildHeaderRow(rewards.getYears());
         this.assetRewardRows = buildRewardRows(rewards, rates);
+        this.footerRow = buildFooterRow(rewards, rates);
     }
 
     public void writeToFile(String fileName) {
         try (CSVWriter writer = new CSVWriter(new FileWriter(fileName))) {
-            writer.writeNext(headers);
+            writer.writeNext(headerRow);
             writer.writeAll(assetRewardRows);
-        } catch (IOException e) {
+            writer.writeNext(footerRow);
+        }
+        catch (IOException e) {
             throw new RuntimeException("Couldn't write reward summary to file", e);
         }
     }
@@ -44,10 +48,12 @@ public class CsvYearlyAssetRewards {
      * @return an array of String: Asset, y1, _, y2, _, …, total, _
      */
     private static String[] buildHeaderRow(Set<Integer> years) {
-        List<String> headers = years.stream().flatMap(year -> Stream.of(year.toString(), "")).collect(toList());
-        headers.addFirst("Asset");
-        headers.addAll(List.of("Total", ""));
-        return headers.toArray(new String[0]);
+        List<String> headerCells = years.stream()
+                .flatMap(year -> Stream.of(year.toString(), AssetRates.REFERENCE_ASSET))
+                .collect(toList());
+        headerCells.addFirst("Asset");
+        headerCells.addAll(List.of("Total", AssetRates.REFERENCE_ASSET));
+        return headerCells.toArray(new String[0]);
     }
 
     /**
@@ -79,5 +85,17 @@ public class CsvYearlyAssetRewards {
                 })
                 .sorted(comparing(e -> new BigDecimal(e[e.length - 1]), reverseOrder()))
                 .toList();
+    }
+
+    private String[] buildFooterRow(StakingRewards rewards, AssetRates rates) {
+
+        BigDecimal totalFiatAmount = rewards.getAssetRewards().stream()
+                .map(reward -> rates.evaluate(reward.getTotalReward(), reward.getAsset()))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        List<String> footerCells = rewards.getYears().stream().flatMap(year -> Stream.of("", "")).collect(toList());
+        footerCells.addFirst("Total");
+        footerCells.addAll(List.of("", totalFiatAmount.toPlainString()));
+        return footerCells.toArray(new String[0]);
     }
 }
