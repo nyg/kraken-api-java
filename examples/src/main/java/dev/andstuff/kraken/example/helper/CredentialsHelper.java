@@ -1,21 +1,22 @@
-package dev.andstuff.kraken.example;
+package dev.andstuff.kraken.example.helper;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import dev.andstuff.kraken.api.model.KrakenCredentials;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class PropertiesHelper {
+public final class CredentialsHelper {
 
-    public static Properties readFromFile(String path) {
+    public static KrakenCredentials readFromFile(String path) {
         try {
-            InputStream stream = Examples.class.getResourceAsStream(path);
+            InputStream stream = CredentialsHelper.class.getResourceAsStream(path);
             Properties properties = new Properties();
             properties.load(stream);
-            return properties;
+            return new KrakenCredentials(properties.getProperty("key"), properties.getProperty("secret"));
         }
         catch (IOException e) {
             throw new RuntimeException(String.format("Could not read properties from file: %s", path));

@@ -15,10 +15,6 @@ public class PrivateEndpoint<T> extends Endpoint<T> {
 
     private final PostParams postParams;
 
-    public PrivateEndpoint(String path, TypeReference<T> responseType) {
-        this(path, null, responseType);
-    }
-
     public PrivateEndpoint(String path, PostParams postParams, TypeReference<T> responseType) {
         super("POST", path, responseType);
         this.postParams = postParams;

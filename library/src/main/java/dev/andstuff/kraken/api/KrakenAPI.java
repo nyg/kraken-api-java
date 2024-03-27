@@ -5,14 +5,24 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import dev.andstuff.kraken.api.model.KrakenCredentials;
+import dev.andstuff.kraken.api.model.endpoint.account.LedgerEntriesEndpoint;
+import dev.andstuff.kraken.api.model.endpoint.account.LedgerInfoEndpoint;
+import dev.andstuff.kraken.api.model.endpoint.account.params.LedgerEntriesParams;
+import dev.andstuff.kraken.api.model.endpoint.account.params.LedgerInfoParams;
+import dev.andstuff.kraken.api.model.endpoint.account.response.LedgerEntry;
+import dev.andstuff.kraken.api.model.endpoint.account.response.LedgerInfo;
 import dev.andstuff.kraken.api.model.endpoint.market.AssetInfoEndpoint;
 import dev.andstuff.kraken.api.model.endpoint.market.AssetPairEndpoint;
 import dev.andstuff.kraken.api.model.endpoint.market.ServerTimeEndpoint;
 import dev.andstuff.kraken.api.model.endpoint.market.SystemStatusEndpoint;
+import dev.andstuff.kraken.api.model.endpoint.market.TickerEndpoint;
+import dev.andstuff.kraken.api.model.endpoint.market.params.AssetPairParams;
 import dev.andstuff.kraken.api.model.endpoint.market.response.AssetInfo;
 import dev.andstuff.kraken.api.model.endpoint.market.response.AssetPair;
 import dev.andstuff.kraken.api.model.endpoint.market.response.ServerTime;
 import dev.andstuff.kraken.api.model.endpoint.market.response.SystemStatus;
+import dev.andstuff.kraken.api.model.endpoint.market.response.Ticker;
 import dev.andstuff.kraken.api.model.endpoint.priv.JsonPrivateEndpoint;
 import dev.andstuff.kraken.api.model.endpoint.pub.JsonPublicEndpoint;
 import dev.andstuff.kraken.api.rest.DefaultKrakenRestRequester;
@@ -26,6 +36,10 @@ public class KrakenAPI {
 
     public KrakenAPI() {
         this(new DefaultKrakenRestRequester());
+    }
+
+    public KrakenAPI(KrakenCredentials credentials) {
+        this(new DefaultKrakenRestRequester(credentials));
     }
 
     public KrakenAPI(String key, String secret) {
@@ -54,12 +68,26 @@ public class KrakenAPI {
         return restRequester.execute(new AssetInfoEndpoint(assets, assetClass));
     }
 
-    public Map<String, AssetPair> assetPairs(List<String> pair) {
-        return restRequester.execute(new AssetPairEndpoint(pair));
+    public Map<String, AssetPair> assetPairs(List<String> pairs) {
+        return restRequester.execute(new AssetPairEndpoint(pairs));
     }
 
-    public Map<String, AssetPair> assetPairs(List<String> pair, AssetPair.Info info) {
+    public Map<String, AssetPair> assetPairs(List<String> pair, AssetPairParams.Info info) {
         return restRequester.execute(new AssetPairEndpoint(pair, info));
+    }
+
+    public Map<String, Ticker> ticker(List<String> pairs) {
+        return restRequester.execute(new TickerEndpoint(pairs));
+    }
+
+    /* Implemented private endpoints */
+
+    public LedgerInfo ledgerInfo(LedgerInfoParams params) {
+        return restRequester.execute(new LedgerInfoEndpoint(params));
+    }
+
+    public Map<String, LedgerEntry> ledgerEntries(LedgerEntriesParams params) {
+        return restRequester.execute(new LedgerEntriesEndpoint(params));
     }
 
     /* Query unimplemented endpoints */

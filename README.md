@@ -86,8 +86,6 @@ See `DefaultKrakenRestRequester` for the default implementation.
 
 ### Custom nonce generator (not yet implemented)
 
-
-
 ## Examples
 
 The `examples` Maven module contains some examples that might be worth checking (e.g. total staking rewards summary). The examples can be run directly from your IDE, or from the command line.
@@ -99,10 +97,12 @@ For private endpoints, you need to rename `api-keys.properties.example` (located
 mvn clean install
 
 # run example classes
-mvn -q -pl examples exec:java -Dexec.mainClass=dev.andstuff.kraken.example.Examples
+mvn -q -pl examples exec:java -Dexec.mainClass=dev.andstuff.kraken.example.SimpleExamples
 mvn -q -pl examples exec:java -Dexec.mainClass=dev.andstuff.kraken.example.TotalRewards
 ```
 
 [1]: https://docs.kraken.com/rest/
+
 [2]: https://github.com/FasterXML/jackson
+
 [3]: https://github.com/nyg/kraken-api-java/blob/v1.0.0/examples/src/main/java/dev/andstuff/kraken/example/Examples.java

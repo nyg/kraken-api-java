@@ -1,14 +1,15 @@
 package dev.andstuff.kraken.example;
 
-import static dev.andstuff.kraken.example.PropertiesHelper.readFromFile;
+import static dev.andstuff.kraken.example.helper.CredentialsHelper.readFromFile;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
 import dev.andstuff.kraken.api.KrakenAPI;
+import dev.andstuff.kraken.api.model.KrakenCredentials;
+import dev.andstuff.kraken.api.model.endpoint.market.params.AssetPairParams;
 import dev.andstuff.kraken.api.model.endpoint.market.response.AssetInfo;
 import dev.andstuff.kraken.api.model.endpoint.market.response.AssetPair;
 import dev.andstuff.kraken.api.model.endpoint.market.response.ServerTime;
@@ -16,7 +17,7 @@ import dev.andstuff.kraken.api.model.endpoint.market.response.SystemStatus;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class Examples {
+public class SimpleExamples {
 
     public static void main(String[] args) {
 
@@ -39,7 +40,7 @@ public class Examples {
         Map<String, AssetPair> pairs1 = publicAPI.assetPairs(List.of("ETH/BTC", "ETH/USD"));
         log.info("{}", pairs1);
 
-        Map<String, AssetPair> pairs2 = publicAPI.assetPairs(List.of("DOT/USD", "ADA/USD"), AssetPair.Info.MARGIN);
+        Map<String, AssetPair> pairs2 = publicAPI.assetPairs(List.of("DOT/USD", "ADA/USD"), AssetPairParams.Info.MARGIN);
         log.info("{}", pairs2);
 
         JsonNode ticker = publicAPI.query(KrakenAPI.Public.TICKER, Map.of("pair", "XBTEUR"));
@@ -50,8 +51,8 @@ public class Examples {
 
         /* Private endpoint example */
 
-        Properties apiKeys = readFromFile("/api-keys.properties");
-        KrakenAPI api = new KrakenAPI(apiKeys.getProperty("key"), apiKeys.getProperty("secret"));
+        KrakenCredentials credentials = readFromFile("/api-keys.properties");
+        KrakenAPI api = new KrakenAPI(credentials);
 
         JsonNode balance = api.query(KrakenAPI.Private.BALANCE);
         log.info("{}", balance);
