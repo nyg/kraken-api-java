@@ -32,21 +32,23 @@ import lombok.RequiredArgsConstructor;
 
 public class KrakenAPI {
 
+    private final KrakenCredentials credentials;
     private final KrakenRestRequester restRequester;
 
     public KrakenAPI() {
-        this(new DefaultKrakenRestRequester());
-    }
-
-    public KrakenAPI(KrakenCredentials credentials) {
-        this(new DefaultKrakenRestRequester(credentials));
+        this(null, new DefaultKrakenRestRequester());
     }
 
     public KrakenAPI(String key, String secret) {
-        this(new DefaultKrakenRestRequester(key, secret));
+        this(new KrakenCredentials(key, secret));
     }
 
-    public KrakenAPI(KrakenRestRequester restRequester) {
+    public KrakenAPI(KrakenCredentials credentials) {
+        this(credentials, new DefaultKrakenRestRequester());
+    }
+
+    public KrakenAPI(KrakenCredentials credentials, KrakenRestRequester restRequester) {
+        this.credentials = credentials;
         this.restRequester = restRequester;
     }
 
@@ -83,11 +85,11 @@ public class KrakenAPI {
     /* Implemented private endpoints */
 
     public LedgerInfo ledgerInfo(LedgerInfoParams params) {
-        return restRequester.execute(new LedgerInfoEndpoint(params));
+        return restRequester.execute(new LedgerInfoEndpoint(params), credentials);
     }
 
     public Map<String, LedgerEntry> ledgerEntries(LedgerEntriesParams params) {
-        return restRequester.execute(new LedgerEntriesEndpoint(params));
+        return restRequester.execute(new LedgerEntriesEndpoint(params), credentials);
     }
 
     /* Query unimplemented endpoints */
@@ -109,19 +111,19 @@ public class KrakenAPI {
     }
 
     public JsonNode query(Private endpoint) {
-        return restRequester.execute(new JsonPrivateEndpoint(endpoint.getPath()));
+        return restRequester.execute(new JsonPrivateEndpoint(endpoint.getPath()), credentials);
     }
 
     public JsonNode query(Private endpoint, Map<String, String> params) {
-        return restRequester.execute(new JsonPrivateEndpoint(endpoint.getPath(), params));
+        return restRequester.execute(new JsonPrivateEndpoint(endpoint.getPath(), params), credentials);
     }
 
     public JsonNode queryPrivate(String path) {
-        return restRequester.execute(new JsonPrivateEndpoint(path));
+        return restRequester.execute(new JsonPrivateEndpoint(path), credentials);
     }
 
     public JsonNode queryPrivate(String path, Map<String, String> params) {
-        return restRequester.execute(new JsonPrivateEndpoint(path, params));
+        return restRequester.execute(new JsonPrivateEndpoint(path, params), credentials);
     }
 
     /* All endpoints */
@@ -129,7 +131,6 @@ public class KrakenAPI {
     @Getter
     @RequiredArgsConstructor
     public enum Public {
-
         ASSETS("Assets"),
         ASSET_PAIRS("AssetPairs"),
         DEPTH("Depth"),
@@ -146,7 +147,6 @@ public class KrakenAPI {
     @Getter
     @RequiredArgsConstructor
     public enum Private {
-
         ACCOUNT_TRANSFER("AccountTransfer"),
         ADD_EXPORT("AddExport"),
         ADD_ORDER("AddOrder"),

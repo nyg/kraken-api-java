@@ -65,7 +65,7 @@ public class SimpleExamples {
                 "price", "1000",
                 "oflags", "post,fciq",
                 "close[ordertype]", "limit",
-                "close[price]", "1500",
+                "close[price]", "500",
                 "validate", "true"));
         log.info("{}", order);
     }

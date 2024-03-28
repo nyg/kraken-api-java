@@ -21,6 +21,7 @@ import dev.andstuff.kraken.api.model.endpoint.Endpoint;
 import dev.andstuff.kraken.api.model.endpoint.priv.PostParams;
 import dev.andstuff.kraken.api.model.endpoint.priv.PrivateEndpoint;
 import dev.andstuff.kraken.api.model.endpoint.pub.PublicEndpoint;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -40,20 +41,6 @@ public class DefaultKrakenRestRequester implements KrakenRestRequester {
                 .build();
     }
 
-    private final KrakenCredentials credentials;
-
-    public DefaultKrakenRestRequester() {
-        this.credentials = null;
-    }
-
-    public DefaultKrakenRestRequester(KrakenCredentials credentials) {
-        this.credentials = credentials;
-    }
-
-    public DefaultKrakenRestRequester(String key, String secret) {
-        this.credentials = new KrakenCredentials(key, secret);
-    }
-
     @Override
     public <T> T execute(PublicEndpoint<T> endpoint) {
         try {
@@ -67,12 +54,7 @@ public class DefaultKrakenRestRequester implements KrakenRestRequester {
     }
 
     @Override
-    public <T> T execute(PrivateEndpoint<T> endpoint) {
-
-        if (credentials == null) {
-            throw new IllegalStateException("API credentials required");
-        }
-
+    public <T> T execute(PrivateEndpoint<T> endpoint, @NonNull KrakenCredentials credentials) {
         PostParams postParams = endpoint.getPostParams();
         String nonce = postParams.initNonce(); // TODO nonce generator
         String postData = postParams.encoded();
