@@ -16,9 +16,7 @@ public abstract class PostParams {
         return nonce;
     }
 
-    // TODO handle nested props
     public String encoded() {
-
         Map<String, String> params = params();
         params.put("nonce", nonce);
 
