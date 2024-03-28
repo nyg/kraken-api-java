@@ -14,14 +14,11 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import dev.andstuff.kraken.api.model.KrakenCredentials;
-import dev.andstuff.kraken.api.model.KrakenException;
-import dev.andstuff.kraken.api.model.KrakenResponse;
-import dev.andstuff.kraken.api.model.endpoint.Endpoint;
-import dev.andstuff.kraken.api.model.endpoint.priv.PostParams;
-import dev.andstuff.kraken.api.model.endpoint.priv.PrivateEndpoint;
-import dev.andstuff.kraken.api.model.endpoint.pub.PublicEndpoint;
-import lombok.NonNull;
+import dev.andstuff.kraken.api.endpoint.Endpoint;
+import dev.andstuff.kraken.api.endpoint.KrakenException;
+import dev.andstuff.kraken.api.endpoint.KrakenResponse;
+import dev.andstuff.kraken.api.endpoint.priv.PrivateEndpoint;
+import dev.andstuff.kraken.api.endpoint.pub.PublicEndpoint;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -54,10 +51,9 @@ public class DefaultKrakenRestRequester implements KrakenRestRequester {
     }
 
     @Override
-    public <T> T execute(PrivateEndpoint<T> endpoint, @NonNull KrakenCredentials credentials) {
-        PostParams postParams = endpoint.getPostParams();
-        String nonce = postParams.initNonce(); // TODO nonce generator
-        String postData = postParams.encoded();
+    public <T> T execute(PrivateEndpoint<T> endpoint, KrakenCredentials credentials, KrakenNonceGenerator nonceGenerator) {
+        String nonce = nonceGenerator.generate();
+        String postData = endpoint.encodedParamsWith(nonce);
 
         try {
             HttpsURLConnection connection = createHttpsConnection(endpoint);

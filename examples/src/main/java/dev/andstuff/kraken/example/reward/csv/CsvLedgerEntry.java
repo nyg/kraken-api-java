@@ -6,7 +6,7 @@ import java.time.Instant;
 import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvBindByPosition;
 
-import dev.andstuff.kraken.api.model.endpoint.account.response.LedgerEntry;
+import dev.andstuff.kraken.api.endpoint.account.response.LedgerEntry;
 
 public record CsvLedgerEntry(@CsvBindByPosition(position = 7) @CsvBindByName(column = "ledger_entry_id") String ledgerEntryId,
                              @CsvBindByPosition(position = 8) @CsvBindByName(column = "reference_id") String referenceId,

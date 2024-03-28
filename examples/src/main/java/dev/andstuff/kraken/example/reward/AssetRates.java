@@ -7,7 +7,7 @@ import java.math.RoundingMode;
 import java.util.Map;
 import java.util.Optional;
 
-import dev.andstuff.kraken.api.model.endpoint.market.response.Ticker;
+import dev.andstuff.kraken.api.endpoint.market.response.Ticker;
 import lombok.Getter;
 
 @Getter

@@ -5,34 +5,40 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import dev.andstuff.kraken.api.model.KrakenCredentials;
-import dev.andstuff.kraken.api.model.endpoint.account.LedgerEntriesEndpoint;
-import dev.andstuff.kraken.api.model.endpoint.account.LedgerInfoEndpoint;
-import dev.andstuff.kraken.api.model.endpoint.account.params.LedgerEntriesParams;
-import dev.andstuff.kraken.api.model.endpoint.account.params.LedgerInfoParams;
-import dev.andstuff.kraken.api.model.endpoint.account.response.LedgerEntry;
-import dev.andstuff.kraken.api.model.endpoint.account.response.LedgerInfo;
-import dev.andstuff.kraken.api.model.endpoint.market.AssetInfoEndpoint;
-import dev.andstuff.kraken.api.model.endpoint.market.AssetPairEndpoint;
-import dev.andstuff.kraken.api.model.endpoint.market.ServerTimeEndpoint;
-import dev.andstuff.kraken.api.model.endpoint.market.SystemStatusEndpoint;
-import dev.andstuff.kraken.api.model.endpoint.market.TickerEndpoint;
-import dev.andstuff.kraken.api.model.endpoint.market.params.AssetPairParams;
-import dev.andstuff.kraken.api.model.endpoint.market.response.AssetInfo;
-import dev.andstuff.kraken.api.model.endpoint.market.response.AssetPair;
-import dev.andstuff.kraken.api.model.endpoint.market.response.ServerTime;
-import dev.andstuff.kraken.api.model.endpoint.market.response.SystemStatus;
-import dev.andstuff.kraken.api.model.endpoint.market.response.Ticker;
-import dev.andstuff.kraken.api.model.endpoint.priv.JsonPrivateEndpoint;
-import dev.andstuff.kraken.api.model.endpoint.pub.JsonPublicEndpoint;
+import dev.andstuff.kraken.api.endpoint.account.LedgerEntriesEndpoint;
+import dev.andstuff.kraken.api.endpoint.account.LedgerInfoEndpoint;
+import dev.andstuff.kraken.api.endpoint.account.params.LedgerEntriesParams;
+import dev.andstuff.kraken.api.endpoint.account.params.LedgerInfoParams;
+import dev.andstuff.kraken.api.endpoint.account.response.LedgerEntry;
+import dev.andstuff.kraken.api.endpoint.account.response.LedgerInfo;
+import dev.andstuff.kraken.api.endpoint.market.AssetInfoEndpoint;
+import dev.andstuff.kraken.api.endpoint.market.AssetPairEndpoint;
+import dev.andstuff.kraken.api.endpoint.market.ServerTimeEndpoint;
+import dev.andstuff.kraken.api.endpoint.market.SystemStatusEndpoint;
+import dev.andstuff.kraken.api.endpoint.market.TickerEndpoint;
+import dev.andstuff.kraken.api.endpoint.market.params.AssetPairParams;
+import dev.andstuff.kraken.api.endpoint.market.response.AssetInfo;
+import dev.andstuff.kraken.api.endpoint.market.response.AssetPair;
+import dev.andstuff.kraken.api.endpoint.market.response.ServerTime;
+import dev.andstuff.kraken.api.endpoint.market.response.SystemStatus;
+import dev.andstuff.kraken.api.endpoint.market.response.Ticker;
+import dev.andstuff.kraken.api.endpoint.priv.JsonPrivateEndpoint;
+import dev.andstuff.kraken.api.endpoint.priv.PrivateEndpoint;
+import dev.andstuff.kraken.api.endpoint.pub.JsonPublicEndpoint;
 import dev.andstuff.kraken.api.rest.DefaultKrakenRestRequester;
+import dev.andstuff.kraken.api.rest.EpochBasedNonceGenerator;
+import dev.andstuff.kraken.api.rest.KrakenCredentials;
+import dev.andstuff.kraken.api.rest.KrakenNonceGenerator;
 import dev.andstuff.kraken.api.rest.KrakenRestRequester;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+@Builder(toBuilder = true)
 public class KrakenAPI {
 
     private final KrakenCredentials credentials;
+    private final KrakenNonceGenerator nonceGenerator;
     private final KrakenRestRequester restRequester;
 
     public KrakenAPI() {
@@ -47,8 +53,17 @@ public class KrakenAPI {
         this(credentials, new DefaultKrakenRestRequester());
     }
 
+    public KrakenAPI(KrakenCredentials credentials, KrakenNonceGenerator nonceGenerator) {
+        this(credentials, nonceGenerator, new DefaultKrakenRestRequester());
+    }
+
     public KrakenAPI(KrakenCredentials credentials, KrakenRestRequester restRequester) {
+        this(credentials, new EpochBasedNonceGenerator(), restRequester);
+    }
+
+    public KrakenAPI(KrakenCredentials credentials, KrakenNonceGenerator nonceGenerator, KrakenRestRequester restRequester) {
         this.credentials = credentials;
+        this.nonceGenerator = nonceGenerator;
         this.restRequester = restRequester;
     }
 
@@ -85,11 +100,15 @@ public class KrakenAPI {
     /* Implemented private endpoints */
 
     public LedgerInfo ledgerInfo(LedgerInfoParams params) {
-        return restRequester.execute(new LedgerInfoEndpoint(params), credentials);
+        return executePrivate(new LedgerInfoEndpoint(params));
     }
 
     public Map<String, LedgerEntry> ledgerEntries(LedgerEntriesParams params) {
-        return restRequester.execute(new LedgerEntriesEndpoint(params), credentials);
+        return executePrivate(new LedgerEntriesEndpoint(params));
+    }
+
+    private <T> T executePrivate(PrivateEndpoint<T> endpoint) {
+        return restRequester.execute(endpoint, credentials, nonceGenerator);
     }
 
     /* Query unimplemented endpoints */
@@ -111,19 +130,19 @@ public class KrakenAPI {
     }
 
     public JsonNode query(Private endpoint) {
-        return restRequester.execute(new JsonPrivateEndpoint(endpoint.getPath()), credentials);
+        return executePrivate(new JsonPrivateEndpoint(endpoint.getPath()));
     }
 
     public JsonNode query(Private endpoint, Map<String, String> params) {
-        return restRequester.execute(new JsonPrivateEndpoint(endpoint.getPath(), params), credentials);
+        return executePrivate(new JsonPrivateEndpoint(endpoint.getPath(), params));
     }
 
     public JsonNode queryPrivate(String path) {
-        return restRequester.execute(new JsonPrivateEndpoint(path), credentials);
+        return executePrivate(new JsonPrivateEndpoint(path));
     }
 
     public JsonNode queryPrivate(String path, Map<String, String> params) {
-        return restRequester.execute(new JsonPrivateEndpoint(path, params), credentials);
+        return executePrivate(new JsonPrivateEndpoint(path, params));
     }
 
     /* All endpoints */

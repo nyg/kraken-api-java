@@ -84,7 +84,17 @@ KrakenAPI api = new KrakenAPI(MyRestTemplateRestRequest(apiKey, apiSecret));
 
 See `DefaultKrakenRestRequester` for the default implementation.
 
-### Custom nonce generator (not yet implemented)
+### Custom nonce generator
+
+For private endpoint requests, the nonce value is set to `System.currentTimeMillis()`. If you wish to use another value, you can specify a custom nonce generator when creating the `KrakenAPI` instance:
+
+```java
+KrakenAPI api = new KrakenAPI(
+        new KrakenCredentials(key, secret),
+        () -> Long.toString(System.currentTimeMillis() / 1000));
+```
+
+The second parameter is of type `KrakenNonceGenerator`, an interface containing a single `generate()` method returning a string.
 
 ## Examples
 
@@ -98,11 +108,9 @@ mvn clean install
 
 # run example classes
 mvn -q -pl examples exec:java -Dexec.mainClass=dev.andstuff.kraken.example.SimpleExamples
-mvn -q -pl examples exec:java -Dexec.mainClass=dev.andstuff.kraken.example.TotalRewards
+mvn -q -pl examples exec:java -Dexec.mainClass=dev.andstuff.kraken.example.StakingRewardsSummaryExample
 ```
 
 [1]: https://docs.kraken.com/rest/
-
 [2]: https://github.com/FasterXML/jackson
-
 [3]: https://github.com/nyg/kraken-api-java/blob/v1.0.0/examples/src/main/java/dev/andstuff/kraken/example/Examples.java

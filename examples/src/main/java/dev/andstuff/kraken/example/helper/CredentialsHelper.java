@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import dev.andstuff.kraken.api.model.KrakenCredentials;
+import dev.andstuff.kraken.api.rest.KrakenCredentials;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
