@@ -6,7 +6,7 @@ import static java.util.stream.Collectors.toSet;
 import java.util.List;
 import java.util.Set;
 
-import dev.andstuff.kraken.api.model.endpoint.account.response.LedgerEntry;
+import dev.andstuff.kraken.api.endpoint.account.response.LedgerEntry;
 import lombok.Getter;
 
 /**

@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
-import dev.andstuff.kraken.api.model.endpoint.account.response.LedgerEntry;
+import dev.andstuff.kraken.api.endpoint.account.response.LedgerEntry;
 import lombok.Getter;
 
 /**

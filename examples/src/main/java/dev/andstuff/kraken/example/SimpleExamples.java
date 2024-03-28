@@ -8,12 +8,12 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import dev.andstuff.kraken.api.KrakenAPI;
-import dev.andstuff.kraken.api.model.KrakenCredentials;
-import dev.andstuff.kraken.api.model.endpoint.market.params.AssetPairParams;
-import dev.andstuff.kraken.api.model.endpoint.market.response.AssetInfo;
-import dev.andstuff.kraken.api.model.endpoint.market.response.AssetPair;
-import dev.andstuff.kraken.api.model.endpoint.market.response.ServerTime;
-import dev.andstuff.kraken.api.model.endpoint.market.response.SystemStatus;
+import dev.andstuff.kraken.api.endpoint.market.params.AssetPairParams;
+import dev.andstuff.kraken.api.endpoint.market.response.AssetInfo;
+import dev.andstuff.kraken.api.endpoint.market.response.AssetPair;
+import dev.andstuff.kraken.api.endpoint.market.response.ServerTime;
+import dev.andstuff.kraken.api.endpoint.market.response.SystemStatus;
+import dev.andstuff.kraken.api.rest.KrakenCredentials;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -65,8 +65,8 @@ public class SimpleExamples {
                 "price", "1000",
                 "oflags", "post,fciq",
                 "close[ordertype]", "limit",
-                "close[price]", "1500",
-                "validate", "true"));
+                "close[price]", "500",
+                "validate", "true")); // does not submit the order when set to true
         log.info("{}", order);
     }
 }
