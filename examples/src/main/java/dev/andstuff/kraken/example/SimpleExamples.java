@@ -64,6 +64,8 @@ public class SimpleExamples {
                 "pair", "XLTCZUSD",
                 "price", "1000",
                 "oflags", "post,fciq",
+                "close[ordertype]", "limit",
+                "close[price]", "1500",
                 "validate", "true"));
         log.info("{}", order);
     }
