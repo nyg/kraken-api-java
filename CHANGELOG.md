@@ -1,6 +1,30 @@
 # Changelog
 
 
+## [2.0.0](https://github.com/nyg/kraken-api-java/compare/v1.0.0..2.0.0) - 2024-03-29
+
+### ⛰️  Features
+
+- [`7bc46b8`](https://github.com/nyg/kraken-api-java/commit/7bc46b8655338d0b72608802fd5ab0c9c9f2a699) **[breaking]** Ability to specify custom nonce generator ([#16](https://github.com/nyg/kraken-api-java/issues/16))
+- [`34915c4`](https://github.com/nyg/kraken-api-java/commit/34915c460ba4e83c8c71f1e79cbc1ae62dea7153) **[breaking]** Implement Ticker, Ledgers and QueryLedgers endpoints ([#12](https://github.com/nyg/kraken-api-java/issues/12))
+- [`2d7e766`](https://github.com/nyg/kraken-api-java/commit/2d7e766105684ad9683deba990b33aff95881659) Add SLF4J library ([#11](https://github.com/nyg/kraken-api-java/issues/11))
+- [`47b5d94`](https://github.com/nyg/kraken-api-java/commit/47b5d94987738739e5b07279d62532708ab3e945) **[breaking]** Return JsonNode instead of String for API calls ([#3](https://github.com/nyg/kraken-api-java/issues/3))
+
+### 🚜 Refactor
+
+- [`b047f47`](https://github.com/nyg/kraken-api-java/commit/b047f47fc158fcd985630fdd9dac6f10ba5c4dcf) **[breaking]** Adopt a more object-oriented approach ([#8](https://github.com/nyg/kraken-api-java/issues/8))
+
+### ⚙️ Miscellaneous
+
+- [`8028610`](https://github.com/nyg/kraken-api-java/commit/8028610b1b850261f8a32170f909604353e139b2) *(publish)* Update central-publishing plugin config
+- [`6a81fd4`](https://github.com/nyg/kraken-api-java/commit/6a81fd4878f4ee679cb45f8bcf4c6eab87a539d4) *(deps)* Update all non-major dependencies ([#6](https://github.com/nyg/kraken-api-java/issues/6))
+- [`ab3c048`](https://github.com/nyg/kraken-api-java/commit/ab3c048e993af7e9ec413f2512ba1f1661e418f4) *(examples)* Usage of nested POST parameters ([#15](https://github.com/nyg/kraken-api-java/issues/15))
+- [`ed6487a`](https://github.com/nyg/kraken-api-java/commit/ed6487a6bbf236b1d50cd698def66e8da5ca6c9e) *(java)* **[breaking]** Update to Java 21 ([#7](https://github.com/nyg/kraken-api-java/issues/7))
+- [`0d9b0da`](https://github.com/nyg/kraken-api-java/commit/0d9b0dae0d676fe58521477f7cf817606ae742e0) *(deps)* Update dependency org.codehaus.mojo:exec-maven-plugin to v3.2.0 ([#2](https://github.com/nyg/kraken-api-java/issues/2))
+- [`abd3026`](https://github.com/nyg/kraken-api-java/commit/abd302605e77e2328eb16f9299f5d3cd762aa064) *(deps)* Update orhun/git-cliff-action action to v3 ([#5](https://github.com/nyg/kraken-api-java/issues/5))
+- [`698c584`](https://github.com/nyg/kraken-api-java/commit/698c58452514499a439d3c5c240aeffda1fe06e6) *(deps)* Add Renovate configuration file
+- [`5cc538c`](https://github.com/nyg/kraken-api-java/commit/5cc538c9143b2577f8a0967fc434fc9835bda863) *(readme)* Add link to Sonatype on maven-central badge
+
 ## 1.0.0 - 2024-01-30
 
 ### Others
