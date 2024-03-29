@@ -200,7 +200,7 @@
                         <extensions>true</extensions>
                         <configuration>
                             <publishingServerId>central</publishingServerId>
-                            <tokenEnabled>true</tokenEnabled>
+                            <tokenAuth>true</tokenAuth>
                             <excludeArtifacts>
                                 <artifact>kraken-api-examples</artifact>
                             </excludeArtifacts>
