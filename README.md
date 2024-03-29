@@ -10,13 +10,11 @@ Query the [Kraken REST API][1] in Java.
 <dependency>
     <groupId>dev.andstuff.kraken</groupId>
     <artifactId>kraken-api</artifactId>
-    <version>1.0.0</version>
+    <version>2.0.0</version>
 </dependency>
 ```
 
 ## Usage
-
-> Note: the following code examples are for the current state of the repository and not for the v1.0.0. See [here][3] for v1.0.0 code examples.
 
 ### Public endpoints
 
