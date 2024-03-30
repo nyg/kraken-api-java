@@ -140,7 +140,7 @@
                     <tagNameFormat>v@{version}</tagNameFormat>
 
                     <!-- release:perform -->
-                    <releaseProfiles>maven-central</releaseProfiles>
+                    <releaseProfiles>sonatype-release</releaseProfiles>
                 </configuration>
             </plugin>
         </plugins>
@@ -148,7 +148,7 @@
 
     <profiles>
         <profile>
-            <id>maven-central</id>
+            <id>sonatype-release</id>
             <build>
                 <plugins>
                     <plugin>
