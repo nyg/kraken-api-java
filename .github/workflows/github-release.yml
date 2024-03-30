@@ -16,6 +16,6 @@ jobs:
         with:
           args: -vv --latest --strip all
       - name: Create release
-        run: gh release create ${{ github.ref_name}} -F git-cliff/CHANGELOG.md
+        run: gh release create ${{ github.ref_name }} -F git-cliff/CHANGELOG.md
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
