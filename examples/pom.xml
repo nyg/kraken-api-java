@@ -12,7 +12,7 @@
     <artifactId>kraken-api-examples</artifactId>
 
     <properties>
-        <log4j.version>2.23.1</log4j.version>
+        <log4j.version>3.0.0-beta1</log4j.version>
         <opencsv.version>5.9</opencsv.version>
     </properties>
 
