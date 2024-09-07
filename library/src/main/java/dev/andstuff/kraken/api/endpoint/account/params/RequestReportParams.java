@@ -25,7 +25,7 @@ public class RequestReportParams extends PostParams {
 
     @Override
     protected Map<String, String> params() {
-        HashMap<String, String> params = new HashMap<>();
+        Map<String, String> params = new HashMap<>();
         putIfNonNull(params, "report", type, t -> t.toString().toLowerCase());
         putIfNonNull(params, "format", format);
         putIfNonNull(params, "description", description);

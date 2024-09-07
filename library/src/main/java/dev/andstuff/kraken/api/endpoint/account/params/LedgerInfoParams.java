@@ -31,7 +31,7 @@ public class LedgerInfoParams extends PostParams {
 
     @Override
     protected Map<String, String> params() {
-        HashMap<String, String> params = new HashMap<>();
+        Map<String, String> params = new HashMap<>();
         putIfNonNull(params, "asset", assets, v -> String.join(",", v));
         putIfNonNull(params, "aclass", assetClass);
         putIfNonNull(params, "type", assetType, e -> e.toString().toLowerCase());
