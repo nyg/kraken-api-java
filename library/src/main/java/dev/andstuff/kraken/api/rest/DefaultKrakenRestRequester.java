@@ -42,7 +42,7 @@ public class DefaultKrakenRestRequester implements KrakenRestRequester {
     public <T> T execute(PublicEndpoint<T> endpoint) {
         try {
             HttpsURLConnection connection = createHttpsConnection(endpoint);
-            log.info("Fetching {}", connection.getURL());
+            log.info("Fetching public endpoint: {}", connection.getURL());
             return parseResponse(connection.getInputStream(), endpoint);
         }
         catch (IOException e) {
@@ -57,7 +57,7 @@ public class DefaultKrakenRestRequester implements KrakenRestRequester {
 
         try {
             HttpsURLConnection connection = createHttpsConnection(endpoint);
-            log.info("Fetching {}", connection.getURL());
+            log.info("Fetching private endpoint: {}", connection.getURL());
             connection.addRequestProperty("API-Key", credentials.getKey());
             connection.addRequestProperty("API-Sign", credentials.sign(connection.getURL(), nonce, postData));
             connection.setDoOutput(true);

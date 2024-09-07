@@ -7,10 +7,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import dev.andstuff.kraken.api.endpoint.account.LedgerEntriesEndpoint;
 import dev.andstuff.kraken.api.endpoint.account.LedgerInfoEndpoint;
+import dev.andstuff.kraken.api.endpoint.account.RequestReportEndpoint;
 import dev.andstuff.kraken.api.endpoint.account.params.LedgerEntriesParams;
 import dev.andstuff.kraken.api.endpoint.account.params.LedgerInfoParams;
+import dev.andstuff.kraken.api.endpoint.account.params.RequestReportParams;
 import dev.andstuff.kraken.api.endpoint.account.response.LedgerEntry;
 import dev.andstuff.kraken.api.endpoint.account.response.LedgerInfo;
+import dev.andstuff.kraken.api.endpoint.account.response.ReportRequest;
 import dev.andstuff.kraken.api.endpoint.market.AssetInfoEndpoint;
 import dev.andstuff.kraken.api.endpoint.market.AssetPairEndpoint;
 import dev.andstuff.kraken.api.endpoint.market.ServerTimeEndpoint;
@@ -106,6 +109,18 @@ public class KrakenAPI {
     public Map<String, LedgerEntry> ledgerEntries(LedgerEntriesParams params) {
         return executePrivate(new LedgerEntriesEndpoint(params));
     }
+
+    public ReportRequest requestReport(RequestReportParams params) {
+        return executePrivate(new RequestReportEndpoint(params));
+    }
+
+    //    public List<ReportStatus> reportsStatuses(ReportType type) {
+    //
+    //    }
+    //
+    //    public ReportData reportData(String reportId) {
+    //
+    //    }
 
     private <T> T executePrivate(PrivateEndpoint<T> endpoint) {
         return restRequester.execute(endpoint, credentials, nonceGenerator);
