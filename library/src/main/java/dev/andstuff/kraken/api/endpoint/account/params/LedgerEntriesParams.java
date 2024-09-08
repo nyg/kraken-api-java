@@ -18,7 +18,7 @@ public class LedgerEntriesParams extends PostParams {
 
     @Override
     public Map<String, String> params() {
-        HashMap<String, String> params = new HashMap<>();
+        Map<String, String> params = new HashMap<>();
         putIfNonNull(params, "id", entryIds, v -> String.join(",", v));
         putIfNonNull(params, "trades", includeTrades);
         return params;
