@@ -49,6 +49,7 @@ public class EoyBalanceExample {
         }
 
         // Download report
+        api.reportData(reportId);
 
         // Delete report
         log.info("Report was removed: {}", api.deleteReport(reportId));
