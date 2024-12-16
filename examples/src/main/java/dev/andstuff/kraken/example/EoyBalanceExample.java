@@ -3,12 +3,14 @@ package dev.andstuff.kraken.example;
 import static dev.andstuff.kraken.example.helper.CredentialsHelper.readFromFile;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import dev.andstuff.kraken.api.KrakenAPI;
 import dev.andstuff.kraken.api.endpoint.account.params.ReportType;
 import dev.andstuff.kraken.api.endpoint.account.params.RequestReportParams;
+import dev.andstuff.kraken.api.endpoint.account.response.LedgerEntry;
 import dev.andstuff.kraken.api.endpoint.account.response.Report;
 import dev.andstuff.kraken.api.rest.KrakenCredentials;
 import lombok.extern.slf4j.Slf4j;
@@ -49,7 +51,9 @@ public class EoyBalanceExample {
         }
 
         // Download report
-        api.reportData(reportId);
+        List<LedgerEntry> ledgerEntries = api.reportData(reportId);
+
+        // TODO ...
 
         // Delete report
         log.info("Report was removed: {}", api.deleteReport(reportId));

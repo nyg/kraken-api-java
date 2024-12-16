@@ -1,9 +1,7 @@
 package dev.andstuff.kraken.api.rest;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -15,8 +13,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvValidationException;
 
 import dev.andstuff.kraken.api.endpoint.Endpoint;
 import dev.andstuff.kraken.api.endpoint.KrakenException;
@@ -49,7 +45,7 @@ public class DefaultKrakenRestRequester implements KrakenRestRequester {
             log.info("Fetching public endpoint: {}", connection.getURL());
             return parseResponse(connection, endpoint);
         }
-        catch (IOException | CsvValidationException e) {
+        catch (IOException e) {
             throw new IllegalStateException("Error while making request to Kraken API", e);
         }
     }
@@ -72,7 +68,7 @@ public class DefaultKrakenRestRequester implements KrakenRestRequester {
 
             return parseResponse(connection, endpoint);
         }
-        catch (IOException | CsvValidationException e) {
+        catch (IOException e) {
             throw new IllegalStateException("Error while making request to Kraken API", e);
         }
     }
@@ -80,11 +76,11 @@ public class DefaultKrakenRestRequester implements KrakenRestRequester {
     private static <T> HttpsURLConnection createHttpsConnection(Endpoint<T> endpoint) throws IOException {
         HttpsURLConnection connection = (HttpsURLConnection) endpoint.buildURL().openConnection();
         connection.setRequestMethod(endpoint.getHttpMethod());
-        connection.addRequestProperty("User-Agent", "github.com/nyg");
+        connection.addRequestProperty("User-Agent", "github.com/nyg/kraken-api-java");
         return connection;
     }
 
-    private static <T> T parseResponse(HttpsURLConnection connection, Endpoint<T> endpoint) throws IOException, CsvValidationException {
+    private static <T> T parseResponse(HttpsURLConnection connection, Endpoint<T> endpoint) throws IOException {
         String contentType = connection.getHeaderField("Content-Type");
         if ("application/json".equals(contentType)) {
             JavaType krakenResponseType = endpoint.wrappedResponseType(OBJECT_MAPPER.getTypeFactory());
@@ -92,18 +88,9 @@ public class DefaultKrakenRestRequester implements KrakenRestRequester {
             return response.result().orElseThrow(() -> new KrakenException(response.error()));
         }
         else if ("application/zip".equals(contentType)) {
-            ZipInputStream zipStream = new ZipInputStream(connection.getInputStream());
-            ZipEntry zipEntry = zipStream.getNextEntry();
-            log.info("Zip entry: {}", zipEntry.getName());
-            InputStreamReader streamReader = new InputStreamReader(zipStream);
-            CSVReader csvReader = new CSVReader(streamReader);
-
-            String[] nextLine;
-            while ((nextLine = csvReader.readNext()) != null) {
-                log.info("{}", (Object) nextLine);
+            try (ZipInputStream zipStream = new ZipInputStream(connection.getInputStream())) {
+                return endpoint.processZipResponse(zipStream);
             }
-
-            return null;
         }
         else {
             throw new IllegalStateException("Unsupported HTTP Content-Type");

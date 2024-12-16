@@ -127,8 +127,8 @@ public class KrakenAPI {
         return executePrivate(new ReportsStatusesEndpoint(ReportsStatusesParams.of(type)));
     }
 
-    public void reportData(String id) {
-        executePrivate(new ReportDataEndpoint(ReportDataParams.of(id)));
+    public List<LedgerEntry> reportData(String id) {
+        return executePrivate(new ReportDataEndpoint(ReportDataParams.of(id)));
     }
 
     public boolean deleteReport(String id) {
