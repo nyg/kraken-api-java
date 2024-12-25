@@ -8,11 +8,11 @@ import java.util.List;
 import java.util.Set;
 
 import dev.andstuff.kraken.api.KrakenAPI;
-import dev.andstuff.kraken.api.rest.KrakenCredentials;
 import dev.andstuff.kraken.api.endpoint.KrakenException;
 import dev.andstuff.kraken.api.endpoint.account.params.LedgerInfoParams;
 import dev.andstuff.kraken.api.endpoint.account.response.LedgerEntry;
 import dev.andstuff.kraken.api.endpoint.account.response.LedgerInfo;
+import dev.andstuff.kraken.api.rest.KrakenCredentials;
 import dev.andstuff.kraken.example.reward.AssetRates;
 import dev.andstuff.kraken.example.reward.StakingRewards;
 import dev.andstuff.kraken.example.reward.csv.CsvLedgerEntries;
@@ -86,7 +86,7 @@ public class StakingRewardsSummaryExample {
             return new AssetRates(api.ticker(pairs));
         }
         catch (KrakenException e) {
-            throw new RuntimeException("Couldn't fetch rates", e);
+            throw new IllegalStateException("Couldn't fetch rates", e);
         }
     }
 }

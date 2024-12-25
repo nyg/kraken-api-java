@@ -32,11 +32,11 @@ public class RequestReportParams extends PostParams {
         putIfNonNull(params, "fields", fields);
 
         if (fromDate != null) {
-            putIfNonNull(params, "start", fromDate, d -> Long.toString(d.getEpochSecond()));
+            putIfNonNull(params, "starttm", fromDate, d -> Long.toString(d.getEpochSecond()));
         }
 
         if (toDate != null) {
-            putIfNonNull(params, "end", toDate, d -> Long.toString(d.getEpochSecond()));
+            putIfNonNull(params, "endtm", toDate, d -> Long.toString(d.getEpochSecond()));
         }
 
         return params;

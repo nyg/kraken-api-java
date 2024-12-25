@@ -19,7 +19,7 @@ public final class CredentialsHelper {
             return new KrakenCredentials(properties.getProperty("key"), properties.getProperty("secret"));
         }
         catch (IOException e) {
-            throw new RuntimeException(String.format("Could not read properties from file: %s", path));
+            throw new IllegalStateException(String.format("Could not read properties from file: %s", path));
         }
     }
 }

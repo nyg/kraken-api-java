@@ -46,6 +46,10 @@ public record LedgerEntry(@CsvBindByName(column = "txid") @With String id, // TO
         return time.atZone(ZoneId.of("UTC")).getYear();
     }
 
+    public boolean isBalanceZero() {
+        return balance.compareTo(BigDecimal.ZERO) == 0;
+    }
+
     public enum Type {
         NONE,
         TRADE,

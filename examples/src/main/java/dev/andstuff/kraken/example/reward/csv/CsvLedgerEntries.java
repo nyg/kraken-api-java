@@ -38,7 +38,7 @@ public class CsvLedgerEntries {
                     .write(ledgerEntries);
         }
         catch (CsvRequiredFieldEmptyException | CsvDataTypeMismatchException | IOException e) {
-            throw new RuntimeException("Couldn't write ledger entries to file", e);
+            throw new IllegalStateException("Couldn't write ledger entries to file", e);
         }
     }
 }
