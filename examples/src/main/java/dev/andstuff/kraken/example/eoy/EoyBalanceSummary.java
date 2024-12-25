@@ -9,7 +9,6 @@ import java.util.function.Predicate;
 
 import com.opencsv.CSVWriter;
 
-import dev.andstuff.kraken.api.endpoint.account.response.LedgerEntry;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -17,7 +16,7 @@ public class EoyBalanceSummary {
 
     private static final String[] HEADER_ROW = {"Wallet", "Asset", "Balance"};
 
-    private final EoyBalance eoyBalance;
+    private final EoyBalances eoyBalance;
 
     public void writeToFile(String fileName) {
         try (CSVWriter writer = new CSVWriter(new FileWriter(fileName))) {
@@ -31,9 +30,9 @@ public class EoyBalanceSummary {
 
     private List<String[]> buildRows() {
         return eoyBalance.getBalances().stream()
-                .filter(Predicate.not(LedgerEntry::isBalanceZero))
-                .sorted(comparing(LedgerEntry::wallet).thenComparing(LedgerEntry::asset).thenComparing(LedgerEntry::balance))
-                .map(entry -> new String[] {entry.wallet(), entry.asset(), entry.balance().stripTrailingZeros().toPlainString()})
+                .filter(Predicate.not(EoyBalance::isBalanceZero))
+                .sorted(comparing(EoyBalance::wallet).thenComparing(EoyBalance::asset).thenComparing(EoyBalance::balance))
+                .map(EoyBalance::asStringArray)
                 .toList();
     }
 }

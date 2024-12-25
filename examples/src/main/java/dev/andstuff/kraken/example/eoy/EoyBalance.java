@@ -1,33 +1,29 @@
 package dev.andstuff.kraken.example.eoy;
 
-import static java.util.Comparator.comparing;
-import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toMap;
-
-import java.util.Collection;
-import java.util.List;
+import java.math.BigDecimal;
 
 import dev.andstuff.kraken.api.endpoint.account.response.LedgerEntry;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
-@Getter
-public class EoyBalance {
+public record EoyBalance(String wallet, String asset, BigDecimal balance) {
 
-    private final Collection<LedgerEntry> balances;
-
-    public EoyBalance(List<LedgerEntry> ledgerEntries) {
-        this.balances = ledgerEntries.stream()
-                .sorted(comparing(LedgerEntry::time).reversed())
-                .collect(toMap(LedgerEntryKey::from, identity(), (a, b) -> a))
-                .values();
+    public static EoyBalance from(LedgerEntry ledgerEntry, boolean groupByUnderlyingAsset) {
+        return new EoyBalance(
+                ledgerEntry.wallet(),
+                groupByUnderlyingAsset
+                        ? ledgerEntry.underlyingAsset()
+                        : ledgerEntry.asset(),
+                ledgerEntry.balance());
     }
 
-    private record LedgerEntryKey(String wallet, String asset) {
+    public EoyBalance addingBalance(BigDecimal additionalBalance) {
+        return new EoyBalance(wallet, asset, balance.add(additionalBalance));
+    }
 
-        public static LedgerEntryKey from(LedgerEntry ledgerEntry) {
-            return new LedgerEntryKey(ledgerEntry.wallet(), ledgerEntry.asset());
-        }
+    public boolean isBalanceZero() {
+        return balance.compareTo(BigDecimal.ZERO) == 0;
+    }
+
+    public String[] asStringArray() {
+        return new String[] {wallet, asset, balance.stripTrailingZeros().toPlainString()};
     }
 }

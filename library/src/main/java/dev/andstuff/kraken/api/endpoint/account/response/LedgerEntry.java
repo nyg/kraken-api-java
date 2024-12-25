@@ -3,6 +3,7 @@ package dev.andstuff.kraken.api.endpoint.account.response;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -29,9 +30,11 @@ public record LedgerEntry(@CsvBindByName(column = "txid") @With String id, // TO
      * @return the underlying asset
      */
     public String underlyingAsset() {
-        return asset.matches("^([XZ])([A-Z]{3})$")
-                ? asset.substring(1, 4)
-                : asset.split("[0-9.]")[0];
+        return switch (asset) {
+            case String s when Pattern.matches("^[XZ][A-Z]{3}$", s) -> s.substring(1, 4);
+            case String s when Pattern.matches("^[0-9A-Z]+$", s) -> s;
+            default -> asset.split("[0-9.]")[0];
+        };
     }
 
     public BigDecimal netAmount() {
@@ -44,10 +47,6 @@ public record LedgerEntry(@CsvBindByName(column = "txid") @With String id, // TO
 
     public int year() {
         return time.atZone(ZoneId.of("UTC")).getYear();
-    }
-
-    public boolean isBalanceZero() {
-        return balance.compareTo(BigDecimal.ZERO) == 0;
     }
 
     public enum Type {

@@ -9,8 +9,8 @@ import dev.andstuff.kraken.api.KrakenAPI;
 import dev.andstuff.kraken.api.endpoint.account.params.ReportType;
 import dev.andstuff.kraken.api.endpoint.account.params.RequestReportParams;
 import dev.andstuff.kraken.api.rest.KrakenCredentials;
-import dev.andstuff.kraken.example.eoy.EoyBalance;
 import dev.andstuff.kraken.example.eoy.EoyBalanceSummary;
+import dev.andstuff.kraken.example.eoy.EoyBalances;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,15 +22,16 @@ public class EoyBalanceExample {
 
     public static void main(String[] args) {
         KrakenCredentials credentials = readFromFile("/api-keys.properties");
+        Instant dateTo = Instant.parse("2024-01-01T00:00:00Z");
         new EoyBalanceExample(new KrakenAPI(credentials))
-                .generate(Instant.parse("2024-01-01T00:00:00Z"), "eoy-balance.csv");
+                .generate(dateTo, "eoy-balance-grouped.csv", true);
     }
 
-    public void generate(Instant dateTo, String reportFileName) {
+    public void generate(Instant dateTo, String reportFileName, boolean groupByUnderlyingAsset) {
         String reportId = requestReport(dateTo);
         waitUntilReportIsProcessed(reportId);
 
-        EoyBalance eoyBalance = new EoyBalance(api.reportData(reportId));
+        EoyBalances eoyBalance = new EoyBalances(api.reportData(reportId), groupByUnderlyingAsset);
         new EoyBalanceSummary(eoyBalance).writeToFile(reportFileName);
 
         log.info("Report was removed: {}", api.deleteReport(reportId));
