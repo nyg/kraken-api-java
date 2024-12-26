@@ -20,24 +20,24 @@ public class EoyBalances {
     @Accessors(fluent = true)
     private final boolean shouldGroupWallets;
 
-    public EoyBalances(List<LedgerEntry> ledgerEntries, boolean groupByUnderlyingAsset, boolean groupWallets) {
+    public EoyBalances(List<LedgerEntry> ledgerEntries, boolean groupAssets, boolean groupWallets) {
         this.shouldGroupWallets = groupWallets;
         this.balances = ledgerEntries.stream()
                 .collect(toMap(LedgerEntryKey::from, identity(), (a, b) -> b))
                 .values().stream()
                 .collect(toMap(
-                        ledgerEntry -> EoyBalanceKey.from(ledgerEntry, groupByUnderlyingAsset, groupWallets),
-                        ledgerEntry -> EoyBalance.from(ledgerEntry, groupByUnderlyingAsset, groupWallets),
+                        ledgerEntry -> EoyBalanceKey.from(ledgerEntry, groupAssets, groupWallets),
+                        ledgerEntry -> EoyBalance.from(ledgerEntry, groupAssets, groupWallets),
                         (a, b) -> a.addingBalance(b.balance())))
                 .values();
     }
 
     private record EoyBalanceKey(String wallet, String asset) {
 
-        public static EoyBalanceKey from(LedgerEntry ledgerEntry, boolean groupByUnderlyingAsset, boolean groupWallets) {
+        public static EoyBalanceKey from(LedgerEntry ledgerEntry, boolean groupAssets, boolean groupWallets) {
             return new EoyBalanceKey(
                     groupWallets ? null : ledgerEntry.wallet(),
-                    groupByUnderlyingAsset ? ledgerEntry.underlyingAsset() : ledgerEntry.asset());
+                    groupAssets ? ledgerEntry.underlyingAsset() : ledgerEntry.asset());
         }
     }
 

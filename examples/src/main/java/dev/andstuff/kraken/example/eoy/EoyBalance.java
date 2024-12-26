@@ -8,10 +8,10 @@ import dev.andstuff.kraken.api.endpoint.account.response.LedgerEntry;
 
 public record EoyBalance(String wallet, String asset, BigDecimal balance) {
 
-    public static EoyBalance from(LedgerEntry ledgerEntry, boolean groupByUnderlyingAsset, boolean groupWallets) {
+    public static EoyBalance from(LedgerEntry ledgerEntry, boolean groupAssets, boolean groupWallets) {
         return new EoyBalance(
                 groupWallets ? null : ledgerEntry.wallet(),
-                groupByUnderlyingAsset ? ledgerEntry.underlyingAsset() : ledgerEntry.asset(),
+                groupAssets ? ledgerEntry.underlyingAsset() : ledgerEntry.asset(),
                 ledgerEntry.balance());
     }
 

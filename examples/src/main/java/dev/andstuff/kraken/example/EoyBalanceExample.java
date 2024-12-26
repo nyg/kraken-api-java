@@ -18,6 +18,8 @@ import lombok.extern.slf4j.Slf4j;
  * Generates a CSV file containing your Kraken balances at any given date. EOY
  * means end-of-year, but the historical balances can be retrieved for any
  * date.
+ * <p>
+ * <i>Note:</i> does not include assets in the futures account.
  */
 @Slf4j
 @RequiredArgsConstructor
@@ -32,14 +34,21 @@ public class EoyBalanceExample {
                 .generate(dateTo, "eoy-balance.csv", true, false);
     }
 
-    public void generate(Instant dateTo, String reportFileName, boolean groupByUnderlyingAsset, boolean groupWallets) {
+    /**
+     * Generates the CSV report.
+     *
+     * @param dateTo         the date at which the balances should be extracted
+     * @param reportFileName the name of the CSV file
+     * @param groupAssets    group by underlying asset, e.g. DOT28.S will be grouped with DOT
+     * @param groupWallets   sum balances across all wallets, e.g. "main / spot", "earn / bonded", "earn / liquid"
+     */
+    public void generate(Instant dateTo, String reportFileName, boolean groupAssets, boolean groupWallets) {
         String reportId = requestReport(dateTo);
         waitUntilReportIsProcessed(reportId);
+        log.info("Removing report: {}", api.deleteReport(reportId));
 
-        EoyBalances eoyBalance = new EoyBalances(api.reportData(reportId), groupByUnderlyingAsset, groupWallets);
+        EoyBalances eoyBalance = new EoyBalances(api.reportData(reportId), groupAssets, groupWallets);
         new EoyBalanceSummary(eoyBalance).writeToFile(reportFileName);
-
-        log.info("Report was removed: {}", api.deleteReport(reportId));
     }
 
     private String requestReport(Instant dateTo) {
