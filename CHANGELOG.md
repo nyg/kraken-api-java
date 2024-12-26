@@ -1,7 +1,22 @@
 # Changelog
 
 
-## [2.0.0](https://github.com/nyg/kraken-api-java/compare/v1.0.0..2.0.0) - 2024-03-29
+## [2.1.0](https://github.com/nyg/kraken-api-java/compare/v2.0.0..2.1.0) - 2024-12-26
+
+### ⛰️  Features
+
+- [`934b794`](https://github.com/nyg/kraken-api-java/commit/934b7945b1121d2e582195d4c3d5dbd2d0466532) Implement report endpoints, add EOY Balance example ([#24](https://github.com/nyg/kraken-api-java/issues/24))
+
+### ⚙️ Miscellaneous
+
+- [`66aabb5`](https://github.com/nyg/kraken-api-java/commit/66aabb53cfa3faf11a5f5b03dc8531b6e81dd320) *(readme)* Update README for v2.1.0
+- [`bb94609`](https://github.com/nyg/kraken-api-java/commit/bb946092329c4661f03ea960e31e2f90b76a7dcf) *(deps)* Update all non-major dependencies ([#20](https://github.com/nyg/kraken-api-java/issues/20))
+- [`0cee177`](https://github.com/nyg/kraken-api-java/commit/0cee1772c125f43bc9c876f15fd3e5f13f04fd9d) *(java)* Explicitly specify annotation processors ([#26](https://github.com/nyg/kraken-api-java/issues/26))
+- [`8aaa739`](https://github.com/nyg/kraken-api-java/commit/8aaa73946f9167f952313633593b2d516a391028) *(deps)* Update orhun/git-cliff-action action to v4 ([#22](https://github.com/nyg/kraken-api-java/issues/22))
+- [`274ddb2`](https://github.com/nyg/kraken-api-java/commit/274ddb2f3c6595ec1a818d0bbc3c003f68553170) *(doc)* Document the release process ([#19](https://github.com/nyg/kraken-api-java/issues/19))
+- [`b9e7684`](https://github.com/nyg/kraken-api-java/commit/b9e7684968a78e0701c70e727a810776b90032f0) *(readme)* Update README for v2
+
+## [2.0.0](https://github.com/nyg/kraken-api-java/compare/v1.0.0..v2.0.0) - 2024-03-29
 
 ### ⛰️  Features
 
