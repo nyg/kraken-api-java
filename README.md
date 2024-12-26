@@ -10,7 +10,7 @@ Query the [Kraken REST API][1] in Java.
 <dependency>
     <groupId>dev.andstuff.kraken</groupId>
     <artifactId>kraken-api</artifactId>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
 </dependency>
 ```
 
@@ -107,6 +107,7 @@ mvn clean install
 # run example classes
 mvn -q -pl examples exec:java -Dexec.mainClass=dev.andstuff.kraken.example.SimpleExamples
 mvn -q -pl examples exec:java -Dexec.mainClass=dev.andstuff.kraken.example.StakingRewardsSummaryExample
+mvn -q -pl examples exec:java -Dexec.mainClass=dev.andstuff.kraken.example.EoyBalanceExample
 ```
 
 [1]: https://docs.kraken.com/rest/
