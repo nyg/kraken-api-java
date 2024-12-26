@@ -14,6 +14,11 @@ import dev.andstuff.kraken.example.eoy.EoyBalances;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Generates a CSV file containing your Kraken balances at any given date. EOY
+ * means end-of-year, but the historical balances can be retrieved for any
+ * date.
+ */
 @Slf4j
 @RequiredArgsConstructor
 public class EoyBalanceExample {
@@ -24,14 +29,14 @@ public class EoyBalanceExample {
         KrakenCredentials credentials = readFromFile("/api-keys.properties");
         Instant dateTo = Instant.parse("2024-01-01T00:00:00Z");
         new EoyBalanceExample(new KrakenAPI(credentials))
-                .generate(dateTo, "eoy-balance-grouped.csv", true);
+                .generate(dateTo, "eoy-balance.csv", true, false);
     }
 
-    public void generate(Instant dateTo, String reportFileName, boolean groupByUnderlyingAsset) {
+    public void generate(Instant dateTo, String reportFileName, boolean groupByUnderlyingAsset, boolean groupWallets) {
         String reportId = requestReport(dateTo);
         waitUntilReportIsProcessed(reportId);
 
-        EoyBalances eoyBalance = new EoyBalances(api.reportData(reportId), groupByUnderlyingAsset);
+        EoyBalances eoyBalance = new EoyBalances(api.reportData(reportId), groupByUnderlyingAsset, groupWallets);
         new EoyBalanceSummary(eoyBalance).writeToFile(reportFileName);
 
         log.info("Report was removed: {}", api.deleteReport(reportId));
@@ -54,7 +59,7 @@ public class EoyBalanceExample {
         AtomicBoolean processed = new AtomicBoolean(false);
         while (!processed.get()) {
             try {
-                Thread.sleep(5_000);
+                Thread.sleep(1_000);
             }
             catch (InterruptedException e) {
                 log.warn("Thread interrupted while waiting for the report to be processed", e);
