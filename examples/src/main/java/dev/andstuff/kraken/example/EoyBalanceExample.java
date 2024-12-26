@@ -45,7 +45,7 @@ public class EoyBalanceExample {
     public void generate(Instant dateTo, String reportFileName, boolean groupAssets, boolean groupWallets) {
         String reportId = requestReport(dateTo);
         waitUntilReportIsProcessed(reportId);
-        log.info("Removing report: {}", api.deleteReport(reportId));
+        log.info("Removed report: {}", api.deleteReport(reportId));
 
         EoyBalances eoyBalance = new EoyBalances(api.reportData(reportId), groupAssets, groupWallets);
         new EoyBalanceSummary(eoyBalance).writeToFile(reportFileName);
