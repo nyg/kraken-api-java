@@ -1,8 +1,8 @@
 package dev.andstuff.kraken.api.rest;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.util.zip.ZipInputStream;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -42,8 +42,8 @@ public class DefaultKrakenRestRequester implements KrakenRestRequester {
     public <T> T execute(PublicEndpoint<T> endpoint) {
         try {
             HttpsURLConnection connection = createHttpsConnection(endpoint);
-            log.info("Fetching {}", connection.getURL());
-            return parseResponse(connection.getInputStream(), endpoint);
+            log.info("Fetching public endpoint: {}", connection.getURL());
+            return parseResponse(connection, endpoint);
         }
         catch (IOException e) {
             throw new IllegalStateException("Error while making request to Kraken API", e);
@@ -57,7 +57,7 @@ public class DefaultKrakenRestRequester implements KrakenRestRequester {
 
         try {
             HttpsURLConnection connection = createHttpsConnection(endpoint);
-            log.info("Fetching {}", connection.getURL());
+            log.info("Fetching private endpoint: {}", connection.getURL());
             connection.addRequestProperty("API-Key", credentials.getKey());
             connection.addRequestProperty("API-Sign", credentials.sign(connection.getURL(), nonce, postData));
             connection.setDoOutput(true);
@@ -66,7 +66,7 @@ public class DefaultKrakenRestRequester implements KrakenRestRequester {
                 out.write(postData);
             }
 
-            return parseResponse(connection.getInputStream(), endpoint);
+            return parseResponse(connection, endpoint);
         }
         catch (IOException e) {
             throw new IllegalStateException("Error while making request to Kraken API", e);
@@ -76,13 +76,24 @@ public class DefaultKrakenRestRequester implements KrakenRestRequester {
     private static <T> HttpsURLConnection createHttpsConnection(Endpoint<T> endpoint) throws IOException {
         HttpsURLConnection connection = (HttpsURLConnection) endpoint.buildURL().openConnection();
         connection.setRequestMethod(endpoint.getHttpMethod());
-        connection.addRequestProperty("User-Agent", "github.com/nyg");
+        connection.addRequestProperty("User-Agent", "github.com/nyg/kraken-api-java");
         return connection;
     }
 
-    private static <T> T parseResponse(InputStream responseStream, Endpoint<T> endpoint) throws IOException {
-        JavaType krakenResponseType = endpoint.wrappedResponseType(OBJECT_MAPPER.getTypeFactory());
-        KrakenResponse<T> response = OBJECT_MAPPER.readValue(responseStream, krakenResponseType);
-        return response.result().orElseThrow(() -> new KrakenException(response.error()));
+    private static <T> T parseResponse(HttpsURLConnection connection, Endpoint<T> endpoint) throws IOException {
+        String contentType = connection.getHeaderField("Content-Type");
+        if ("application/json".equals(contentType)) {
+            JavaType krakenResponseType = endpoint.wrappedResponseType(OBJECT_MAPPER.getTypeFactory());
+            KrakenResponse<T> response = OBJECT_MAPPER.readValue(connection.getInputStream(), krakenResponseType);
+            return response.result().orElseThrow(() -> new KrakenException(response.error()));
+        }
+        else if ("application/zip".equals(contentType)) {
+            try (ZipInputStream zipStream = new ZipInputStream(connection.getInputStream())) {
+                return endpoint.processZipResponse(zipStream);
+            }
+        }
+        else {
+            throw new IllegalStateException("Unsupported HTTP Content-Type");
+        }
     }
 }

@@ -38,7 +38,7 @@ public class CsvStakingRewardsSummary {
             writer.writeNext(footerRow);
         }
         catch (IOException e) {
-            throw new RuntimeException("Couldn't write reward summary to file", e);
+            throw new IllegalStateException("Couldn't write reward summary to file", e);
         }
     }
 

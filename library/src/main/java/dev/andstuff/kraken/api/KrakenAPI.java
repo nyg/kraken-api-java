@@ -7,10 +7,22 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import dev.andstuff.kraken.api.endpoint.account.LedgerEntriesEndpoint;
 import dev.andstuff.kraken.api.endpoint.account.LedgerInfoEndpoint;
+import dev.andstuff.kraken.api.endpoint.account.RemoveReportEndpoint;
+import dev.andstuff.kraken.api.endpoint.account.ReportDataEndpoint;
+import dev.andstuff.kraken.api.endpoint.account.ReportsStatusesEndpoint;
+import dev.andstuff.kraken.api.endpoint.account.RequestReportEndpoint;
 import dev.andstuff.kraken.api.endpoint.account.params.LedgerEntriesParams;
 import dev.andstuff.kraken.api.endpoint.account.params.LedgerInfoParams;
+import dev.andstuff.kraken.api.endpoint.account.params.RemovalType;
+import dev.andstuff.kraken.api.endpoint.account.params.RemoveReportParams;
+import dev.andstuff.kraken.api.endpoint.account.params.ReportDataParams;
+import dev.andstuff.kraken.api.endpoint.account.params.ReportType;
+import dev.andstuff.kraken.api.endpoint.account.params.ReportsStatusesParams;
+import dev.andstuff.kraken.api.endpoint.account.params.RequestReportParams;
 import dev.andstuff.kraken.api.endpoint.account.response.LedgerEntry;
 import dev.andstuff.kraken.api.endpoint.account.response.LedgerInfo;
+import dev.andstuff.kraken.api.endpoint.account.response.Report;
+import dev.andstuff.kraken.api.endpoint.account.response.ReportRequest;
 import dev.andstuff.kraken.api.endpoint.market.AssetInfoEndpoint;
 import dev.andstuff.kraken.api.endpoint.market.AssetPairEndpoint;
 import dev.andstuff.kraken.api.endpoint.market.ServerTimeEndpoint;
@@ -105,6 +117,26 @@ public class KrakenAPI {
 
     public Map<String, LedgerEntry> ledgerEntries(LedgerEntriesParams params) {
         return executePrivate(new LedgerEntriesEndpoint(params));
+    }
+
+    public ReportRequest requestReport(RequestReportParams params) {
+        return executePrivate(new RequestReportEndpoint(params));
+    }
+
+    public List<Report> reportsStatuses(ReportType type) {
+        return executePrivate(new ReportsStatusesEndpoint(ReportsStatusesParams.of(type)));
+    }
+
+    public List<LedgerEntry> reportData(String id) {
+        return executePrivate(new ReportDataEndpoint(ReportDataParams.of(id)));
+    }
+
+    public boolean deleteReport(String id) {
+        return executePrivate(new RemoveReportEndpoint(RemoveReportParams.of(id, RemovalType.DELETE))).wasDeleted();
+    }
+
+    public boolean cancelReport(String id) {
+        return executePrivate(new RemoveReportEndpoint(RemoveReportParams.of(id, RemovalType.CANCEL))).wasCanceled();
     }
 
     private <T> T executePrivate(PrivateEndpoint<T> endpoint) {

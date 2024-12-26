@@ -13,7 +13,6 @@
 
     <properties>
         <log4j.version>2.23.1</log4j.version>
-        <opencsv.version>5.9</opencsv.version>
     </properties>
 
     <dependencies>
@@ -35,13 +34,6 @@
             <artifactId>log4j-slf4j2-impl</artifactId>
             <version>${log4j.version}</version>
             <scope>runtime</scope>
-        </dependency>
-
-        <!-- Third-party -->
-        <dependency>
-            <groupId>com.opencsv</groupId>
-            <artifactId>opencsv</artifactId>
-            <version>${opencsv.version}</version>
         </dependency>
     </dependencies>
 
