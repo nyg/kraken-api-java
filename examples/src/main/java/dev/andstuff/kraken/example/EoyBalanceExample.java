@@ -31,24 +31,25 @@ public class EoyBalanceExample {
         KrakenCredentials credentials = readFromFile("/api-keys.properties");
         Instant dateTo = Instant.parse("2024-01-01T00:00:00Z");
         new EoyBalanceExample(new KrakenAPI(credentials))
-                .generate(dateTo, "eoy-balance.csv", true, true);
+                .generate(dateTo, "eoy-balance.csv", true, true, false);
     }
 
     /**
      * Generates the CSV report.
      *
-     * @param dateTo         the date at which the balances should be extracted
-     * @param reportFileName the name of the CSV file
-     * @param groupAssets    group by underlying asset, e.g. DOT28.S will be grouped with DOT
-     * @param groupWallets   sum balances across all wallets, e.g. "main / spot", "earn / bonded", "earn / liquid"
+     * @param dateTo            the date at which the balances should be extracted
+     * @param reportFileName    the name of the CSV file
+     * @param groupAssets       group by underlying asset, e.g. DOT28.S will be grouped with DOT
+     * @param groupWallets      sum balances across all wallets, e.g. "main / spot", "earn / bonded", "earn / liquid"
+     * @param thousandSeparator format balances with thousand separators
      */
-    public void generate(Instant dateTo, String reportFileName, boolean groupAssets, boolean groupWallets) {
+    public void generate(Instant dateTo, String reportFileName, boolean groupAssets, boolean groupWallets, boolean thousandSeparator) {
         String reportId = requestReport(dateTo);
         waitUntilReportIsProcessed(reportId);
         log.info("Removed report: {}", api.deleteReport(reportId));
 
         EoyBalances eoyBalance = new EoyBalances(api.reportData(reportId), groupAssets, groupWallets);
-        new EoyBalanceSummary(eoyBalance).writeToFile(reportFileName);
+        new EoyBalanceSummary(eoyBalance).writeToFile(reportFileName, thousandSeparator);
     }
 
     private String requestReport(Instant dateTo) {

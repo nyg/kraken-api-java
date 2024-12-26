@@ -1,12 +1,13 @@
 package dev.andstuff.kraken.example.eoy;
 
 import static java.util.Comparator.comparing;
+import static java.util.Comparator.naturalOrder;
+import static java.util.Comparator.nullsFirst;
 import static java.util.function.Predicate.not;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.NumberFormat;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -27,10 +28,10 @@ public class EoyBalanceSummary {
 
     private final EoyBalances eoyBalances;
 
-    public void writeToFile(String fileName) {
+    public void writeToFile(String fileName, boolean thousandSeparator) {
         try (CSVWriter writer = new CSVWriter(new FileWriter(fileName))) {
             writer.writeNext(buildHeaderRow());
-            writer.writeAll(buildRows());
+            writer.writeAll(buildRows(thousandSeparator));
         }
         catch (IOException e) {
             throw new IllegalStateException("Couldn't write EOY balance summary to file", e);
@@ -43,19 +44,21 @@ public class EoyBalanceSummary {
                 : new String[] {"Wallet", "Asset", "Balance"};
     }
 
-    private List<String[]> buildRows() {
-        Comparator<EoyBalance> byWalletAssetBalance = eoyBalances.shouldGroupWallets()
-                ? comparing(EoyBalance::asset).thenComparing(EoyBalance::balance)
-                : comparing(EoyBalance::wallet).thenComparing(EoyBalance::asset).thenComparing(EoyBalance::balance);
+    private List<String[]> buildRows(boolean thousandSeparator) {
         return eoyBalances.getBalances().stream()
                 .filter(not(EoyBalance::isBalanceZero))
-                .sorted(byWalletAssetBalance)
-                .map(this::toStringArray)
+                .sorted(comparing(EoyBalance::wallet, nullsFirst(naturalOrder()))
+                        .thenComparing(EoyBalance::asset)
+                        .thenComparing(EoyBalance::balance))
+                .map(eoyBalance -> buildRow(eoyBalance, thousandSeparator))
                 .toList();
     }
 
-    private String[] toStringArray(EoyBalance eoyBalance) {
-        return Stream.of(eoyBalance.wallet(), eoyBalance.asset(), BALANCE_FORMATTER.format(eoyBalance.balance()))
+    private String[] buildRow(EoyBalance eoyBalance, boolean thousandSeparator) {
+        String balance = thousandSeparator
+                ? BALANCE_FORMATTER.format(eoyBalance.balance())
+                : eoyBalance.balance().stripTrailingZeros().toPlainString();
+        return Stream.of(eoyBalance.wallet(), eoyBalance.asset(), balance)
                 .filter(Objects::nonNull)
                 .toArray(String[]::new);
     }
