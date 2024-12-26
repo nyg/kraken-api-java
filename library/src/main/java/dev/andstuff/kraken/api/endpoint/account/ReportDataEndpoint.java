@@ -27,7 +27,7 @@ public class ReportDataEndpoint extends PrivateEndpoint<List<LedgerEntry>> {
     public List<LedgerEntry> processZipResponse(ZipInputStream zipStream) throws IOException {
         ZipEntry zipEntry = zipStream.getNextEntry();
 
-        log.info("Zip entry: {}", zipEntry.getName());
+        log.info("Processing zip entry: {}", zipEntry.getName());
         InputStreamReader streamReader = new InputStreamReader(zipStream);
 
         CsvToBean<LedgerEntry> csvToBean = new CsvToBeanBuilder<LedgerEntry>(streamReader)

@@ -1,8 +1,6 @@
 package dev.andstuff.kraken.example.eoy;
 
 import java.math.BigDecimal;
-import java.util.Objects;
-import java.util.stream.Stream;
 
 import dev.andstuff.kraken.api.endpoint.account.response.LedgerEntry;
 
@@ -21,11 +19,5 @@ public record EoyBalance(String wallet, String asset, BigDecimal balance) {
 
     public boolean isBalanceZero() {
         return balance.compareTo(BigDecimal.ZERO) == 0;
-    }
-
-    public String[] asStringArray() {
-        return Stream.of(wallet, asset, balance.stripTrailingZeros().toPlainString())
-                .filter(Objects::nonNull)
-                .toArray(String[]::new);
     }
 }

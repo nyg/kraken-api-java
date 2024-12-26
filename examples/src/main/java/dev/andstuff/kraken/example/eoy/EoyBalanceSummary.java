@@ -5,8 +5,11 @@ import static java.util.function.Predicate.not;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 import com.opencsv.CSVWriter;
 
@@ -14,6 +17,13 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class EoyBalanceSummary {
+
+    private static final NumberFormat BALANCE_FORMATTER = NumberFormat.getNumberInstance();
+
+    static {
+        BALANCE_FORMATTER.setMinimumFractionDigits(0);
+        BALANCE_FORMATTER.setMaximumFractionDigits(32);
+    }
 
     private final EoyBalances eoyBalances;
 
@@ -40,7 +50,13 @@ public class EoyBalanceSummary {
         return eoyBalances.getBalances().stream()
                 .filter(not(EoyBalance::isBalanceZero))
                 .sorted(byWalletAssetBalance)
-                .map(EoyBalance::asStringArray)
+                .map(this::toStringArray)
                 .toList();
+    }
+
+    private String[] toStringArray(EoyBalance eoyBalance) {
+        return Stream.of(eoyBalance.wallet(), eoyBalance.asset(), BALANCE_FORMATTER.format(eoyBalance.balance()))
+                .filter(Objects::nonNull)
+                .toArray(String[]::new);
     }
 }
