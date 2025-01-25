@@ -1,4 +1,4 @@
-# A Kraken API Client in Java
+# Kraken API Client for Java
 
 [![Maven Central](https://img.shields.io/maven-central/v/dev.andstuff.kraken/kraken-api)](https://central.sonatype.com/artifact/dev.andstuff.kraken/kraken-api)
 
@@ -69,7 +69,7 @@ JsonNode order = api.query(KrakenAPI.Private.ADD_ORDER, Map.of(
 
 ### Custom REST requester
 
-The current implementation of the library uses the JDK's HttpsURLConnection to make HTTP request. If that doesn't suit your needs and which to use something else (e.g. Spring RestTemplate, Apache HttpComponents, OkHttp), you can implement the KrakenRestRequester interface and pass it to the KrakenAPI constructor:
+The current implementation of the library uses the JDK's HttpsURLConnection to make HTTP request. If that doesn't suit your needs and wish to use something else (e.g. Spring RestTemplate, Apache HttpComponents, OkHttp), you can implement the KrakenRestRequester interface and pass it to the KrakenAPI constructor:
 
 ```java
 public class MyRestTemplateRestRequester implements KrakenRestRequester {
