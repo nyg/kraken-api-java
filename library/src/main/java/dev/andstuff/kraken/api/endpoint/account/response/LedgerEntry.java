@@ -3,6 +3,7 @@ package dev.andstuff.kraken.api.endpoint.account.response;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
@@ -33,6 +34,7 @@ public record LedgerEntry(@CsvBindByName(column = "txid") @With String id, // TO
         return switch (asset) {
             case String s when Pattern.matches("^[XZ][A-Z]{3}$", s) -> s.substring(1, 4);
             case String s when Pattern.matches("^[0-9A-Z]+$", s) -> s;
+            case String s when "ETH2".equals(s) -> "ETH";
             default -> asset.split("[0-9.]")[0];
         };
     }
@@ -42,7 +44,7 @@ public record LedgerEntry(@CsvBindByName(column = "txid") @With String id, // TO
     }
 
     public boolean isStakingReward() {
-        return type == Type.STAKING && (subType == null || subType.isEmpty());
+        return List.of(Type.STAKING, Type.EARN).contains(type);
     }
 
     public int year() {
@@ -50,31 +52,30 @@ public record LedgerEntry(@CsvBindByName(column = "txid") @With String id, // TO
     }
 
     public enum Type {
-        NONE,
-        TRADE,
-        DEPOSIT,
-        WITHDRAWAL,
-        TRANSFER,
-        MARGIN,
         ADJUSTMENT,
-        ROLLOVER,
-        SPEND,
-        RECEIVE,
-        SETTLED,
-        CREDIT,
-        STAKING,
-        REWARD,
-        DIVIDEND,
-        SALE,
         CONVERSION,
-        NFTTRADE, // TODO add underscore
-        NFTCREATORFEE,
-        NFTREBATE,
-        CUSTODYTRANSFER,
-
+        CREDIT,
+        DEPOSIT,
+        DIVIDEND,
         EARN,
+        MARGIN,
+        NONE,
+        RECEIVE,
+        REWARD,
+        ROLLOVER,
+        SALE,
+        SETTLED,
+        SPEND,
+        STAKING,
+        TRADE,
+        TRANSFER,
+        WITHDRAWAL,
 
-        @JsonEnumDefaultValue
-        UNKNOWN
+        @JsonProperty("custodytransfer") CUSTODY_TRANSFER,
+        @JsonProperty("nftcreatorfee") NFT_CREATOR_FEE,
+        @JsonProperty("nftrebate") NFT_REBATE,
+        @JsonProperty("nfttrade") NFT_TRADE,
+
+        @JsonEnumDefaultValue UNKNOWN
     }
 }

@@ -3,14 +3,14 @@ package dev.andstuff.kraken.example;
 import static dev.andstuff.kraken.example.helper.CredentialsHelper.readFromFile;
 
 import java.time.Instant;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.List;
 
 import dev.andstuff.kraken.api.KrakenAPI;
-import dev.andstuff.kraken.api.endpoint.account.params.ReportType;
-import dev.andstuff.kraken.api.endpoint.account.params.RequestReportParams;
+import dev.andstuff.kraken.api.endpoint.account.response.LedgerEntry;
 import dev.andstuff.kraken.api.rest.KrakenCredentials;
 import dev.andstuff.kraken.example.eoy.EoyBalanceSummary;
 import dev.andstuff.kraken.example.eoy.EoyBalances;
+import dev.andstuff.kraken.example.report.ReportFetcher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,48 +44,12 @@ public class EoyBalanceExample {
      * @param thousandSeparator format balances with thousand separators
      */
     public void generate(Instant dateTo, String reportFileName, boolean groupAssets, boolean groupWallets, boolean thousandSeparator) {
-        String reportId = requestReport(dateTo);
-        waitUntilReportIsProcessed(reportId);
-        log.info("Removed report: {}", api.deleteReport(reportId));
+        ReportFetcher reportFetcher = new ReportFetcher(api);
+        String reportId = reportFetcher.requestReport(dateTo);
+        List<LedgerEntry> ledgerEntries = reportFetcher.fetchReportData(reportId);
+        reportFetcher.deleteReport(reportId);
 
-        EoyBalances eoyBalance = new EoyBalances(api.reportData(reportId), groupAssets, groupWallets);
+        EoyBalances eoyBalance = new EoyBalances(ledgerEntries, groupAssets, groupWallets);
         new EoyBalanceSummary(eoyBalance).writeToFile(reportFileName, thousandSeparator);
-    }
-
-    private String requestReport(Instant dateTo) {
-        String reportId = api
-                .requestReport(RequestReportParams.builder()
-                        .type(ReportType.LEDGERS)
-                        .description("kraken-api-examples-" + Instant.now())
-                        .fromDate(Instant.EPOCH)
-                        .toDate(dateTo)
-                        .build())
-                .reportId();
-        log.info("Report requested with id: {}", reportId);
-        return reportId;
-    }
-
-    private void waitUntilReportIsProcessed(String reportId) {
-        AtomicBoolean processed = new AtomicBoolean(false);
-        while (!processed.get()) {
-            try {
-                Thread.sleep(1_000);
-            }
-            catch (InterruptedException e) {
-                log.warn("Thread interrupted while waiting for the report to be processed", e);
-                Thread.currentThread().interrupt();
-                // continue fetching the report status
-            }
-
-            api.reportsStatuses(ReportType.LEDGERS).stream()
-                    .filter(report -> report.id().equals(reportId))
-                    .findAny()
-                    .ifPresentOrElse(
-                            report -> {
-                                log.info("Report status is: {}", report.status());
-                                processed.set(report.isProcessed());
-                            },
-                            () -> log.info("Report not (yet) processed"));
-        }
     }
 }
