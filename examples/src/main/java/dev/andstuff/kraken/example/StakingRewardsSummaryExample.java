@@ -3,16 +3,15 @@ package dev.andstuff.kraken.example;
 import static dev.andstuff.kraken.example.helper.CredentialsHelper.readFromFile;
 import static java.util.function.Predicate.not;
 
-import java.util.ArrayList;
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
 import dev.andstuff.kraken.api.KrakenAPI;
 import dev.andstuff.kraken.api.endpoint.KrakenException;
-import dev.andstuff.kraken.api.endpoint.account.params.LedgerInfoParams;
 import dev.andstuff.kraken.api.endpoint.account.response.LedgerEntry;
-import dev.andstuff.kraken.api.endpoint.account.response.LedgerInfo;
 import dev.andstuff.kraken.api.rest.KrakenCredentials;
+import dev.andstuff.kraken.example.report.ReportFetcher;
 import dev.andstuff.kraken.example.reward.AssetRates;
 import dev.andstuff.kraken.example.reward.StakingRewards;
 import dev.andstuff.kraken.example.reward.csv.CsvLedgerEntries;
@@ -29,8 +28,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class StakingRewardsSummaryExample {
 
-    private static final int SLEEP_BETWEEN_API_CALLS = 2000;
-
     private final KrakenAPI api;
 
     public static void main(String[] args) {
@@ -40,7 +37,12 @@ public class StakingRewardsSummaryExample {
     }
 
     public void generate(String rewardsFileName, String rewardSummaryFileName) {
-        List<LedgerEntry> rewards = fetchStakingRewards();
+        ReportFetcher reportFetcher = new ReportFetcher(api);
+        String reportId = reportFetcher.requestReport(Instant.now());
+        List<LedgerEntry> ledgerEntries = reportFetcher.fetchReportData(reportId);
+        reportFetcher.deleteReport(reportId);
+
+        List<LedgerEntry> rewards = ledgerEntries.stream().filter(LedgerEntry::isStakingReward).toList();
         StakingRewards stakingRewards = new StakingRewards(rewards);
         AssetRates rates = fetchRatesFor(stakingRewards.getAssets());
 
@@ -48,42 +50,12 @@ public class StakingRewardsSummaryExample {
         new CsvStakingRewardsSummary(stakingRewards, rates).writeToFile(rewardSummaryFileName);
     }
 
-    private List<LedgerEntry> fetchStakingRewards() {
-
-        List<LedgerEntry> rewards = new ArrayList<>();
-        LedgerInfoParams params = LedgerInfoParams.builder()
-                .assetType(LedgerInfoParams.Type.STAKING)
-                .withoutCount(true)
-                .build();
-
-        boolean hasNext = true;
-        while (hasNext) {
-            LedgerInfo ledgerInfo = api.ledgerInfo(params);
-            params = params.withNextResultOffset();
-            hasNext = ledgerInfo.hasNext();
-
-            rewards.addAll(ledgerInfo.stakingRewards());
-            log.info("Fetched {} staking rewards", rewards.size());
-
-            try {
-                Thread.sleep(SLEEP_BETWEEN_API_CALLS);
-            }
-            catch (InterruptedException e) {
-                log.warn("Thread was interrupted");
-                Thread.currentThread().interrupt();
-            }
-        }
-
-        return rewards;
-    }
-
     private AssetRates fetchRatesFor(Set<String> assets) {
         try {
-            List<String> pairs = assets.stream()
+            return new AssetRates(api.ticker(assets.stream()
                     .map(asset -> asset + AssetRates.REFERENCE_ASSET)
                     .filter(not(AssetRates.REFERENCE_PAIR::equals))
-                    .toList();
-            return new AssetRates(api.ticker(pairs));
+                    .toList()));
         }
         catch (KrakenException e) {
             throw new IllegalStateException("Couldn't fetch rates", e);
