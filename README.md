@@ -1,8 +1,8 @@
-# Kraken API Client for Java
+# Kraken API client for Java
 
 [![Maven Central](https://img.shields.io/maven-central/v/dev.andstuff.kraken/kraken-api)](https://central.sonatype.com/artifact/dev.andstuff.kraken/kraken-api)
 
-Query the [Kraken REST API][1] in Java.
+Query [Kraken's REST API][1] in Java.
 
 ## Maven
 
@@ -14,7 +14,35 @@ Query the [Kraken REST API][1] in Java.
 </dependency>
 ```
 
-## Usage
+## Examples
+
+The `examples` folder contains real-world examples that make use of this library. For most examples, you'll need to provide your API keys: rename `api-keys.properties.example`, located in `examples/src/main/resources`, to `api-keys.properties` and fill in your API keys. The examples can be run directly from your IDE, or using the command line:
+
+```shell
+# clone and build project
+git clone https://github.com/nyg/kraken-api-java.git
+cd kraken-api-java
+mvn clean install
+
+# run the staking rewards summary example
+mvn -pl examples exec:java -Dexec.mainClass=dev.andstuff.kraken.example.StakingRewardsSummaryExample
+```
+
+### Staking Rewards Summary
+
+This example will generate the `rewards-summary.csv` file, showing how much crypto rewards have been earned since the creation of your account. A picture is worth a thousand words:
+
+![staking-reward-summary](images/staking-rewards-example.png)
+
+### End-of-Year Balance
+
+This example will generate the `eoy-balance.csv` file, showing the balance of your account at a given point in time. If you run the example from your IDE, modify the `dateTo` in `EoyBalanceExample.java`. Otherwise, you can run the example from the command line:
+
+```sh
+mvn -pl examples exec:java -Dexec.mainClass=dev.andstuff.kraken.example.EoyBalanceExample -Dexec.args="2025-01-31T00:00:00Z"
+```
+
+## Libary usage
 
 ### Public endpoints
 
@@ -94,21 +122,6 @@ KrakenAPI api = new KrakenAPI(
 
 The second parameter is of type `KrakenNonceGenerator`, an interface containing a single `generate()` method returning a string.
 
-## Examples
-
-The `examples` Maven module contains some examples that might be worth checking (e.g. total staking rewards summary). The examples can be run directly from your IDE, or from the command line.
-
-For private endpoints, you need to rename `api-keys.properties.example` (located in `examples/src/main/resources/`) to `api-keys.properties` and fill in your API keys.
-
-```shell
-# build project
-mvn clean install
-
-# run example classes
-mvn -q -pl examples exec:java -Dexec.mainClass=dev.andstuff.kraken.example.SimpleExamples
-mvn -q -pl examples exec:java -Dexec.mainClass=dev.andstuff.kraken.example.StakingRewardsSummaryExample
-mvn -q -pl examples exec:java -Dexec.mainClass=dev.andstuff.kraken.example.EoyBalanceExample
-```
 
 [1]: https://docs.kraken.com/rest/
 [2]: https://github.com/FasterXML/jackson
