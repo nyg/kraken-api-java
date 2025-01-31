@@ -29,7 +29,7 @@ public class EoyBalanceExample {
 
     public static void main(String[] args) {
         KrakenCredentials credentials = readFromFile("/api-keys.properties");
-        Instant dateTo = Instant.parse("2024-01-01T00:00:00Z");
+        Instant dateTo = Instant.parse(args.length > 1 ? args[1] : "2024-01-01T00:00:00Z");
         new EoyBalanceExample(new KrakenAPI(credentials))
                 .generate(dateTo, "eoy-balance.csv", true, true, false);
     }
