@@ -1,7 +1,42 @@
 # Changelog
 
 
-## [2.1.0](https://github.com/nyg/kraken-api-java/compare/v2.0.0..2.1.0) - 2024-12-26
+## [3.0.0](https://github.com/nyg/kraken-api-java/compare/v2.1.0..3.0.0) - 2025-11-29
+
+### ⛰️  Features
+
+- [`13accb9`](https://github.com/nyg/kraken-api-java/commit/13accb9329fb1984bb59c26bf2600ae48335cae9) **[breaking]** Search Assets endpoint result by pair name and altname ([#47](https://github.com/nyg/kraken-api-java/issues/47))
+
+### 🐛 Bug Fixes
+
+- [`9578cb4`](https://github.com/nyg/kraken-api-java/commit/9578cb44953fa3afd080b6e99fd79bc916bf0c4f) Improve staking reward filter and underlying asset detection ([#49](https://github.com/nyg/kraken-api-java/issues/49))
+- [`6019526`](https://github.com/nyg/kraken-api-java/commit/6019526d635a60e6a6c1f76529629afe74dcf3a0) Avoid NPE if zip stream is empty in RetrieveExport endpoint ([#48](https://github.com/nyg/kraken-api-java/issues/48))
+- [`04886c6`](https://github.com/nyg/kraken-api-java/commit/04886c65dabc690cc9a66880d92d39844220883c) Avoid sending null params for AssetPairs endpoint ([#46](https://github.com/nyg/kraken-api-java/issues/46))
+
+### ⚙️ Miscellaneous
+
+- [`b687d5f`](https://github.com/nyg/kraken-api-java/commit/b687d5fe97b2d8f56fd18eed8a052cb487d4a925) *(pom)* Sonatype requires name in library POM ([#52](https://github.com/nyg/kraken-api-java/issues/52))
+- [`fa63aac`](https://github.com/nyg/kraken-api-java/commit/fa63aace0c355244f384a5fa6459eff6b5dc50c6) *(java)* **[breaking]** Update to Java 25 ([#51](https://github.com/nyg/kraken-api-java/issues/51))
+- [`9feb33e`](https://github.com/nyg/kraken-api-java/commit/9feb33e7075f354e8745ce6654c5519c35e72808) *(examples)* Add yearly totals in staking rewards summary ([#50](https://github.com/nyg/kraken-api-java/issues/50))
+- [`2caef2f`](https://github.com/nyg/kraken-api-java/commit/2caef2fe69cec6db2c968143742ceba7192d267e) Update log4j2 status level from info to warn ([#45](https://github.com/nyg/kraken-api-java/issues/45))
+- [`c9c64e3`](https://github.com/nyg/kraken-api-java/commit/c9c64e3efd1887f91caca210243532b4927cb0ec) *(deps)* Update actions/checkout action to v6 ([#44](https://github.com/nyg/kraken-api-java/issues/44))
+- [`fb2afbf`](https://github.com/nyg/kraken-api-java/commit/fb2afbf8a0eb6e8ea77185882058c78bf1355471) *(deps)* Update dependency org.codehaus.mojo:exec-maven-plugin to v3.6.2 ([#43](https://github.com/nyg/kraken-api-java/issues/43))
+- [`2a2455b`](https://github.com/nyg/kraken-api-java/commit/2a2455b18ebc400e01f2b73b0bc302edade8b2af) *(deps)* Update all stable non-major dependencies ([#42](https://github.com/nyg/kraken-api-java/issues/42))
+- [`b9b46e5`](https://github.com/nyg/kraken-api-java/commit/b9b46e518c185cd191366011fb9c03c83b727b76) *(deps)* Update actions/setup-java action to v5 ([#41](https://github.com/nyg/kraken-api-java/issues/41))
+- [`9ab82f4`](https://github.com/nyg/kraken-api-java/commit/9ab82f43f0bb486122d13f4b242396f056f5f4e1) *(deps)* Update actions/checkout action to v5 ([#40](https://github.com/nyg/kraken-api-java/issues/40))
+- [`459df18`](https://github.com/nyg/kraken-api-java/commit/459df183f4bfdce6e8ebc4463342a163a8b4b353) *(deps)* Update all stable non-major dependencies ([#39](https://github.com/nyg/kraken-api-java/issues/39))
+- [`bf93d4c`](https://github.com/nyg/kraken-api-java/commit/bf93d4c25583edc25ee4840a5b0dad5b24979fdc) *(deps)* Update all stable non-major dependencies ([#38](https://github.com/nyg/kraken-api-java/issues/38))
+- [`c70d85a`](https://github.com/nyg/kraken-api-java/commit/c70d85a5b3e6188b8183d09333780544caa88888) *(deps)* Update all stable non-major dependencies ([#37](https://github.com/nyg/kraken-api-java/issues/37))
+- [`44cfa69`](https://github.com/nyg/kraken-api-java/commit/44cfa6915d43a65c47bf89e9cf5bf51447c55ced) *(deps)* Update all stable non-major dependencies ([#36](https://github.com/nyg/kraken-api-java/issues/36))
+- [`c3daf7f`](https://github.com/nyg/kraken-api-java/commit/c3daf7f266e057f1e74486d4e3f70a74263f42bf) *(deps)* Update dependency com.fasterxml.jackson:jackson-bom to v2.18.3 ([#35](https://github.com/nyg/kraken-api-java/issues/35))
+- [`8340cca`](https://github.com/nyg/kraken-api-java/commit/8340cca13b5b5de4345217a868b0e891676f50d8) *(deps)* Update all stable non-major dependencies ([#34](https://github.com/nyg/kraken-api-java/issues/34))
+- [`95a3e75`](https://github.com/nyg/kraken-api-java/commit/95a3e756b4c588cb299f4d0a0c326301db1f6f7e) *(deps)* Update all stable non-major dependencies ([#32](https://github.com/nyg/kraken-api-java/issues/32))
+- [`335d136`](https://github.com/nyg/kraken-api-java/commit/335d136245c09d1b5cf880df8f2e49a08535f01e) *(ci)* Add GitHub Actions workflow for building PRs ([#33](https://github.com/nyg/kraken-api-java/issues/33))
+- [`f942b94`](https://github.com/nyg/kraken-api-java/commit/f942b94dee45b64b738c09908aa5d626648e3296) *(readme)* Improve README ([#29](https://github.com/nyg/kraken-api-java/issues/29))
+- [`6fc5676`](https://github.com/nyg/kraken-api-java/commit/6fc567686148dcb602b1bdfe716c8a67268a4728) *(examples)* Faster reward summary generation ([#30](https://github.com/nyg/kraken-api-java/issues/30))
+- [`3b5bb1b`](https://github.com/nyg/kraken-api-java/commit/3b5bb1ba6cd8b8a5db41f97c9a8fb04d83668438) *(deps)* Auto-merge Renovate PRs every month ([#28](https://github.com/nyg/kraken-api-java/issues/28))
+
+## [2.1.0](https://github.com/nyg/kraken-api-java/compare/v2.0.0..v2.1.0) - 2024-12-26
 
 ### ⛰️  Features
 

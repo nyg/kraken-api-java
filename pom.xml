@@ -5,7 +5,7 @@
 
     <groupId>dev.andstuff.kraken</groupId>
     <artifactId>kraken-api-parent</artifactId>
-    <version>2.1.1-SNAPSHOT</version>
+    <version>3.0.0</version>
     <packaging>pom</packaging>
 
     <name>Java Kraken API Client</name>
@@ -37,7 +37,7 @@
         <url>https://github.com/nyg/kraken-api-java</url>
         <connection>scm:git:https://github.com/nyg/kraken-api-java.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/nyg/kraken-api-java.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>v3.0.0</tag>
     </scm>
 
     <issueManagement>
