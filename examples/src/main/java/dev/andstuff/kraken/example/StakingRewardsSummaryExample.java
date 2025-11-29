@@ -30,7 +30,7 @@ public class StakingRewardsSummaryExample {
 
     private final KrakenAPI api;
 
-    public static void main(String[] args) {
+    static void main() {
         KrakenCredentials credentials = readFromFile("/api-keys.properties");
         new StakingRewardsSummaryExample(new KrakenAPI(credentials))
                 .generate("rewards.csv", "rewards-summary.csv");

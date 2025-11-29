@@ -82,11 +82,16 @@ public record LedgerEntry(@CsvBindByName(column = "txid") @With String id, // TO
         TRANSFER,
         WITHDRAWAL,
 
-        @JsonProperty("custodytransfer") CUSTODY_TRANSFER,
-        @JsonProperty("nftcreatorfee") NFT_CREATOR_FEE,
-        @JsonProperty("nftrebate") NFT_REBATE,
-        @JsonProperty("nfttrade") NFT_TRADE,
+        @JsonProperty("custodytransfer")
+        CUSTODY_TRANSFER,
+        @JsonProperty("nftcreatorfee")
+        NFT_CREATOR_FEE,
+        @JsonProperty("nftrebate")
+        NFT_REBATE,
+        @JsonProperty("nfttrade")
+        NFT_TRADE,
 
-        @JsonEnumDefaultValue UNKNOWN
+        @JsonEnumDefaultValue
+        UNKNOWN
     }
 }

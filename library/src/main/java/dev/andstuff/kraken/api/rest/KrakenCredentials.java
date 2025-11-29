@@ -49,7 +49,7 @@ public class KrakenCredentials {
             return mac.doFinal(message);
         }
         catch (InvalidKeyException | NoSuchAlgorithmException e) {
-            throw new IllegalStateException("Could not compute HMAC digest");
+            throw new IllegalStateException("Could not compute HMAC digest", e);
         }
     }
 

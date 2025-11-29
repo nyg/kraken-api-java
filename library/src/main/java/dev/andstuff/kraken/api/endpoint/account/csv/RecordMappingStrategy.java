@@ -12,7 +12,6 @@ import java.util.stream.Stream;
 import com.opencsv.bean.AbstractCsvConverter;
 import com.opencsv.bean.HeaderColumnNameMappingStrategy;
 import com.opencsv.exceptions.CsvBeanIntrospectionException;
-import com.opencsv.exceptions.CsvChainedException;
 import com.opencsv.exceptions.CsvConstraintViolationException;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvFieldAssignmentException;
@@ -29,7 +28,7 @@ public class RecordMappingStrategy<T extends Record> extends HeaderColumnNameMap
     }
 
     @Override
-    public T populateNewBean(String[] line) throws CsvBeanIntrospectionException, CsvFieldAssignmentException, CsvChainedException {
+    public T populateNewBean(String[] line) throws CsvBeanIntrospectionException, CsvFieldAssignmentException {
         RecordComponent[] recordComponents = type.getRecordComponents();
         if (recordComponents.length != line.length) {
             throw new CsvRuntimeException("Mismatch between line values and record components");
@@ -71,7 +70,7 @@ public class RecordMappingStrategy<T extends Record> extends HeaderColumnNameMap
     public static class KrakenInstantConverter extends AbstractCsvConverter {
 
         @Override
-        public Object convertToRead(String value) throws CsvDataTypeMismatchException, CsvConstraintViolationException {
+        public Object convertToRead(String value) {
             String[] dateTime = value.split(" ");
             return Instant.parse("%sT%sZ".formatted(dateTime[0], dateTime[1]));
         }
