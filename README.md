@@ -10,7 +10,7 @@ Query [Kraken's REST API][1] in Java.
 <dependency>
     <groupId>dev.andstuff.kraken</groupId>
     <artifactId>kraken-api</artifactId>
-    <version>2.1.0</version>
+    <version>3.0.0</version>
 </dependency>
 ```
 
