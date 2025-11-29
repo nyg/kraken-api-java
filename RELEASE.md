@@ -93,17 +93,20 @@ The `perform` goal is simpler than the `prepare` goal. Its documentation can be 
 ## Summary
 
 ```sh
+# stay safe even if the examples module is not published
+rm examples/src/main/resources/api-keys.properties
+
 # dry run
 mvn --serial -Dtag=v2.0.0 -DreleaseVersion=2.0.0 -DdevelopmentVersion=2.0.1-SNAPSHOT -DdryRun release:prepare
+
+# clean after dry run
+mvn release:clean
 
 # prepare release
 mvn --serial -Dtag=v2.0.0 -DreleaseVersion=2.0.0 -DdevelopmentVersion=2.0.1-SNAPSHOT release:prepare
 
 # zsh gitstatusd bug?
 git fetch
-
-# stay safe even if the examples module is not published
-rm examples/src/main/resources/api-keys.properties
 
 # perform release
 mvn --serial clean release:perform
