@@ -10,5 +10,6 @@
     </parent>
 
     <artifactId>kraken-api</artifactId>
+    <name>Java Kraken API Client</name>
 
 </project>
