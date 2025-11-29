@@ -29,4 +29,12 @@ public class AssetRewards {
         this.yearlyRewards = rewards.stream()
                 .collect(toMap(LedgerEntry::year, LedgerEntry::netAmount, BigDecimal::add));
     }
+
+    public BigDecimal totalFiatAmount(AssetRates rates) {
+        return rates.evaluate(totalReward, asset);
+    }
+
+    public BigDecimal fiatAmountFor(int year, AssetRates rates) {
+        return rates.evaluate(yearlyRewards.getOrDefault(year, BigDecimal.ZERO), asset);
+    }
 }

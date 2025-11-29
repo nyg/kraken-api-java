@@ -3,6 +3,7 @@ package dev.andstuff.kraken.example.reward;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toSet;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 
@@ -28,5 +29,17 @@ public class StakingRewards {
                 .entrySet().stream()
                 .map(entry -> new AssetRewards(entry.getKey(), entry.getValue()))
                 .collect(toSet());
+    }
+
+    public BigDecimal totalFiatAmount(AssetRates rates) {
+        return assetRewards.stream()
+                .map(reward -> reward.totalFiatAmount(rates))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public BigDecimal totalFiatAmountFor(int year, AssetRates rates) {
+        return assetRewards.stream()
+                .map(reward -> reward.fiatAmountFor(year, rates))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }
