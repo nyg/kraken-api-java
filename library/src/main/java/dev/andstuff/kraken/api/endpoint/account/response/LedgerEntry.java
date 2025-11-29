@@ -1,10 +1,11 @@
 package dev.andstuff.kraken.api.endpoint.account.response;
 
+import static java.util.regex.Pattern.matches;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -25,16 +26,24 @@ public record LedgerEntry(@CsvBindByName(column = "txid") @With String id, // TO
                           @CsvBindByName(column = "balance") BigDecimal balance) {
 
     /**
-     * Attempts to extract the underlying asset, e.g. DOT.28S returns DOT, XXBT
+     * Attempts to extract the underlying asset, e.g. DOT28.S returns DOT, XXBT
      * returns XBT, ZUSD returns USD.
      *
      * @return the underlying asset
      */
     public String underlyingAsset() {
         return switch (asset) {
-            case String s when Pattern.matches("^[XZ][A-Z]{3}$", s) -> s.substring(1, 4);
-            case String s when Pattern.matches("^[0-9A-Z]+$", s) -> s;
+            // Kraken returns DOGE and BTC when exporting ledger as a file, but uses XDG and XBT in the API
+            case String s when "DOGE".equals(s) -> "XDG";
+            case String s when "BTC".equals(s) -> "XBT";
+            // Take care of asset migrations
             case String s when "ETH2".equals(s) -> "ETH";
+            case String s when matches("^MATIC(\\d+\\.S)?$", s) -> "POL";
+            // Remove X or Z prefix for fiat and some cryptos
+            case String s when matches("^[XZ][A-Z]{3}$", s) -> s.substring(1, 4);
+            // Return asset as is if it only contains numbers and capital letters
+            case String s when matches("^[0-9A-Z]+$", s) -> s;
+            // Strip staking suffix (e.g. `28.S`)
             default -> asset.split("[0-9.]")[0];
         };
     }
@@ -44,7 +53,9 @@ public record LedgerEntry(@CsvBindByName(column = "txid") @With String id, // TO
     }
 
     public boolean isStakingReward() {
-        return List.of(Type.STAKING, Type.EARN).contains(type);
+        boolean isStakingOrEarnType = List.of(Type.STAKING, Type.EARN).contains(type);
+        boolean isRewardSubType = !List.of("allocation", "deallocation", "autoallocation", "migration").contains(subType);
+        return isStakingOrEarnType && isRewardSubType;
     }
 
     public int year() {
