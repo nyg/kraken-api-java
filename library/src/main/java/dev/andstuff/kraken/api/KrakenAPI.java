@@ -30,7 +30,7 @@ import dev.andstuff.kraken.api.endpoint.market.SystemStatusEndpoint;
 import dev.andstuff.kraken.api.endpoint.market.TickerEndpoint;
 import dev.andstuff.kraken.api.endpoint.market.params.AssetPairParams;
 import dev.andstuff.kraken.api.endpoint.market.response.AssetInfo;
-import dev.andstuff.kraken.api.endpoint.market.response.AssetPair;
+import dev.andstuff.kraken.api.endpoint.market.response.AssetPairs;
 import dev.andstuff.kraken.api.endpoint.market.response.ServerTime;
 import dev.andstuff.kraken.api.endpoint.market.response.SystemStatus;
 import dev.andstuff.kraken.api.endpoint.market.response.Ticker;
@@ -97,11 +97,15 @@ public class KrakenAPI {
         return restRequester.execute(new AssetInfoEndpoint(assets, assetClass));
     }
 
-    public Map<String, AssetPair> assetPairs(List<String> pairs) {
+    public AssetPairs assetPairs() {
+        return restRequester.execute(new AssetPairEndpoint());
+    }
+
+    public AssetPairs assetPairs(List<String> pairs) {
         return restRequester.execute(new AssetPairEndpoint(pairs));
     }
 
-    public Map<String, AssetPair> assetPairs(List<String> pair, AssetPairParams.Info info) {
+    public AssetPairs assetPairs(List<String> pair, AssetPairParams.Info info) {
         return restRequester.execute(new AssetPairEndpoint(pair, info));
     }
 
