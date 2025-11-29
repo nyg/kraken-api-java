@@ -42,7 +42,7 @@ This example will generate the `eoy-balance.csv` file, showing the balance of yo
 mvn -pl examples exec:java -Dexec.mainClass=dev.andstuff.kraken.example.EoyBalanceExample -Dexec.args="2025-01-31T00:00:00Z"
 ```
 
-## Libary usage
+## Library usage
 
 ### Public endpoints
 
@@ -58,7 +58,7 @@ Map<String, AssetPair> pairs = api.assetPairs(List.of("ETH/BTC", "ETH/USD"));
 // {ETH/BTC=AssetPair[alternateName=ETHXBT, webSocketName=ETH/XBT, …
 ```
 
-If the endpoint has not yet been implemented (feel free to submit a PR!), the generic `query` method can be used, which will return a `JsonNode` of the [Jackson][2] deserialization libary:
+If the endpoint has not yet been implemented (feel free to submit a PR!), the generic `query` method can be used, which will return a `JsonNode` of the [Jackson][2] deserialization library:
 
 ```java
 JsonNode ticker = api.query(KrakenAPI.Public.TICKER, Map.of("pair", "XBTEUR"));

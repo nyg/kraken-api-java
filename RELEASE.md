@@ -2,7 +2,8 @@
 
 This document explains how a kraken-api-java release is created and describes what are the tools used and how they interact with each other.
 
-When a release is created, the visible "output" is an updated [CHANGLOG.md](https://github.com/nyg/kraken-api-java/blob/master/CHANGELOG.md) file, a [GitHub release](https://github.com/nyg/kraken-api-java/releases) with a changelog, and the [release artifact](https://repo1.maven.org/maven2/dev/andstuff/kraken/kraken-api/) available in the Maven Central repository.
+When a release is created, the visible "output" is an updated [CHANGELOG.md](https://github.com/nyg/kraken-api-java/blob/master/CHANGELOG.md) 
+file, a [GitHub release](https://github.com/nyg/kraken-api-java/releases) with a changelog, and the [release artifact](https://repo1.maven.org/maven2/dev/andstuff/kraken/kraken-api/) available in the Maven Central repository.
 
 ## Overview
 
@@ -19,7 +20,7 @@ Also note that we do not use GitHub's own Maven repository, a.k.a. [GitHub Packa
 
 ## Detailed steps
 
-The Maven release plugin helps automatizing certain tasks when making releases for Maven-based projects. Releasing requires invoking two of the plugin's goals: `prepare` and `perform`.
+The Maven release plugin helps to automatize certain tasks when making releases for Maven-based projects. Releasing requires invoking two of the plugin's goals: `prepare` and `perform`.
 
 In short, the `prepare` goal updates version numbers in the POMs and creates a tag in the SCM (e.g. Git). The `perform` goal checks out the created tag, builds the project artifacts and publishes them on a remote Maven repository.
 
@@ -47,7 +48,7 @@ The detailed list of steps executed by the prepare goal are defined [here](https
 
 6. Create and push a commit with the changes made above. The message of the commit can be customized with the `scmDevelopmentCommitComment`.
 
-The prepare goal also creates a `release.properties` file that is used by the `perform` goal in order to know which tag to checkout and build.
+The prepare goal also creates a `release.properties` file that is used by the `perform` goal in order to know which tag to check out and build.
 
 Finally, when wanting to make a release, the command line looks like this:
 

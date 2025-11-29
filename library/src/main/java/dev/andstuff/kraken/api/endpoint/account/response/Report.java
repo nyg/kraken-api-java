@@ -2,6 +2,7 @@ package dev.andstuff.kraken.api.endpoint.account.response;
 
 import java.time.Instant;
 
+import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import dev.andstuff.kraken.api.endpoint.account.params.ReportFormat;
@@ -10,7 +11,7 @@ public record Report(String id,
                      @JsonProperty("descr") String description,
                      ReportFormat format,
                      String subType,
-                     String status, // TODO enum
+                     Status status,
                      String fields,
                      @JsonProperty("createdtm") Instant requestDate,
                      @JsonProperty("starttm") Instant creationDate,
@@ -19,7 +20,15 @@ public record Report(String id,
                      @JsonProperty("dataendtm") Instant reportToDate,
                      String asset) {
 
+    enum Status {
+        QUEUED,
+        PROCESSING,
+        PROCESSED,
+        @JsonEnumDefaultValue
+        UNKNOWN
+    }
+
     public boolean isProcessed() {
-        return "Processed".equals(status);
+        return status == Status.PROCESSED;
     }
 }

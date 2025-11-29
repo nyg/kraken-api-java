@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SimpleExamples {
 
-    public static void main(String[] args) {
+    static void main() {
 
         /* Public endpoint examples */
 
