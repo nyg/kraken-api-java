@@ -1,7 +1,6 @@
 package dev.andstuff.kraken.example;
 
 import static dev.andstuff.kraken.example.helper.CredentialsHelper.readFromFile;
-import static java.util.function.Predicate.not;
 
 import java.time.Instant;
 import java.util.List;
@@ -10,6 +9,7 @@ import java.util.Set;
 import dev.andstuff.kraken.api.KrakenAPI;
 import dev.andstuff.kraken.api.endpoint.KrakenException;
 import dev.andstuff.kraken.api.endpoint.account.response.LedgerEntry;
+import dev.andstuff.kraken.api.endpoint.market.response.AssetPairs;
 import dev.andstuff.kraken.api.rest.KrakenCredentials;
 import dev.andstuff.kraken.example.report.ReportFetcher;
 import dev.andstuff.kraken.example.reward.AssetRates;
@@ -52,13 +52,24 @@ public class StakingRewardsSummaryExample {
 
     private AssetRates fetchRatesFor(Set<String> assets) {
         try {
-            return new AssetRates(api.ticker(assets.stream()
+            AssetPairs allAssetPairs = api.assetPairs();
+            List<String> wantedAssetPairs = assets.stream()
                     .map(asset -> asset + AssetRates.REFERENCE_ASSET)
-                    .filter(not(AssetRates.REFERENCE_PAIR::equals))
-                    .toList()));
+                    .filter(assetPair -> assetPairExists(allAssetPairs, assetPair))
+                    .toList();
+
+            return new AssetRates(api.ticker(wantedAssetPairs));
         }
         catch (KrakenException e) {
             throw new IllegalStateException("Couldn't fetch rates", e);
         }
+    }
+
+    private boolean assetPairExists(AssetPairs assetPairs, String assetPair) {
+        boolean assetPairExists = assetPairs.findBy(assetPair).isPresent();
+        if (!assetPairExists) {
+            log.warn("Asset pair {} does not exist, rate will be 0", assetPair);
+        }
+        return assetPairExists;
     }
 }

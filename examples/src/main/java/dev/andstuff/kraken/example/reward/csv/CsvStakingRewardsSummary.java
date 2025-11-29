@@ -8,6 +8,7 @@ import static java.util.stream.Collectors.toMap;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -48,12 +49,18 @@ public class CsvStakingRewardsSummary {
      * @return an array of String: Asset, y1, _, y2, _, …, total, _
      */
     private static String[] buildHeaderRow(Set<Integer> years) {
-        List<String> headerCells = years.stream()
+        List<String> headerCells = new ArrayList<>();
+        headerCells.add("Asset");
+        headerCells.addAll(buildYearlyHeaders(years));
+        headerCells.add("Total");
+        headerCells.add(AssetRates.REFERENCE_ASSET);
+        return headerCells.toArray(String[]::new);
+    }
+
+    private static List<String> buildYearlyHeaders(Set<Integer> years) {
+        return years.stream()
                 .flatMap(year -> Stream.of(year.toString(), AssetRates.REFERENCE_ASSET))
-                .collect(toList());
-        headerCells.addFirst("Asset");
-        headerCells.addAll(List.of("Total", AssetRates.REFERENCE_ASSET));
-        return headerCells.toArray(new String[0]);
+                .toList();
     }
 
     /**
@@ -79,23 +86,27 @@ public class CsvStakingRewardsSummary {
                         }))
                 .entrySet().stream()
                 .map(entry -> {
-                    List<String> cells = entry.getValue().stream().map(BigDecimal::toPlainString).collect(toList());
-                    cells.addFirst(entry.getKey());
-                    return cells.toArray(new String[0]);
+                    List<String> cells = new ArrayList<>();
+                    cells.add(entry.getKey());
+                    cells.addAll(entry.getValue().stream().map(BigDecimal::toPlainString).toList());
+                    return cells.toArray(String[]::new);
                 })
-                .sorted(comparing(e -> new BigDecimal(e[e.length - 1]), reverseOrder()))
+                .sorted(comparing(row -> new BigDecimal(row[row.length - 1]), reverseOrder()))
                 .toList();
     }
 
     private String[] buildFooterRow(StakingRewards rewards, AssetRates rates) {
+        List<String> footerCells = new ArrayList<>();
+        footerCells.add("Total");
+        footerCells.addAll(buildYearlyTotals(rewards, rates));
+        footerCells.add("");
+        footerCells.add(rewards.totalFiatAmount(rates).toPlainString());
+        return footerCells.toArray(String[]::new);
+    }
 
-        BigDecimal totalFiatAmount = rewards.getAssetRewards().stream()
-                .map(reward -> rates.evaluate(reward.getTotalReward(), reward.getAsset()))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        List<String> footerCells = rewards.getYears().stream().flatMap(year -> Stream.of("", "")).collect(toList());
-        footerCells.addFirst("Total");
-        footerCells.addAll(List.of("", totalFiatAmount.toPlainString()));
-        return footerCells.toArray(new String[0]);
+    private List<String> buildYearlyTotals(StakingRewards rewards, AssetRates rates) {
+        return rewards.getYears().stream()
+                .flatMap(year -> Stream.of("", rewards.totalFiatAmountFor(year, rates).toPlainString()))
+                .toList();
     }
 }

@@ -31,7 +31,7 @@ public class ReportFetcher {
         AtomicBoolean processed = new AtomicBoolean(false);
         while (!processed.get()) {
             try {
-                Thread.sleep(1_000);
+                Thread.sleep(2_000);
             }
             catch (InterruptedException e) {
                 log.warn("Thread interrupted while waiting for the report to be processed", e);
