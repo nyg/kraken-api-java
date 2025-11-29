@@ -1,5 +1,8 @@
 package dev.andstuff.kraken.api.endpoint.market.params;
 
+import static dev.andstuff.kraken.api.endpoint.pub.QueryParams.putIfNonNull;
+
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -14,9 +17,10 @@ public class AssetPairParams implements QueryParams {
     private final Info info;
 
     public Map<String, String> toMap() {
-        return Map.of(
-                "pair", String.join(",", pairs),
-                "info", info.getValue());
+        HashMap<String, String> params = new HashMap<>();
+        putIfNonNull(params, "pair", pairs, v -> String.join(",", v));
+        putIfNonNull(params, "info", info, Info::getValue);
+        return params;
     }
 
     @Getter

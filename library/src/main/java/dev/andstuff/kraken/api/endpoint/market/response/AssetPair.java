@@ -28,8 +28,8 @@ public record AssetPair(@JsonProperty("altname") String alternateName,
                         @JsonProperty("costmin") BigDecimal minimumOrderCost,
                         @JsonProperty("tick_size") BigDecimal tickSize,
                         @JsonProperty("status") Status status,
-                        @JsonProperty("long_position_limit") int maxLongPositionSize,
-                        @JsonProperty("short_position_limit") int maxShortPositionSize) {
+                        @JsonProperty("long_position_limit") long maxLongPositionSize,
+                        @JsonProperty("short_position_limit") long maxShortPositionSize) {
 
     @JsonFormat(shape = JsonFormat.Shape.ARRAY)
     public record FeeSchedule(BigDecimal volume, BigDecimal percentage) {}
