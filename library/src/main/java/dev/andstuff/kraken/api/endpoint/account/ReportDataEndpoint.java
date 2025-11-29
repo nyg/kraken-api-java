@@ -26,6 +26,10 @@ public class ReportDataEndpoint extends PrivateEndpoint<List<LedgerEntry>> {
     @Override
     public List<LedgerEntry> processZipResponse(ZipInputStream zipStream) throws IOException {
         ZipEntry zipEntry = zipStream.getNextEntry();
+        if (zipEntry == null) {
+            log.error("No entries found in zip stream, report will be empty");
+            return List.of();
+        }
 
         log.info("Processing zip entry: {}", zipEntry.getName());
         InputStreamReader streamReader = new InputStreamReader(zipStream);
