@@ -19,6 +19,7 @@ public record LedgerEntry(@CsvBindByName(column = "txid") @With String id, // TO
                           @CsvBindByName(column = "type") Type type,
                           @CsvBindByName(column = "subtype") @JsonProperty("subtype") String subType,
                           @CsvBindByName(column = "aclass") @JsonProperty("aclass") String assetClass,
+                          @CsvBindByName(column = "subclass") @JsonProperty("subclass") String assetSubClass,
                           @CsvBindByName(column = "asset") String asset,
                           @CsvBindByName(column = "wallet") String wallet,
                           @CsvBindByName(column = "amount") BigDecimal amount,
