@@ -5,3 +5,7 @@ target
 api-keys.properties
 *.txt
 *.csv
+.project
+.settings
+.classpath
+.factorypath
