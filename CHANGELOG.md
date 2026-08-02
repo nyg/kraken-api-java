@@ -1,7 +1,40 @@
 # Changelog
 
 
-## [3.0.0](https://github.com/nyg/kraken-api-java/compare/v2.1.0..3.0.0) - 2025-11-29
+## [3.0.1](https://github.com/nyg/kraken-api-java/compare/v3.0.0..3.0.1) - 2026-08-02
+
+### 🐛 Bug Fixes
+
+- [`212fa7f`](https://github.com/nyg/kraken-api-java/commit/212fa7f6e8cd0f3f1f08c078fc63ddcdde67bb0a) Add new PDF report format ([#77](https://github.com/nyg/kraken-api-java/issues/77))
+- [`3220e09`](https://github.com/nyg/kraken-api-java/commit/3220e0959f823e12634348c0d33d9655fee7076c) *(deps)* Update all stable non-major dependencies ([#75](https://github.com/nyg/kraken-api-java/issues/75))
+- [`4b23cd1`](https://github.com/nyg/kraken-api-java/commit/4b23cd116b5c18b33ad2bf4bf6cdde3dc7604a99) *(deps)* Update all stable non-major dependencies ([#73](https://github.com/nyg/kraken-api-java/issues/73))
+- [`a90f2c9`](https://github.com/nyg/kraken-api-java/commit/a90f2c9679e45ac8d0b9fab0b7f876d9feb584c5) *(deps)* Update all stable non-major dependencies ([#69](https://github.com/nyg/kraken-api-java/issues/69))
+- [`0301f4d`](https://github.com/nyg/kraken-api-java/commit/0301f4d35423ddb89365bb746a38ef1321e64747) *(deps)* Update dependency org.projectlombok:lombok to v1.18.46 ([#68](https://github.com/nyg/kraken-api-java/issues/68))
+- [`09dc9f5`](https://github.com/nyg/kraken-api-java/commit/09dc9f53bad5c011b7e4504ee62e270761b47c67) *(deps)* Update all stable non-major dependencies ([#62](https://github.com/nyg/kraken-api-java/issues/62))
+- [`5b9502f`](https://github.com/nyg/kraken-api-java/commit/5b9502fe3ec39537e3b47f55492cbe2093fdb3b2) Add new subclass field to LedgerEntry ([#57](https://github.com/nyg/kraken-api-java/issues/57))
+
+### 📚 Documentation
+
+- [`69797eb`](https://github.com/nyg/kraken-api-java/commit/69797eb4d338eb94ee0cb1c95feb4103bc772bc9) Add docs/ directory with code review and move RELEASE.md ([#63](https://github.com/nyg/kraken-api-java/issues/63))
+
+### ⚙️ Miscellaneous
+
+- [`1259d94`](https://github.com/nyg/kraken-api-java/commit/1259d94c867aceaee2ff8356ed0cdf889aea4160) Ignore JDTLS files ([#76](https://github.com/nyg/kraken-api-java/issues/76))
+- [`21b79cb`](https://github.com/nyg/kraken-api-java/commit/21b79cbf918229b56400348b78c2f10f5f615a9a) *(deps)* Pin actions/checkout action to v7.0.0 ([#74](https://github.com/nyg/kraken-api-java/issues/74))
+- [`9fe6031`](https://github.com/nyg/kraken-api-java/commit/9fe6031534e91b28f6750348b2212a9629ae557d) *(deps)* Update actions/checkout action to v7 ([#72](https://github.com/nyg/kraken-api-java/issues/72))
+- [`e046a86`](https://github.com/nyg/kraken-api-java/commit/e046a8695b809672223ad99c83e0e327493d1bec) *(deps)* Pin dependencies ([#70](https://github.com/nyg/kraken-api-java/issues/70))
+- [`86709bd`](https://github.com/nyg/kraken-api-java/commit/86709bdce0b96daca781e1712ad3169e2be5b936) *(deps)* Update actions/checkout digest to df4cb1c ([#71](https://github.com/nyg/kraken-api-java/issues/71))
+- [`960691d`](https://github.com/nyg/kraken-api-java/commit/960691d79353475ac09b211ff5d829fb5df8f6c9) *(deps)* Update orhun/git-cliff-action digest to f50e115 ([#67](https://github.com/nyg/kraken-api-java/issues/67))
+- [`8559a06`](https://github.com/nyg/kraken-api-java/commit/8559a069cb896620f5049e5b48ff478f2f0af88f) *(deps)* Pin dependencies ([#61](https://github.com/nyg/kraken-api-java/issues/61))
+- [`bb90ef1`](https://github.com/nyg/kraken-api-java/commit/bb90ef1aa61569552483bf9a32f8d2d5c1a0726e) *(deps)* Update dependency com.fasterxml.jackson:jackson-bom to v2.21.1 ([#60](https://github.com/nyg/kraken-api-java/issues/60))
+- [`508315f`](https://github.com/nyg/kraken-api-java/commit/508315f24cf18dd42dabffd70cec757ec1012199) *(deps)* Update dependency org.apache.maven.plugins:maven-compiler-plugin to v3.15.0 ([#59](https://github.com/nyg/kraken-api-java/issues/59))
+- [`3d09af0`](https://github.com/nyg/kraken-api-java/commit/3d09af0154781eee14365a3704fc2aecbe71d2d7) *(deps)* Update all stable non-major dependencies ([#58](https://github.com/nyg/kraken-api-java/issues/58))
+- [`366d9e3`](https://github.com/nyg/kraken-api-java/commit/366d9e355cacd2d1ecd844ef5e97d2eb5ed5de81) *(deps)* Update all stable non-major dependencies ([#56](https://github.com/nyg/kraken-api-java/issues/56))
+- [`0475e2f`](https://github.com/nyg/kraken-api-java/commit/0475e2fe36f6090c4750d70662fec7243bb59097) *(deps)* Update all stable non-major dependencies ([#55](https://github.com/nyg/kraken-api-java/issues/55))
+- [`926c096`](https://github.com/nyg/kraken-api-java/commit/926c0967050f3572f91ef2f99522492f572830e9) *(doc)* Update release process summary ([#54](https://github.com/nyg/kraken-api-java/issues/54))
+- [`6280f8c`](https://github.com/nyg/kraken-api-java/commit/6280f8c64c76c877ea797c1dd593c32bf65e1ca3) *(readme)* Update dependency version ([#53](https://github.com/nyg/kraken-api-java/issues/53))
+
+## [3.0.0](https://github.com/nyg/kraken-api-java/compare/v2.1.0..v3.0.0) - 2025-11-29
 
 ### ⛰️  Features
 
