@@ -8,6 +8,9 @@ import dev.andstuff.kraken.api.endpoint.priv.PostParams;
 import lombok.Builder;
 import lombok.Getter;
 
+/**
+ * The parameters of the {@code QueryLedgers} endpoint.
+ */
 @Getter
 @Builder(toBuilder = true)
 public class LedgerEntriesParams extends PostParams {

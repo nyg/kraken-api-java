@@ -10,6 +10,9 @@ import dev.andstuff.kraken.api.endpoint.pub.QueryParams;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * The parameters of the {@code AssetPairs} endpoint.
+ */
 @RequiredArgsConstructor
 public class AssetPairParams implements QueryParams {
 
@@ -23,6 +26,9 @@ public class AssetPairParams implements QueryParams {
         return params;
     }
 
+    /**
+     * The subset of information to return for each asset pair.
+     */
     @Getter
     @RequiredArgsConstructor
     public enum Info {

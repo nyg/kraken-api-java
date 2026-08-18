@@ -8,6 +8,9 @@ import dev.andstuff.kraken.api.endpoint.priv.PostParams;
 import lombok.Builder;
 import lombok.Getter;
 
+/**
+ * The parameters of the {@code AddExport} endpoint. The format defaults to {@link ReportFormat#CSV} and all fields are exported unless specified otherwise.
+ */
 @Getter
 @Builder(toBuilder = true)
 public class RequestReportParams extends PostParams {

@@ -14,6 +14,9 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * The API key and secret of a Kraken account, used to sign private endpoint requests.
+ */
 @RequiredArgsConstructor
 public class KrakenCredentials {
 
@@ -24,6 +27,14 @@ public class KrakenCredentials {
     @NonNull
     private final String secret;
 
+    /**
+     * Signs a private endpoint request, as described by Kraken's authentication documentation: the message is the endpoint path followed by the SHA-256 digest of the nonce and the request body, and it is signed with HMAC-SHA512 using the Base64 decoded secret.
+     *
+     * @param url the URL of the endpoint being queried
+     * @param nonce the nonce of the request
+     * @param urlEncodedParams the URL encoded request body, nonce included
+     * @return the Base64 encoded signature, to be sent in the {@code API-Sign} header
+     */
     public String sign(URL url, String nonce, String urlEncodedParams) {
 
         byte[] hmacKey = Base64.getDecoder().decode(secret);
@@ -35,6 +46,13 @@ public class KrakenCredentials {
         return Base64.getEncoder().encodeToString(hmac);
     }
 
+    /**
+     * Concatenates two byte arrays.
+     *
+     * @param a the first array
+     * @param b the second array
+     * @return a new array containing the bytes of {@code a} followed by those of {@code b}
+     */
     public static byte[] concat(byte[] a, byte[] b) {
         byte[] concat = new byte[a.length + b.length];
         System.arraycopy(a, 0, concat, 0, a.length);
@@ -42,6 +60,14 @@ public class KrakenCredentials {
         return concat;
     }
 
+    /**
+     * Computes the HMAC-SHA512 digest of a message.
+     *
+     * @param key the key of the digest
+     * @param message the message to digest
+     * @return the digest
+     * @throws IllegalStateException if the digest cannot be computed
+     */
     public static byte[] hmacSha512(byte[] key, byte[] message) {
         try {
             Mac mac = Mac.getInstance("HmacSHA512");

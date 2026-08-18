@@ -12,6 +12,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.With;
 
+/**
+ * The parameters of the {@code Ledgers} endpoint. Entries can be filtered by asset, type and period, either with dates or with ledger identifiers, dates taking precedence.
+ */
 @Getter
 @Builder(toBuilder = true)
 public class LedgerInfoParams extends PostParams {
@@ -55,10 +58,18 @@ public class LedgerInfoParams extends PostParams {
         return params;
     }
 
+    /**
+     * Returns the same parameters, pointing to the next page of results. Kraken returns at most 50 entries per call.
+     *
+     * @return the parameters of the next page
+     */
     public LedgerInfoParams withNextResultOffset() {
         return this.withResultOffset(resultOffset + 50);
     }
 
+    /**
+     * The type of ledger entries to return.
+     */
     public enum Type {
         ALL,
         TRADE,

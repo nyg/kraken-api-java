@@ -20,13 +20,29 @@ import com.opencsv.exceptions.CsvRuntimeException;
 /**
  * Taken from <a href="https://github.com/hendrixjoseph/opencsv-record-mapping">hendrixjoseph/opencsv-record-mapping</a>.
  * Modified to support @{@link com.opencsv.bean.CsvBindByName CsvBindByName} annotations.
+ *
+ * @param <T> the record type each CSV line is mapped to
  */
 public class RecordMappingStrategy<T extends Record> extends HeaderColumnNameMappingStrategy<T> {
 
+    /**
+     * Creates a strategy mapping CSV lines to the given record type.
+     *
+     * @param type the record type each CSV line is mapped to
+     */
     public RecordMappingStrategy(Class<T> type) {
         setType(type);
     }
 
+    /**
+     * Builds a record from a CSV line, calling its canonical constructor.
+     *
+     * @param line the values of the CSV line
+     * @return the record built from the line
+     * @throws CsvBeanIntrospectionException if a value cannot be read
+     * @throws CsvFieldAssignmentException if a value cannot be converted
+     * @throws CsvRuntimeException if the line doesn't have as many values as the record has components, or if the record cannot be instantiated
+     */
     @Override
     public T populateNewBean(String[] line) throws CsvBeanIntrospectionException, CsvFieldAssignmentException {
         RecordComponent[] recordComponents = type.getRecordComponents();
@@ -67,8 +83,18 @@ public class RecordMappingStrategy<T extends Record> extends HeaderColumnNameMap
     }
 
     // TODO not great to have this here
+
+    /**
+     * Reads the date and time format used by Kraken in its CSV exports, e.g. {@code 2024-01-31 12:34:56}, which is expressed in UTC.
+     */
     public static class KrakenInstantConverter extends AbstractCsvConverter {
 
+        /**
+         * Converts a Kraken date and time to an {@link Instant}.
+         *
+         * @param value the value read from the CSV file
+         * @return the corresponding instant
+         */
         @Override
         public Object convertToRead(String value) {
             String[] dateTime = value.split(" ");

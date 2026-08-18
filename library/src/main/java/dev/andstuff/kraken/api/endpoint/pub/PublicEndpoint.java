@@ -13,19 +13,43 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import dev.andstuff.kraken.api.endpoint.Endpoint;
 
+/**
+ * A public endpoint of the Kraken REST API, queried with a GET request on {@code /0/public/{path}} and needing no credentials.
+ *
+ * @param <T> the type the response is deserialized into
+ */
 public class PublicEndpoint<T> extends Endpoint<T> {
 
     private final QueryParams queryParams;
 
+    /**
+     * Creates a public endpoint without query parameters.
+     *
+     * @param path the endpoint path, e.g. {@code Time} for {@code /0/public/Time}
+     * @param responseType the type the response is deserialized into
+     */
     public PublicEndpoint(String path, TypeReference<T> responseType) {
         this(path, QueryParams.EMPTY, responseType);
     }
 
+    /**
+     * Creates a public endpoint.
+     *
+     * @param path the endpoint path, e.g. {@code Assets} for {@code /0/public/Assets}
+     * @param queryParams the URL query parameters
+     * @param responseType the type the response is deserialized into
+     */
     public PublicEndpoint(String path, QueryParams queryParams, TypeReference<T> responseType) {
         super("GET", path, responseType);
         this.queryParams = queryParams;
     }
 
+    /**
+     * Builds the endpoint URL, appending the URL encoded query parameters.
+     *
+     * @return the endpoint URL
+     * @throws IllegalStateException if the URL is malformed
+     */
     @Override
     public URL buildURL() {
 
