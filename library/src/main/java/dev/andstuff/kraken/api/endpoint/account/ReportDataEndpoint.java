@@ -10,7 +10,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 
-import dev.andstuff.kraken.api.endpoint.account.csv.RecordMappingStrategy;
 import dev.andstuff.kraken.api.endpoint.account.params.ReportDataParams;
 import dev.andstuff.kraken.api.endpoint.account.response.LedgerEntry;
 import dev.andstuff.kraken.api.endpoint.priv.PrivateEndpoint;
