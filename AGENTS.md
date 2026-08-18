@@ -1,5 +1,7 @@
 # Agent Instructions
 
+Multi-module Maven project (`library` + `examples`) providing a Java client for the [Kraken REST API](https://docs.kraken.com/rest/). See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the request flow and component diagrams, and [docs/RELEASE.md](docs/RELEASE.md) for the release process.
+
 ## Build
 
 ```sh
@@ -13,42 +15,21 @@ There are no tests in this project. CI runs `mvn clean package` on PRs targeting
 
 Java 25 with Temurin is required (configured via `maven-compiler-plugin` with `<release>25</release>`).
 
-## Architecture
+## Layout
 
-This is a multi-module Maven project (`library` + `examples`) providing a Java client for the [Kraken REST API](https://docs.kraken.com/rest/). See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for request flow diagrams and [docs/RELEASE.md](docs/RELEASE.md) for the release process.
+`KrakenAPI` is the entry point: typed methods for implemented endpoints, generic `query()` methods taking a `Public`/`Private` enum value and returning a `JsonNode`, and raw `queryPublic()`/`queryPrivate()` taking a path string.
 
-### Endpoint type hierarchy
+Every endpoint extends `Endpoint<T>`, either `PublicEndpoint<T>` (GET on `/0/public/{path}`, parameters from `QueryParams`) or `PrivateEndpoint<T>` (POST on `/0/private/{path}`, parameters from `PostParams`, signed with a nonce-based HMAC). Concrete endpoints live in a domain package under `endpoint/` — `market/` for public market data, `account/` for private account data — and follow `{Name}Endpoint`, `params/{Name}Params`, `response/{ResponseType}`.
 
-All Kraken endpoints extend `Endpoint<T>` and split into two branches:
-
-- **`PublicEndpoint<T>`** — GET requests to `/0/public/{path}`. Uses `QueryParams` to build URL query strings.
-- **`PrivateEndpoint<T>`** — POST requests to `/0/private/{path}`. Uses `PostParams` for form-encoded body with nonce-based HMAC signing.
-
-Concrete endpoints live in domain packages under `endpoint/`:
-- `endpoint/market/` — public market data (assets, pairs, ticker, server time)
-- `endpoint/account/` — private account data (ledgers, reports)
-
-Each endpoint package follows: `{Name}Endpoint`, `params/{Name}Params`, `response/{ResponseType}`.
-
-### KrakenAPI facade
-
-`KrakenAPI` is the main entry point. It provides:
-1. **Typed methods** for implemented endpoints (e.g., `assetInfo()`, `ledgerInfo()`)
-2. **Generic `query()` methods** returning `JsonNode` for unimplemented endpoints, using the `Public`/`Private` enums
-3. **Raw `queryPublic()`/`queryPrivate()`** accepting path strings for endpoints not yet in the enums
-
-### REST requester
-
-`KrakenRestRequester` is the HTTP abstraction. `DefaultKrakenRestRequester` uses `HttpsURLConnection`. The interface is designed for alternative HTTP client implementations (Spring RestTemplate, OkHttp, etc.).
-
-JSON responses are deserialized through `KrakenResponse<T>`, which unwraps the Kraken `{error, result}` envelope. ZIP responses (report exports) go through `Endpoint.processZipResponse()`.
+`KrakenRestRequester` performs the HTTP calls and can be swapped for another HTTP client. Responses are unwrapped from the Kraken `{error, result}` envelope by `KrakenResponse<T>`; ZIP responses (report exports) go through `Endpoint.processZipResponse()`.
 
 ## Conventions
 
-- **Lombok** is used throughout: `@Getter`, `@RequiredArgsConstructor`, `@Builder`, `@Slf4j`, `@With`, `@Setter`. Annotation processing is configured in the parent POM.
+- **Lombok** is used throughout: `@Getter`, `@Setter`, `@Builder`, `@RequiredArgsConstructor`, `@NonNull`, `@With`, `@ToString`, `@Slf4j`. Annotation processing is configured in the parent POM.
 - **Java records** for response types and `KrakenResponse`. Records use `@JsonProperty` for Kraken's naming conventions and `@JsonEnumDefaultValue` for forward-compatible enum deserialization.
 - **OpenCSV** annotations (`@CsvBindByName`) on `LedgerEntry` enable both JSON API and CSV file parsing with the same record.
 - Jackson is configured with `ACCEPT_CASE_INSENSITIVE_ENUMS`, `READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE`, and `FAIL_ON_UNKNOWN_PROPERTIES` disabled — always include `@JsonEnumDefaultValue UNKNOWN` on new enums.
-- **Javadoc** is expected on every public type and public method of the `library` module, since it is published to Maven Central as a javadoc jar. Keep it concise: one sentence of purpose, `@param`/`@return`/`@throws` where they add information, and the name of the [Kraken REST API](https://docs.kraken.com/rest/) endpoint being called on endpoint, params and response types. Missing comments are not reported when building the javadoc jar (`doclint` is set to `all,-missing`), so self-explanatory enum constants can be left undocumented. The `examples` module is not documented this way.
+- Everything public in the `library` module is published API: keep implementation helpers package-private, e.g. `RecordMappingStrategy`.
+- **Javadoc** on every public type and method of the `library` module, since it ships as a javadoc jar. One sentence of purpose plus `@param`/`@return`/`@throws` where they add information, naming the Kraken endpoint being called. `doclint` is set to `all,-missing`, so obvious enum constants can be left undocumented. The `examples` module is not documented this way.
 - Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/). Release commits use `chore(release):` prefix.
 - The `examples` module is excluded from Maven Central publishing. API keys go in `examples/src/main/resources/api-keys.properties` (not committed).
