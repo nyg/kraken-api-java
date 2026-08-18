@@ -1,4 +1,4 @@
-# Copilot Instructions
+# Agent Instructions
 
 ## Build
 
@@ -15,7 +15,7 @@ Java 25 with Temurin is required (configured via `maven-compiler-plugin` with `<
 
 ## Architecture
 
-This is a multi-module Maven project (`library` + `examples`) providing a Java client for the [Kraken REST API](https://docs.kraken.com/rest/).
+This is a multi-module Maven project (`library` + `examples`) providing a Java client for the [Kraken REST API](https://docs.kraken.com/rest/). See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for request flow diagrams and [docs/RELEASE.md](docs/RELEASE.md) for the release process.
 
 ### Endpoint type hierarchy
 
@@ -49,5 +49,6 @@ JSON responses are deserialized through `KrakenResponse<T>`, which unwraps the K
 - **Java records** for response types and `KrakenResponse`. Records use `@JsonProperty` for Kraken's naming conventions and `@JsonEnumDefaultValue` for forward-compatible enum deserialization.
 - **OpenCSV** annotations (`@CsvBindByName`) on `LedgerEntry` enable both JSON API and CSV file parsing with the same record.
 - Jackson is configured with `ACCEPT_CASE_INSENSITIVE_ENUMS`, `READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE`, and `FAIL_ON_UNKNOWN_PROPERTIES` disabled — always include `@JsonEnumDefaultValue UNKNOWN` on new enums.
+- **Javadoc** is expected on every public type and public method of the `library` module, since it is published to Maven Central as a javadoc jar. Keep it concise: one sentence of purpose, `@param`/`@return`/`@throws` where they add information, and the name of the [Kraken REST API](https://docs.kraken.com/rest/) endpoint being called on endpoint, params and response types. Missing comments are not reported when building the javadoc jar (`doclint` is set to `all,-missing`), so self-explanatory enum constants can be left undocumented. The `examples` module is not documented this way.
 - Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/). Release commits use `chore(release):` prefix.
 - The `examples` module is excluded from Maven Central publishing. API keys go in `examples/src/main/resources/api-keys.properties` (not committed).
