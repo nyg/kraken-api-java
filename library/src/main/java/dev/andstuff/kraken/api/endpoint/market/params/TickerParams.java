@@ -6,6 +6,9 @@ import java.util.Map;
 import dev.andstuff.kraken.api.endpoint.pub.QueryParams;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * The parameters of the {@code Ticker} endpoint.
+ */
 @RequiredArgsConstructor
 public class TickerParams implements QueryParams {
 

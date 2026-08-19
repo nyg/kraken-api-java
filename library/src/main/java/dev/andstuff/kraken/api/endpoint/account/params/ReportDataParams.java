@@ -8,6 +8,9 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * The parameters of the {@code RetrieveExport} endpoint.
+ */
 @Getter
 @RequiredArgsConstructor(staticName = "of")
 public class ReportDataParams extends PostParams {

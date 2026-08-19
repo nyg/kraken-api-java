@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import dev.andstuff.kraken.api.endpoint.KrakenException;
 import dev.andstuff.kraken.api.endpoint.account.LedgerEntriesEndpoint;
 import dev.andstuff.kraken.api.endpoint.account.LedgerInfoEndpoint;
 import dev.andstuff.kraken.api.endpoint.account.RemoveReportEndpoint;
@@ -46,6 +47,20 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Entry point of the library, giving access to the Kraken REST API.
+ *
+ * <p>Endpoints can be queried in three ways:
+ * <ol>
+ *     <li>through a typed method, for the endpoints implemented by the library, e.g. {@link #assetInfo(List)};</li>
+ *     <li>through a generic {@code query} method, taking a {@link Public} or {@link Private} enum value and returning a {@link JsonNode};</li>
+ *     <li>through a raw {@code queryPublic} or {@code queryPrivate} method, taking the endpoint path as a string, for endpoints Kraken added but the library doesn't know about yet.</li>
+ * </ol>
+ *
+ * <p>Credentials are only required for private endpoints. An instance keeps no per-request state, so it can be shared as long as the configured {@link KrakenRestRequester} and {@link KrakenNonceGenerator} can be.
+ *
+ * @see <a href="https://docs.kraken.com/rest/">Kraken REST API documentation</a>
+ */
 @Builder(toBuilder = true)
 public class KrakenAPI {
 
@@ -53,26 +68,59 @@ public class KrakenAPI {
     private final KrakenNonceGenerator nonceGenerator;
     private final KrakenRestRequester restRequester;
 
+    /**
+     * Creates an instance without credentials, using the default REST requester. Only public endpoints can be queried.
+     */
     public KrakenAPI() {
         this(null, new DefaultKrakenRestRequester());
     }
 
+    /**
+     * Creates an instance using the default REST requester and nonce generator.
+     *
+     * @param key the Kraken API key
+     * @param secret the Kraken API secret, Base64 encoded, as given by Kraken
+     */
     public KrakenAPI(String key, String secret) {
         this(new KrakenCredentials(key, secret));
     }
 
+    /**
+     * Creates an instance using the default REST requester and nonce generator.
+     *
+     * @param credentials the credentials used to sign private endpoint requests
+     */
     public KrakenAPI(KrakenCredentials credentials) {
         this(credentials, new DefaultKrakenRestRequester());
     }
 
+    /**
+     * Creates an instance using the default REST requester.
+     *
+     * @param credentials the credentials used to sign private endpoint requests
+     * @param nonceGenerator the generator providing the nonce of each private endpoint request
+     */
     public KrakenAPI(KrakenCredentials credentials, KrakenNonceGenerator nonceGenerator) {
         this(credentials, nonceGenerator, new DefaultKrakenRestRequester());
     }
 
+    /**
+     * Creates an instance using the default nonce generator.
+     *
+     * @param credentials the credentials used to sign private endpoint requests
+     * @param restRequester the requester performing the HTTP calls
+     */
     public KrakenAPI(KrakenCredentials credentials, KrakenRestRequester restRequester) {
         this(credentials, new EpochBasedNonceGenerator(), restRequester);
     }
 
+    /**
+     * Creates a fully configured instance.
+     *
+     * @param credentials the credentials used to sign private endpoint requests
+     * @param nonceGenerator the generator providing the nonce of each private endpoint request
+     * @param restRequester the requester performing the HTTP calls
+     */
     public KrakenAPI(KrakenCredentials credentials, KrakenNonceGenerator nonceGenerator, KrakenRestRequester restRequester) {
         this.credentials = credentials;
         this.nonceGenerator = nonceGenerator;
@@ -81,64 +129,168 @@ public class KrakenAPI {
 
     /* Implemented public endpoints */
 
+    /**
+     * Queries the {@code Time} endpoint, returning Kraken's server time.
+     *
+     * @return the server time
+     * @throws KrakenException if Kraken returns an error
+     */
     public ServerTime serverTime() {
         return restRequester.execute(new ServerTimeEndpoint());
     }
 
+    /**
+     * Queries the {@code SystemStatus} endpoint, returning the current status of the Kraken trading system.
+     *
+     * @return the system status
+     * @throws KrakenException if Kraken returns an error
+     */
     public SystemStatus systemStatus() {
         return restRequester.execute(new SystemStatusEndpoint());
     }
 
+    /**
+     * Queries the {@code Assets} endpoint for the {@code currency} asset class.
+     *
+     * @param assets the assets to retrieve information for, e.g. {@code ["BTC", "ETH"]}
+     * @return the asset information, by asset name
+     * @throws KrakenException if Kraken returns an error
+     */
     public Map<String, AssetInfo> assetInfo(List<String> assets) {
         return restRequester.execute(new AssetInfoEndpoint(assets));
     }
 
+    /**
+     * Queries the {@code Assets} endpoint.
+     *
+     * @param assets the assets to retrieve information for, e.g. {@code ["BTC", "ETH"]}
+     * @param assetClass the asset class to filter on, e.g. {@code currency}
+     * @return the asset information, by asset name
+     * @throws KrakenException if Kraken returns an error
+     */
     public Map<String, AssetInfo> assetInfo(List<String> assets, String assetClass) {
         return restRequester.execute(new AssetInfoEndpoint(assets, assetClass));
     }
 
+    /**
+     * Queries the {@code AssetPairs} endpoint for all tradable asset pairs.
+     *
+     * @return the asset pairs
+     * @throws KrakenException if Kraken returns an error
+     */
     public AssetPairs assetPairs() {
         return restRequester.execute(new AssetPairEndpoint());
     }
 
+    /**
+     * Queries the {@code AssetPairs} endpoint.
+     *
+     * @param pairs the asset pairs to retrieve, e.g. {@code ["ETH/BTC", "ETH/USD"]}
+     * @return the asset pairs
+     * @throws KrakenException if Kraken returns an error
+     */
     public AssetPairs assetPairs(List<String> pairs) {
         return restRequester.execute(new AssetPairEndpoint(pairs));
     }
 
+    /**
+     * Queries the {@code AssetPairs} endpoint, restricting the information returned for each pair.
+     *
+     * @param pair the asset pairs to retrieve, e.g. {@code ["ETH/BTC", "ETH/USD"]}
+     * @param info the subset of information to return
+     * @return the asset pairs
+     * @throws KrakenException if Kraken returns an error
+     */
     public AssetPairs assetPairs(List<String> pair, AssetPairParams.Info info) {
         return restRequester.execute(new AssetPairEndpoint(pair, info));
     }
 
+    /**
+     * Queries the {@code Ticker} endpoint.
+     *
+     * @param pairs the asset pairs to retrieve the ticker of, e.g. {@code ["XBTUSD"]}
+     * @return the ticker information, by asset pair name
+     * @throws KrakenException if Kraken returns an error
+     */
     public Map<String, Ticker> ticker(List<String> pairs) {
         return restRequester.execute(new TickerEndpoint(pairs));
     }
 
     /* Implemented private endpoints */
 
+    /**
+     * Queries the private {@code Ledgers} endpoint, returning at most 50 ledger entries per call.
+     *
+     * @param params the filtering and pagination parameters
+     * @return the matching ledger entries and their total count
+     * @throws KrakenException if Kraken returns an error
+     */
     public LedgerInfo ledgerInfo(LedgerInfoParams params) {
         return executePrivate(new LedgerInfoEndpoint(params));
     }
 
+    /**
+     * Queries the private {@code QueryLedgers} endpoint, returning specific ledger entries by identifier.
+     *
+     * @param params the ledger entry identifiers to retrieve
+     * @return the ledger entries, by identifier
+     * @throws KrakenException if Kraken returns an error
+     */
     public Map<String, LedgerEntry> ledgerEntries(LedgerEntriesParams params) {
         return executePrivate(new LedgerEntriesEndpoint(params));
     }
 
+    /**
+     * Queries the private {@code AddExport} endpoint, asking Kraken to generate a report. The report is generated asynchronously: use {@link #reportsStatuses(ReportType)} to know when it is ready and {@link #reportData(String)} to download it.
+     *
+     * @param params the type, format and period of the report
+     * @return the identifier of the requested report
+     * @throws KrakenException if Kraken returns an error
+     */
     public ReportRequest requestReport(RequestReportParams params) {
         return executePrivate(new RequestReportEndpoint(params));
     }
 
+    /**
+     * Queries the private {@code ExportStatus} endpoint, returning the status of the previously requested reports.
+     *
+     * @param type the type of report to list
+     * @return the reports and their status
+     * @throws KrakenException if Kraken returns an error
+     */
     public List<Report> reportsStatuses(ReportType type) {
         return executePrivate(new ReportsStatusesEndpoint(ReportsStatusesParams.of(type)));
     }
 
+    /**
+     * Queries the private {@code RetrieveExport} endpoint, downloading a processed report and parsing the CSV file it contains.
+     *
+     * @param id the identifier of the report, as returned by {@link #requestReport(RequestReportParams)}
+     * @return the ledger entries contained in the report
+     * @throws KrakenException if Kraken returns an error
+     */
     public List<LedgerEntry> reportData(String id) {
         return executePrivate(new ReportDataEndpoint(ReportDataParams.of(id)));
     }
 
+    /**
+     * Queries the private {@code RemoveExport} endpoint to delete a processed report.
+     *
+     * @param id the identifier of the report to delete
+     * @return whether the report was deleted
+     * @throws KrakenException if Kraken returns an error
+     */
     public boolean deleteReport(String id) {
         return executePrivate(new RemoveReportEndpoint(RemoveReportParams.of(id, RemovalType.DELETE))).wasDeleted();
     }
 
+    /**
+     * Queries the private {@code RemoveExport} endpoint to cancel a report that is still being generated.
+     *
+     * @param id the identifier of the report to cancel
+     * @return whether the report was canceled
+     * @throws KrakenException if Kraken returns an error
+     */
     public boolean cancelReport(String id) {
         return executePrivate(new RemoveReportEndpoint(RemoveReportParams.of(id, RemovalType.CANCEL))).wasCanceled();
     }
@@ -149,40 +301,103 @@ public class KrakenAPI {
 
     /* Query unimplemented endpoints */
 
+    /**
+     * Queries a public endpoint the library doesn't implement, without parameters.
+     *
+     * @param endpoint the public endpoint to query
+     * @return the raw {@code result} field of the Kraken response
+     * @throws KrakenException if Kraken returns an error
+     */
     public JsonNode query(Public endpoint) {
         return restRequester.execute(new JsonPublicEndpoint(endpoint.getPath()));
     }
 
+    /**
+     * Queries a public endpoint the library doesn't implement.
+     *
+     * @param endpoint the public endpoint to query
+     * @param queryParams the URL query parameters, as expected by Kraken
+     * @return the raw {@code result} field of the Kraken response
+     * @throws KrakenException if Kraken returns an error
+     */
     public JsonNode query(Public endpoint, Map<String, String> queryParams) {
         return restRequester.execute(new JsonPublicEndpoint(endpoint.getPath(), queryParams));
     }
 
+    /**
+     * Queries a public endpoint by path, without parameters, for endpoints missing from {@link Public}.
+     *
+     * @param path the endpoint path, e.g. {@code Trades} for {@code /0/public/Trades}
+     * @return the raw {@code result} field of the Kraken response
+     * @throws KrakenException if Kraken returns an error
+     */
     public JsonNode queryPublic(String path) {
         return restRequester.execute(new JsonPublicEndpoint(path));
     }
 
+    /**
+     * Queries a public endpoint by path, for endpoints missing from {@link Public}.
+     *
+     * @param path the endpoint path, e.g. {@code Trades} for {@code /0/public/Trades}
+     * @param queryParams the URL query parameters, as expected by Kraken
+     * @return the raw {@code result} field of the Kraken response
+     * @throws KrakenException if Kraken returns an error
+     */
     public JsonNode queryPublic(String path, Map<String, String> queryParams) {
         return restRequester.execute(new JsonPublicEndpoint(path, queryParams));
     }
 
+    /**
+     * Queries a private endpoint the library doesn't implement, without parameters.
+     *
+     * @param endpoint the private endpoint to query
+     * @return the raw {@code result} field of the Kraken response
+     * @throws KrakenException if Kraken returns an error
+     */
     public JsonNode query(Private endpoint) {
         return executePrivate(new JsonPrivateEndpoint(endpoint.getPath()));
     }
 
+    /**
+     * Queries a private endpoint the library doesn't implement.
+     *
+     * @param endpoint the private endpoint to query
+     * @param params the POST parameters, as expected by Kraken, the nonce being added by the library
+     * @return the raw {@code result} field of the Kraken response
+     * @throws KrakenException if Kraken returns an error
+     */
     public JsonNode query(Private endpoint, Map<String, String> params) {
         return executePrivate(new JsonPrivateEndpoint(endpoint.getPath(), params));
     }
 
+    /**
+     * Queries a private endpoint by path, without parameters, for endpoints missing from {@link Private}.
+     *
+     * @param path the endpoint path, e.g. {@code Balance} for {@code /0/private/Balance}
+     * @return the raw {@code result} field of the Kraken response
+     * @throws KrakenException if Kraken returns an error
+     */
     public JsonNode queryPrivate(String path) {
         return executePrivate(new JsonPrivateEndpoint(path));
     }
 
+    /**
+     * Queries a private endpoint by path, for endpoints missing from {@link Private}.
+     *
+     * @param path the endpoint path, e.g. {@code Balance} for {@code /0/private/Balance}
+     * @param params the POST parameters, as expected by Kraken, the nonce being added by the library
+     * @return the raw {@code result} field of the Kraken response
+     * @throws KrakenException if Kraken returns an error
+     */
     public JsonNode queryPrivate(String path, Map<String, String> params) {
         return executePrivate(new JsonPrivateEndpoint(path, params));
     }
 
     /* All endpoints */
 
+    /**
+     * The public endpoints of the Kraken REST API, to be used with {@link KrakenAPI#query(Public)}.
+     */
     @Getter
     @RequiredArgsConstructor
     public enum Public {
@@ -199,6 +414,9 @@ public class KrakenAPI {
         private final String path;
     }
 
+    /**
+     * The private endpoints of the Kraken REST API, to be used with {@link KrakenAPI#query(Private)}.
+     */
     @Getter
     @RequiredArgsConstructor
     public enum Private {
@@ -250,6 +468,6 @@ public class KrakenAPI {
         WITHDRAW_METHODS("WithdrawMethods"),
         WITHDRAW_STATUS("WithdrawStatus");
 
-        public final String path;
+        private final String path;
     }
 }

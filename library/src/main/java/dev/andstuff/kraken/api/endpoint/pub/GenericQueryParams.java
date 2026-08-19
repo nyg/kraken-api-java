@@ -5,7 +5,7 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class GenericQueryParams implements QueryParams {
+class GenericQueryParams implements QueryParams {
 
     private final Map<String, String> params;
 

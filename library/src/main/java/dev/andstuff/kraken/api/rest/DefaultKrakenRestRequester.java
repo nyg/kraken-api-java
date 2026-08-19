@@ -23,6 +23,8 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * {@link KrakenRestRequester} implementation using {@link HttpsURLConnection}.
+ *
+ * <p>JSON responses are deserialized with a Jackson mapper configured to be lenient with unknown properties and enum values, so that new fields returned by Kraken don't break deserialization. Responses of type {@code application/zip}, e.g. report exports, are handed to {@link Endpoint#processZipResponse(java.util.zip.ZipInputStream)}.
  */
 @Slf4j
 public class DefaultKrakenRestRequester implements KrakenRestRequester {
@@ -38,6 +40,11 @@ public class DefaultKrakenRestRequester implements KrakenRestRequester {
                 .build();
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @throws IllegalStateException if the request fails or the response has an unsupported content type
+     */
     @Override
     public <T> T execute(PublicEndpoint<T> endpoint) {
         try {
@@ -50,6 +57,11 @@ public class DefaultKrakenRestRequester implements KrakenRestRequester {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @throws IllegalStateException if the request fails or the response has an unsupported content type
+     */
     @Override
     public <T> T execute(PrivateEndpoint<T> endpoint, KrakenCredentials credentials, KrakenNonceGenerator nonceGenerator) {
         String nonce = nonceGenerator.generate();

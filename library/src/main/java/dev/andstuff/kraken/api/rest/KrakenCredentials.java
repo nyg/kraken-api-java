@@ -14,6 +14,9 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * The API key and secret of a Kraken account, used to sign private endpoint requests.
+ */
 @RequiredArgsConstructor
 public class KrakenCredentials {
 
@@ -24,6 +27,14 @@ public class KrakenCredentials {
     @NonNull
     private final String secret;
 
+    /**
+     * Signs a private endpoint request, as described by Kraken's authentication documentation: the message is the endpoint path followed by the SHA-256 digest of the nonce and the request body, and it is signed with HMAC-SHA512 using the Base64 decoded secret.
+     *
+     * @param url the URL of the endpoint being queried
+     * @param nonce the nonce of the request
+     * @param urlEncodedParams the URL encoded request body, nonce included
+     * @return the Base64 encoded signature, to be sent in the {@code API-Sign} header
+     */
     public String sign(URL url, String nonce, String urlEncodedParams) {
 
         byte[] hmacKey = Base64.getDecoder().decode(secret);
@@ -35,14 +46,14 @@ public class KrakenCredentials {
         return Base64.getEncoder().encodeToString(hmac);
     }
 
-    public static byte[] concat(byte[] a, byte[] b) {
+    private static byte[] concat(byte[] a, byte[] b) {
         byte[] concat = new byte[a.length + b.length];
         System.arraycopy(a, 0, concat, 0, a.length);
         System.arraycopy(b, 0, concat, a.length, b.length);
         return concat;
     }
 
-    public static byte[] hmacSha512(byte[] key, byte[] message) {
+    private static byte[] hmacSha512(byte[] key, byte[] message) {
         try {
             Mac mac = Mac.getInstance("HmacSHA512");
             mac.init(new SecretKeySpec(key, "HmacSHA512"));

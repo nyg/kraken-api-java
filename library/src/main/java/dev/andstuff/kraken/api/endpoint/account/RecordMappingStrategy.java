@@ -1,4 +1,4 @@
-package dev.andstuff.kraken.api.endpoint.account.csv;
+package dev.andstuff.kraken.api.endpoint.account;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -20,10 +20,12 @@ import com.opencsv.exceptions.CsvRuntimeException;
 /**
  * Taken from <a href="https://github.com/hendrixjoseph/opencsv-record-mapping">hendrixjoseph/opencsv-record-mapping</a>.
  * Modified to support @{@link com.opencsv.bean.CsvBindByName CsvBindByName} annotations.
+ *
+ * @param <T> the record type each CSV line is mapped to
  */
-public class RecordMappingStrategy<T extends Record> extends HeaderColumnNameMappingStrategy<T> {
+class RecordMappingStrategy<T extends Record> extends HeaderColumnNameMappingStrategy<T> {
 
-    public RecordMappingStrategy(Class<T> type) {
+    RecordMappingStrategy(Class<T> type) {
         setType(type);
     }
 
@@ -67,6 +69,10 @@ public class RecordMappingStrategy<T extends Record> extends HeaderColumnNameMap
     }
 
     // TODO not great to have this here
+
+    /**
+     * Reads the date and time format used by Kraken in its CSV exports, e.g. {@code 2024-01-31 12:34:56}, which is expressed in UTC.
+     */
     public static class KrakenInstantConverter extends AbstractCsvConverter {
 
         @Override

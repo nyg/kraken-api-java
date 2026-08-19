@@ -13,6 +13,22 @@ import com.opencsv.bean.CsvBindByName;
 
 import lombok.With;
 
+/**
+ * A single ledger entry, as returned by the {@code Ledgers} and {@code QueryLedgers} endpoints, or as read from a report exported by Kraken.
+ *
+ * @param id the identifier of the entry, which Kraken returns as the key of the entry, not as a field
+ * @param referenceId the identifier of the operation the entry belongs to
+ * @param time the time of the entry
+ * @param type the type of the entry
+ * @param subType the sub type of the entry, e.g. {@code allocation} for an earn entry
+ * @param assetClass the class of the asset, e.g. {@code currency}
+ * @param assetSubClass the sub class of the asset
+ * @param asset the asset of the entry, possibly with a staking suffix, e.g. {@code DOT28.S}
+ * @param wallet the wallet the entry belongs to, e.g. {@code spot}
+ * @param amount the amount of the entry, fee excluded
+ * @param fee the fee of the entry
+ * @param balance the balance of the asset after the entry
+ */
 public record LedgerEntry(@CsvBindByName(column = "txid") @With String id, // TODO see if jackson can set this value
                           @CsvBindByName(column = "refid") @JsonProperty("refid") String referenceId,
                           @CsvBindByName(column = "time") Instant time,
@@ -49,20 +65,38 @@ public record LedgerEntry(@CsvBindByName(column = "txid") @With String id, // TO
         };
     }
 
+    /**
+     * Returns the amount of the entry, fee deducted.
+     *
+     * @return the net amount
+     */
     public BigDecimal netAmount() {
         return amount.subtract(fee);
     }
 
+    /**
+     * Returns whether the entry is a staking or earn reward, as opposed to an allocation, a deallocation or a migration.
+     *
+     * @return whether the entry is a reward
+     */
     public boolean isStakingReward() {
         boolean isStakingOrEarnType = List.of(Type.STAKING, Type.EARN).contains(type);
         boolean isRewardSubType = !List.of("allocation", "deallocation", "autoallocation", "migration").contains(subType);
         return isStakingOrEarnType && isRewardSubType;
     }
 
+    /**
+     * Returns the year the entry belongs to, in UTC.
+     *
+     * @return the year of the entry
+     */
     public int year() {
         return time.atZone(ZoneId.of("UTC")).getYear();
     }
 
+    /**
+     * The type of a ledger entry.
+     */
     public enum Type {
         ADJUSTMENT,
         CONVERSION,
