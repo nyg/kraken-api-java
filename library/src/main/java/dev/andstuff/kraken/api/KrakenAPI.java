@@ -38,6 +38,11 @@ import dev.andstuff.kraken.api.endpoint.market.response.Ticker;
 import dev.andstuff.kraken.api.endpoint.priv.JsonPrivateEndpoint;
 import dev.andstuff.kraken.api.endpoint.priv.PrivateEndpoint;
 import dev.andstuff.kraken.api.endpoint.pub.JsonPublicEndpoint;
+import dev.andstuff.kraken.api.endpoint.subaccount.AccountTransferEndpoint;
+import dev.andstuff.kraken.api.endpoint.subaccount.CreateSubaccountEndpoint;
+import dev.andstuff.kraken.api.endpoint.subaccount.params.AccountTransferParams;
+import dev.andstuff.kraken.api.endpoint.subaccount.params.CreateSubaccountParams;
+import dev.andstuff.kraken.api.endpoint.subaccount.response.AccountTransfer;
 import dev.andstuff.kraken.api.rest.DefaultKrakenRestRequester;
 import dev.andstuff.kraken.api.rest.EpochBasedNonceGenerator;
 import dev.andstuff.kraken.api.rest.KrakenCredentials;
@@ -293,6 +298,28 @@ public class KrakenAPI {
      */
     public boolean cancelReport(String id) {
         return executePrivate(new RemoveReportEndpoint(RemoveReportParams.of(id, RemovalType.CANCEL))).wasCanceled();
+    }
+
+    /**
+     * Queries the private {@code CreateSubaccount} endpoint, creating a trading subaccount. It must be called with an API key of the master account, having the withdraw funds permission.
+     *
+     * @param params the username and email address of the subaccount
+     * @return whether the subaccount was created
+     * @throws KrakenException if Kraken returns an error
+     */
+    public boolean createSubaccount(CreateSubaccountParams params) {
+        return executePrivate(new CreateSubaccountEndpoint(params));
+    }
+
+    /**
+     * Queries the private {@code AccountTransfer} endpoint, transferring funds between the master account and its subaccounts. It must be called with an API key of the master account, having the withdraw funds permission.
+     *
+     * @param params the asset, amount and accounts of the transfer
+     * @return the identifier and status of the transfer
+     * @throws KrakenException if Kraken returns an error
+     */
+    public AccountTransfer accountTransfer(AccountTransferParams params) {
+        return executePrivate(new AccountTransferEndpoint(params));
     }
 
     private <T> T executePrivate(PrivateEndpoint<T> endpoint) {
