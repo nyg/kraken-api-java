@@ -5,12 +5,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.function.Function;
 
+import lombok.AccessLevel;
 import lombok.Setter;
 
 /**
  * The form-encoded body parameters of a {@link PrivateEndpoint}. The nonce is set by the library just before the request is signed.
  */
-@Setter
+@Setter(AccessLevel.PACKAGE)
 public abstract class PostParams {
 
     /**

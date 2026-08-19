@@ -46,29 +46,14 @@ public class KrakenCredentials {
         return Base64.getEncoder().encodeToString(hmac);
     }
 
-    /**
-     * Concatenates two byte arrays.
-     *
-     * @param a the first array
-     * @param b the second array
-     * @return a new array containing the bytes of {@code a} followed by those of {@code b}
-     */
-    public static byte[] concat(byte[] a, byte[] b) {
+    private static byte[] concat(byte[] a, byte[] b) {
         byte[] concat = new byte[a.length + b.length];
         System.arraycopy(a, 0, concat, 0, a.length);
         System.arraycopy(b, 0, concat, a.length, b.length);
         return concat;
     }
 
-    /**
-     * Computes the HMAC-SHA512 digest of a message.
-     *
-     * @param key the key of the digest
-     * @param message the message to digest
-     * @return the digest
-     * @throws IllegalStateException if the digest cannot be computed
-     */
-    public static byte[] hmacSha512(byte[] key, byte[] message) {
+    private static byte[] hmacSha512(byte[] key, byte[] message) {
         try {
             Mac mac = Mac.getInstance("HmacSHA512");
             mac.init(new SecretKeySpec(key, "HmacSHA512"));

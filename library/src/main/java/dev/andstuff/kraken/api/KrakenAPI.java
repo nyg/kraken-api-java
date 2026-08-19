@@ -468,9 +468,6 @@ public class KrakenAPI {
         WITHDRAW_METHODS("WithdrawMethods"),
         WITHDRAW_STATUS("WithdrawStatus");
 
-        /**
-         * The path of the endpoint, relative to {@code /0/private}, e.g. {@code Balance}.
-         */
-        public final String path;
+        private final String path;
     }
 }
