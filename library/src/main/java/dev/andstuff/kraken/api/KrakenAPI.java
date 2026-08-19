@@ -38,6 +38,7 @@ import dev.andstuff.kraken.api.endpoint.market.response.Ticker;
 import dev.andstuff.kraken.api.endpoint.priv.JsonPrivateEndpoint;
 import dev.andstuff.kraken.api.endpoint.priv.PrivateEndpoint;
 import dev.andstuff.kraken.api.endpoint.pub.JsonPublicEndpoint;
+import dev.andstuff.kraken.api.endpoint.pub.PublicEndpoint;
 import dev.andstuff.kraken.api.endpoint.subaccount.AccountTransferEndpoint;
 import dev.andstuff.kraken.api.endpoint.subaccount.CreateSubaccountEndpoint;
 import dev.andstuff.kraken.api.endpoint.subaccount.params.AccountTransferParams;
@@ -61,8 +62,9 @@ import lombok.RequiredArgsConstructor;
 /**
  * Entry point of the library, giving access to the Kraken REST API.
  *
- * <p>Endpoints can be queried in three ways:
+ * <p>Endpoints can be queried in four ways, from the most to the least typed:
  * <ol>
+ *     <li>through {@link #query(PublicEndpoint)} or {@link #query(PrivateEndpoint)}, taking an endpoint written outside the library and returning the type that endpoint declares;</li>
  *     <li>through a typed method, for the endpoints implemented by the library, e.g. {@link #assetInfo(List)};</li>
  *     <li>through a generic {@code query} method, taking a {@link Public} or {@link Private} enum value and returning a {@link JsonNode};</li>
  *     <li>through a raw {@code queryPublic} or {@code queryPrivate} method, taking the endpoint path as a string, for endpoints Kraken added but the library doesn't know about yet.</li>
@@ -362,10 +364,39 @@ public class KrakenAPI {
     }
 
     private <T> T executePrivate(PrivateEndpoint<T> endpoint) {
-        return restRequester.execute(endpoint, credentials, nonceGenerator);
+        return query(endpoint);
     }
 
     /* Query unimplemented endpoints */
+
+    /**
+     * Queries a public endpoint the library doesn't implement, described by a {@link PublicEndpoint} written outside the library.
+     *
+     * @param <T> the type the response is deserialized into
+     * @param endpoint the public endpoint to query
+     * @return the deserialized {@code result} field of the Kraken response
+     * @throws KrakenException if Kraken returns an error
+     */
+    public <T> T query(PublicEndpoint<T> endpoint) {
+        return restRequester.execute(endpoint);
+    }
+
+    /**
+     * Queries a private endpoint the library doesn't implement, described by a {@link PrivateEndpoint} written outside the library. The request is signed with the credentials of this instance.
+     *
+     * @param <T> the type the response is deserialized into
+     * @param endpoint the private endpoint to query
+     * @return the deserialized {@code result} field of the Kraken response
+     * @throws IllegalStateException if this instance was built without credentials
+     * @throws KrakenException if Kraken returns an error
+     */
+    public <T> T query(PrivateEndpoint<T> endpoint) {
+        if (credentials == null) {
+            throw new IllegalStateException("Private endpoint %s requires credentials, build KrakenAPI with a KrakenCredentials instance".formatted(endpoint.getPath()));
+        }
+
+        return restRequester.execute(endpoint, credentials, nonceGenerator);
+    }
 
     /**
      * Queries a public endpoint the library doesn't implement, without parameters.

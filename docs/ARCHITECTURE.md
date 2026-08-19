@@ -96,6 +96,8 @@ classDiagram
         +assetInfo(assets) Map~String, AssetInfo~
         +ticker(pairs) Map~String, Ticker~
         +ledgerInfo(params) LedgerInfo
+        +query(PublicEndpoint~T~) T
+        +query(PrivateEndpoint~T~) T
         +query(endpoint) JsonNode
         +queryPublic(path) JsonNode
         +queryPrivate(path) JsonNode
@@ -160,12 +162,13 @@ classDiagram
     KrakenResponse ..> KrakenException : throws on error
 ```
 
-## Three Access Tiers
+## Four Access Tiers
 
-`KrakenAPI` provides three levels of access, from most to least typed:
+`KrakenAPI` provides four levels of access, from most to least typed:
 
 | Tier | Methods | Return type | When to use |
 |------|---------|-------------|-------------|
+| **Custom endpoint** | `query(myEndpoint)` | Whatever the endpoint declares | You wrote your own `PublicEndpoint`/`PrivateEndpoint` for an endpoint the library doesn't implement |
 | **Typed** | `assetInfo()`, `ledgerInfo()`, etc. | Domain records | Endpoint has a dedicated implementation |
 | **Enum-based** | `query(Public.TICKER, params)` | `JsonNode` | Endpoint is in the `Public`/`Private` enum but not yet typed |
 | **Raw path** | `queryPublic("Trades", params)` | `JsonNode` | Endpoint isn't in the enum yet (e.g., newly added by Kraken) |
@@ -178,3 +181,12 @@ To add a new typed endpoint:
 2. Create a params class implementing `QueryParams` (public) or extending `PostParams` (private)
 3. Create an endpoint class extending `PublicEndpoint<T>` or `PrivateEndpoint<T>`
 4. Add a convenience method to `KrakenAPI`
+
+Steps 1 to 3 work just as well from outside the library, for an endpoint you need before it is implemented here. Step 4 is then replaced by handing the endpoint to `KrakenAPI.query(...)`, which runs it through the configured `KrakenRestRequester` and signs private requests with the credentials and nonce generator the instance was built with:
+
+```java
+KrakenAPI api = new KrakenAPI(key, secret);
+MyResponse response = api.query(new MyEndpoint(params));
+```
+
+A `PrivateEndpoint` queried on an instance built without credentials fails with an `IllegalStateException` naming the endpoint path.
