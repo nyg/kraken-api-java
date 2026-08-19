@@ -29,6 +29,7 @@ public abstract class Endpoint<T> {
     /**
      * The path of the endpoint, relative to {@code /0/public} or {@code /0/private}, e.g. {@code Assets}.
      */
+    @Getter
     protected final String path;
 
     @Getter

@@ -95,6 +95,30 @@ JsonNode order = api.query(KrakenAPI.Private.ADD_ORDER, Map.of(
 // Exception in thread "main" KrakenException(errors=[EGeneral:Permission denied])
 ```
 
+### Custom endpoints
+
+An endpoint the library doesn't implement can also be given a proper type, instead of falling back to `JsonNode`. Extend `PublicEndpoint<T>`, or `PrivateEndpoint<T>` for a private one, and pass your endpoint to `query`:
+
+```java
+public class TradesEndpoint extends PublicEndpoint<Map<String, List<Trade>>> {
+
+    public TradesEndpoint(String pair) {
+        super("Trades", () -> Map.of("pair", pair), new TypeReference<>() {});
+    }
+}
+
+record Trade(BigDecimal price, BigDecimal volume) {}
+
+KrakenAPI api = new KrakenAPI();
+
+Map<String, List<Trade>> trades = api.query(new TradesEndpoint("XBTUSD"));
+// {XXBTZUSD=[Trade[price=68515.60000, volume=0.00029628]], …
+```
+
+The endpoint is run through the same `KrakenRestRequester` as the built-in ones, and a `PrivateEndpoint` is signed with the credentials and nonce generator the `KrakenAPI` instance was built with. Querying one on an instance built without credentials throws an `IllegalStateException`.
+
+Pull requests adding such an endpoint to the library are welcome, see the [architecture documentation](docs/ARCHITECTURE.md).
+
 ### Custom REST requester
 
 The current implementation of the library uses the JDK's HttpsURLConnection to make HTTP request. If that doesn't suit your needs and wish to use something else (e.g. Spring RestTemplate, Apache HttpComponents, OkHttp), you can implement the KrakenRestRequester interface and pass it to the KrakenAPI constructor:
@@ -102,10 +126,10 @@ The current implementation of the library uses the JDK's HttpsURLConnection to m
 ```java
 public class MyRestTemplateRestRequester implements KrakenRestRequester {
     public <T> T execute(PublicEndpoint<T> endpoint) { /* your implementation */ }
-    public <T> T execute(PrivateEndpoint<T> endpoint) { /* your implementation */ }
+    public <T> T execute(PrivateEndpoint<T> endpoint, KrakenCredentials credentials, KrakenNonceGenerator nonceGenerator) { /* your implementation */ }
 }
 
-KrakenAPI api = new KrakenAPI(MyRestTemplateRestRequest(apiKey, apiSecret));
+KrakenAPI api = new KrakenAPI(new KrakenCredentials(key, secret), new MyRestTemplateRestRequester());
 ```
 
 See `DefaultKrakenRestRequester` for the default implementation.
