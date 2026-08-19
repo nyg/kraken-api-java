@@ -149,7 +149,7 @@ public class KrakenAPI {
      * @throws KrakenException if Kraken returns an error
      */
     public ServerTime serverTime() {
-        return restRequester.execute(new ServerTimeEndpoint());
+        return query(new ServerTimeEndpoint());
     }
 
     /**
@@ -159,7 +159,7 @@ public class KrakenAPI {
      * @throws KrakenException if Kraken returns an error
      */
     public SystemStatus systemStatus() {
-        return restRequester.execute(new SystemStatusEndpoint());
+        return query(new SystemStatusEndpoint());
     }
 
     /**
@@ -170,7 +170,7 @@ public class KrakenAPI {
      * @throws KrakenException if Kraken returns an error
      */
     public Map<String, AssetInfo> assetInfo(List<String> assets) {
-        return restRequester.execute(new AssetInfoEndpoint(assets));
+        return query(new AssetInfoEndpoint(assets));
     }
 
     /**
@@ -182,7 +182,7 @@ public class KrakenAPI {
      * @throws KrakenException if Kraken returns an error
      */
     public Map<String, AssetInfo> assetInfo(List<String> assets, String assetClass) {
-        return restRequester.execute(new AssetInfoEndpoint(assets, assetClass));
+        return query(new AssetInfoEndpoint(assets, assetClass));
     }
 
     /**
@@ -192,7 +192,7 @@ public class KrakenAPI {
      * @throws KrakenException if Kraken returns an error
      */
     public AssetPairs assetPairs() {
-        return restRequester.execute(new AssetPairEndpoint());
+        return query(new AssetPairEndpoint());
     }
 
     /**
@@ -203,7 +203,7 @@ public class KrakenAPI {
      * @throws KrakenException if Kraken returns an error
      */
     public AssetPairs assetPairs(List<String> pairs) {
-        return restRequester.execute(new AssetPairEndpoint(pairs));
+        return query(new AssetPairEndpoint(pairs));
     }
 
     /**
@@ -215,7 +215,7 @@ public class KrakenAPI {
      * @throws KrakenException if Kraken returns an error
      */
     public AssetPairs assetPairs(List<String> pair, AssetPairParams.Info info) {
-        return restRequester.execute(new AssetPairEndpoint(pair, info));
+        return query(new AssetPairEndpoint(pair, info));
     }
 
     /**
@@ -226,7 +226,7 @@ public class KrakenAPI {
      * @throws KrakenException if Kraken returns an error
      */
     public Map<String, Ticker> ticker(List<String> pairs) {
-        return restRequester.execute(new TickerEndpoint(pairs));
+        return query(new TickerEndpoint(pairs));
     }
 
     /**
@@ -272,7 +272,7 @@ public class KrakenAPI {
      * @throws KrakenException if Kraken returns an error
      */
     public LedgerInfo ledgerInfo(LedgerInfoParams params) {
-        return executePrivate(new LedgerInfoEndpoint(params));
+        return query(new LedgerInfoEndpoint(params));
     }
 
     /**
@@ -283,7 +283,7 @@ public class KrakenAPI {
      * @throws KrakenException if Kraken returns an error
      */
     public Map<String, LedgerEntry> ledgerEntries(LedgerEntriesParams params) {
-        return executePrivate(new LedgerEntriesEndpoint(params));
+        return query(new LedgerEntriesEndpoint(params));
     }
 
     /**
@@ -294,7 +294,7 @@ public class KrakenAPI {
      * @throws KrakenException if Kraken returns an error
      */
     public ReportRequest requestReport(RequestReportParams params) {
-        return executePrivate(new RequestReportEndpoint(params));
+        return query(new RequestReportEndpoint(params));
     }
 
     /**
@@ -305,7 +305,7 @@ public class KrakenAPI {
      * @throws KrakenException if Kraken returns an error
      */
     public List<Report> reportsStatuses(ReportType type) {
-        return executePrivate(new ReportsStatusesEndpoint(ReportsStatusesParams.of(type)));
+        return query(new ReportsStatusesEndpoint(ReportsStatusesParams.of(type)));
     }
 
     /**
@@ -316,7 +316,7 @@ public class KrakenAPI {
      * @throws KrakenException if Kraken returns an error
      */
     public List<LedgerEntry> reportData(String id) {
-        return executePrivate(new ReportDataEndpoint(ReportDataParams.of(id)));
+        return query(new ReportDataEndpoint(ReportDataParams.of(id)));
     }
 
     /**
@@ -327,7 +327,7 @@ public class KrakenAPI {
      * @throws KrakenException if Kraken returns an error
      */
     public boolean deleteReport(String id) {
-        return executePrivate(new RemoveReportEndpoint(RemoveReportParams.of(id, RemovalType.DELETE))).wasDeleted();
+        return query(new RemoveReportEndpoint(RemoveReportParams.of(id, RemovalType.DELETE))).wasDeleted();
     }
 
     /**
@@ -338,7 +338,7 @@ public class KrakenAPI {
      * @throws KrakenException if Kraken returns an error
      */
     public boolean cancelReport(String id) {
-        return executePrivate(new RemoveReportEndpoint(RemoveReportParams.of(id, RemovalType.CANCEL))).wasCanceled();
+        return query(new RemoveReportEndpoint(RemoveReportParams.of(id, RemovalType.CANCEL))).wasCanceled();
     }
 
     /**
@@ -349,7 +349,7 @@ public class KrakenAPI {
      * @throws KrakenException if Kraken returns an error
      */
     public boolean createSubaccount(CreateSubaccountParams params) {
-        return executePrivate(new CreateSubaccountEndpoint(params));
+        return query(new CreateSubaccountEndpoint(params));
     }
 
     /**
@@ -360,11 +360,7 @@ public class KrakenAPI {
      * @throws KrakenException if Kraken returns an error
      */
     public AccountTransfer accountTransfer(AccountTransferParams params) {
-        return executePrivate(new AccountTransferEndpoint(params));
-    }
-
-    private <T> T executePrivate(PrivateEndpoint<T> endpoint) {
-        return query(endpoint);
+        return query(new AccountTransferEndpoint(params));
     }
 
     /* Query unimplemented endpoints */
@@ -406,7 +402,7 @@ public class KrakenAPI {
      * @throws KrakenException if Kraken returns an error
      */
     public JsonNode query(Public endpoint) {
-        return restRequester.execute(new JsonPublicEndpoint(endpoint.getPath()));
+        return query(new JsonPublicEndpoint(endpoint.getPath()));
     }
 
     /**
@@ -418,7 +414,7 @@ public class KrakenAPI {
      * @throws KrakenException if Kraken returns an error
      */
     public JsonNode query(Public endpoint, Map<String, String> queryParams) {
-        return restRequester.execute(new JsonPublicEndpoint(endpoint.getPath(), queryParams));
+        return query(new JsonPublicEndpoint(endpoint.getPath(), queryParams));
     }
 
     /**
@@ -429,7 +425,7 @@ public class KrakenAPI {
      * @throws KrakenException if Kraken returns an error
      */
     public JsonNode queryPublic(String path) {
-        return restRequester.execute(new JsonPublicEndpoint(path));
+        return query(new JsonPublicEndpoint(path));
     }
 
     /**
@@ -441,7 +437,7 @@ public class KrakenAPI {
      * @throws KrakenException if Kraken returns an error
      */
     public JsonNode queryPublic(String path, Map<String, String> queryParams) {
-        return restRequester.execute(new JsonPublicEndpoint(path, queryParams));
+        return query(new JsonPublicEndpoint(path, queryParams));
     }
 
     /**
@@ -452,7 +448,7 @@ public class KrakenAPI {
      * @throws KrakenException if Kraken returns an error
      */
     public JsonNode query(Private endpoint) {
-        return executePrivate(new JsonPrivateEndpoint(endpoint.getPath()));
+        return query(new JsonPrivateEndpoint(endpoint.getPath()));
     }
 
     /**
@@ -464,7 +460,7 @@ public class KrakenAPI {
      * @throws KrakenException if Kraken returns an error
      */
     public JsonNode query(Private endpoint, Map<String, String> params) {
-        return executePrivate(new JsonPrivateEndpoint(endpoint.getPath(), params));
+        return query(new JsonPrivateEndpoint(endpoint.getPath(), params));
     }
 
     /**
@@ -475,7 +471,7 @@ public class KrakenAPI {
      * @throws KrakenException if Kraken returns an error
      */
     public JsonNode queryPrivate(String path) {
-        return executePrivate(new JsonPrivateEndpoint(path));
+        return query(new JsonPrivateEndpoint(path));
     }
 
     /**
@@ -487,7 +483,7 @@ public class KrakenAPI {
      * @throws KrakenException if Kraken returns an error
      */
     public JsonNode queryPrivate(String path, Map<String, String> params) {
-        return executePrivate(new JsonPrivateEndpoint(path, params));
+        return query(new JsonPrivateEndpoint(path, params));
     }
 
     /* All endpoints */
