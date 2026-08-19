@@ -237,7 +237,7 @@ public class KrakenAPI {
      * @throws KrakenException if Kraken returns an error
      */
     public PreTrade preTrade(String symbol) {
-        return restRequester.execute(new PreTradeEndpoint(PreTradeParams.of(symbol)));
+        return query(new PreTradeEndpoint(PreTradeParams.of(symbol)));
     }
 
     /**
@@ -248,7 +248,7 @@ public class KrakenAPI {
      * @throws KrakenException if Kraken returns an error
      */
     public PostTrade postTrade(String symbol) {
-        return restRequester.execute(new PostTradeEndpoint(PostTradeParams.builder().symbol(symbol).build()));
+        return query(new PostTradeEndpoint(PostTradeParams.builder().symbol(symbol).build()));
     }
 
     /**
@@ -259,7 +259,7 @@ public class KrakenAPI {
      * @throws KrakenException if Kraken returns an error
      */
     public PostTrade postTrade(PostTradeParams params) {
-        return restRequester.execute(new PostTradeEndpoint(params));
+        return query(new PostTradeEndpoint(params));
     }
 
     /* Implemented private endpoints */
