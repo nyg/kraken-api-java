@@ -43,6 +43,12 @@ import dev.andstuff.kraken.api.endpoint.subaccount.CreateSubaccountEndpoint;
 import dev.andstuff.kraken.api.endpoint.subaccount.params.AccountTransferParams;
 import dev.andstuff.kraken.api.endpoint.subaccount.params.CreateSubaccountParams;
 import dev.andstuff.kraken.api.endpoint.subaccount.response.AccountTransfer;
+import dev.andstuff.kraken.api.endpoint.transparency.PostTradeEndpoint;
+import dev.andstuff.kraken.api.endpoint.transparency.PreTradeEndpoint;
+import dev.andstuff.kraken.api.endpoint.transparency.params.PostTradeParams;
+import dev.andstuff.kraken.api.endpoint.transparency.params.PreTradeParams;
+import dev.andstuff.kraken.api.endpoint.transparency.response.PostTrade;
+import dev.andstuff.kraken.api.endpoint.transparency.response.PreTrade;
 import dev.andstuff.kraken.api.rest.DefaultKrakenRestRequester;
 import dev.andstuff.kraken.api.rest.EpochBasedNonceGenerator;
 import dev.andstuff.kraken.api.rest.KrakenCredentials;
@@ -219,6 +225,39 @@ public class KrakenAPI {
      */
     public Map<String, Ticker> ticker(List<String> pairs) {
         return restRequester.execute(new TickerEndpoint(pairs));
+    }
+
+    /**
+     * Queries the {@code PreTrade} endpoint, returning the aggregated order book of a currency pair, with at most ten price levels on each side.
+     *
+     * @param symbol the currency pair, in the {@code BASE/QUOTE} display format, e.g. {@code BTC/USD}
+     * @return the aggregated order book
+     * @throws KrakenException if Kraken returns an error
+     */
+    public PreTrade preTrade(String symbol) {
+        return restRequester.execute(new PreTradeEndpoint(PreTradeParams.of(symbol)));
+    }
+
+    /**
+     * Queries the {@code PostTrade} endpoint, returning the last 1000 trades executed on a currency pair.
+     *
+     * @param symbol the currency pair, in the {@code BASE/QUOTE} display format, e.g. {@code BTC/USD}
+     * @return the executed trades
+     * @throws KrakenException if Kraken returns an error
+     */
+    public PostTrade postTrade(String symbol) {
+        return restRequester.execute(new PostTradeEndpoint(PostTradeParams.builder().symbol(symbol).build()));
+    }
+
+    /**
+     * Queries the {@code PostTrade} endpoint, returning the trades executed on a currency pair over the given period. Trades are returned in ascending time order and at most 1000 at a time: {@link PostTrade#lastTimestamp()} gives the timestamp to use as the next {@code fromTimestamp}.
+     *
+     * @param params the currency pair and the period and count restricting the trades returned
+     * @return the executed trades
+     * @throws KrakenException if Kraken returns an error
+     */
+    public PostTrade postTrade(PostTradeParams params) {
+        return restRequester.execute(new PostTradeEndpoint(params));
     }
 
     /* Implemented private endpoints */
