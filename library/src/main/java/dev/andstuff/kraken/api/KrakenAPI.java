@@ -24,6 +24,19 @@ import dev.andstuff.kraken.api.endpoint.account.response.LedgerEntry;
 import dev.andstuff.kraken.api.endpoint.account.response.LedgerInfo;
 import dev.andstuff.kraken.api.endpoint.account.response.Report;
 import dev.andstuff.kraken.api.endpoint.account.response.ReportRequest;
+import dev.andstuff.kraken.api.endpoint.earn.EarnAllocateEndpoint;
+import dev.andstuff.kraken.api.endpoint.earn.EarnAllocateStatusEndpoint;
+import dev.andstuff.kraken.api.endpoint.earn.EarnAllocationsEndpoint;
+import dev.andstuff.kraken.api.endpoint.earn.EarnDeallocateEndpoint;
+import dev.andstuff.kraken.api.endpoint.earn.EarnDeallocateStatusEndpoint;
+import dev.andstuff.kraken.api.endpoint.earn.EarnStrategiesEndpoint;
+import dev.andstuff.kraken.api.endpoint.earn.params.EarnAllocationParams;
+import dev.andstuff.kraken.api.endpoint.earn.params.EarnAllocationsParams;
+import dev.andstuff.kraken.api.endpoint.earn.params.EarnStatusParams;
+import dev.andstuff.kraken.api.endpoint.earn.params.EarnStrategiesParams;
+import dev.andstuff.kraken.api.endpoint.earn.response.AllocationStatus;
+import dev.andstuff.kraken.api.endpoint.earn.response.EarnAllocations;
+import dev.andstuff.kraken.api.endpoint.earn.response.EarnStrategies;
 import dev.andstuff.kraken.api.endpoint.market.AssetInfoEndpoint;
 import dev.andstuff.kraken.api.endpoint.market.AssetPairEndpoint;
 import dev.andstuff.kraken.api.endpoint.market.ServerTimeEndpoint;
@@ -361,6 +374,92 @@ public class KrakenAPI {
      */
     public AccountTransfer accountTransfer(AccountTransferParams params) {
         return query(new AccountTransferEndpoint(params));
+    }
+
+    /**
+     * Queries the private {@code Earn/Strategies} endpoint, returning the first page of earn strategies available to the account.
+     *
+     * @return the strategies and the cursor of the next page
+     * @throws KrakenException if Kraken returns an error
+     */
+    public EarnStrategies earnStrategies() {
+        return earnStrategies(EarnStrategiesParams.builder().build());
+    }
+
+    /**
+     * Queries the private {@code Earn/Strategies} endpoint. Strategies restricted by the tier of the account are returned with {@link EarnStrategies.Strategy#canAllocate()} set to {@code false}.
+     *
+     * @param params the asset, lock type and pagination parameters restricting the strategies returned
+     * @return the strategies and the cursor of the next page
+     * @throws KrakenException if Kraken returns an error
+     */
+    public EarnStrategies earnStrategies(EarnStrategiesParams params) {
+        return query(new EarnStrategiesEndpoint(params));
+    }
+
+    /**
+     * Queries the private {@code Earn/Allocations} endpoint, returning the earn allocations of the account with amounts converted to USD.
+     *
+     * @return the allocations, one per strategy
+     * @throws KrakenException if Kraken returns an error
+     */
+    public EarnAllocations earnAllocations() {
+        return earnAllocations(EarnAllocationsParams.builder().build());
+    }
+
+    /**
+     * Queries the private {@code Earn/Allocations} endpoint.
+     *
+     * @param params the sort order, the asset amounts are converted to and whether zero allocations are hidden
+     * @return the allocations, one per strategy
+     * @throws KrakenException if Kraken returns an error
+     */
+    public EarnAllocations earnAllocations(EarnAllocationsParams params) {
+        return query(new EarnAllocationsEndpoint(params));
+    }
+
+    /**
+     * Queries the private {@code Earn/Allocate} endpoint, allocating funds to an earn strategy. It requires an API key with the earn funds permission and returns as soon as Kraken accepts the request: use {@link #earnAllocateStatus(String)} to know when the allocation completed.
+     *
+     * @param params the strategy and the amount to allocate
+     * @return whether Kraken accepted the allocation request
+     * @throws KrakenException if Kraken returns an error
+     */
+    public boolean earnAllocate(EarnAllocationParams params) {
+        return query(new EarnAllocateEndpoint(params));
+    }
+
+    /**
+     * Queries the private {@code Earn/Deallocate} endpoint, removing funds from an earn strategy. It requires an API key with the earn funds permission and returns as soon as Kraken accepts the request: use {@link #earnDeallocateStatus(String)} to know when the deallocation completed.
+     *
+     * @param params the strategy and the amount to deallocate
+     * @return whether Kraken accepted the deallocation request
+     * @throws KrakenException if Kraken returns an error
+     */
+    public boolean earnDeallocate(EarnAllocationParams params) {
+        return query(new EarnDeallocateEndpoint(params));
+    }
+
+    /**
+     * Queries the private {@code Earn/AllocateStatus} endpoint, telling whether the last allocation to a strategy is still in progress.
+     *
+     * @param strategyId the identifier of the strategy funds were allocated to
+     * @return the status of the allocation
+     * @throws KrakenException if Kraken returns an error
+     */
+    public AllocationStatus earnAllocateStatus(String strategyId) {
+        return query(new EarnAllocateStatusEndpoint(EarnStatusParams.of(strategyId)));
+    }
+
+    /**
+     * Queries the private {@code Earn/DeallocateStatus} endpoint, telling whether the last deallocation from a strategy is still in progress.
+     *
+     * @param strategyId the identifier of the strategy funds were deallocated from
+     * @return the status of the deallocation
+     * @throws KrakenException if Kraken returns an error
+     */
+    public AllocationStatus earnDeallocateStatus(String strategyId) {
+        return query(new EarnDeallocateStatusEndpoint(EarnStatusParams.of(strategyId)));
     }
 
     /* Query unimplemented endpoints */
