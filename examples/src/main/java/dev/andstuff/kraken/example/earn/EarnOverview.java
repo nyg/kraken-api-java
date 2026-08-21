@@ -36,7 +36,7 @@ public class EarnOverview {
                 .collect(toMap(EarnStrategies.Strategy::id, identity()));
 
         List<ActiveAllocation> active = allocations.items().stream()
-                .filter(allocation -> isPositive(allocation.amountAllocated().total().nativeAmount()))
+                .filter(allocation -> isAllocated(allocation.amountAllocated().total()))
                 .map(allocation -> new ActiveAllocation(allocation, strategiesById.get(allocation.strategyId())))
                 .sorted(comparing(ActiveAllocation::convertedAmount).reversed())
                 .toList();
@@ -89,6 +89,10 @@ public class EarnOverview {
         return Optional.ofNullable(strategy.aprEstimate())
                 .map(EarnStrategies.AprEstimate::high)
                 .orElse(BigDecimal.ZERO);
+    }
+
+    private static boolean isAllocated(EarnAllocations.Amount amount) {
+        return isPositive(amount.nativeAmount()) && (amount.converted() == null || isPositive(amount.converted()));
     }
 
     private static boolean isPositive(BigDecimal amount) {
