@@ -16,7 +16,7 @@ Query [Kraken's REST API][1] in Java.
 
 ## Examples
 
-The `examples` folder contains real-world examples that make use of this library. For most examples, you'll need to provide your API keys: rename `api-keys.properties.example`, located in `examples/src/main/resources`, to `api-keys.properties` and fill in your API keys. The examples can be run directly from your IDE, or using the command line:
+The `examples` folder contains real-world examples that make use of this library. For most examples, you'll need to provide your API keys: rename `api-keys.properties.example`, located in `examples/src/main/resources`, to `api-keys.properties` and fill in your API keys. The file is also picked up from the root of the checkout, or from any parent directory of the one the example is run from. The examples can be run directly from your IDE, or using the command line:
 
 ```shell
 # clone and build project
@@ -33,6 +33,14 @@ mvn -pl examples exec:java -Dexec.mainClass=dev.andstuff.kraken.example.StakingR
 This example will generate the `rewards-summary.csv` file, showing how much crypto rewards have been earned since the creation of your account. A picture is worth a thousand words:
 
 ![staking-reward-summary](images/staking-rewards-example.png)
+
+### Earn Overview
+
+This example prints where the assets of your account are earning — which strategy holds them, its lock type and estimated APR, what it has paid so far — and which spot balances could still be allocated to a strategy that accepts them, best estimated APR first. Read-only API key permissions are enough, the example never allocates or deallocates anything.
+
+```sh
+mvn -pl examples exec:java -Dexec.mainClass=dev.andstuff.kraken.example.EarnOverviewExample
+```
 
 ### End-of-Year Balance
 
