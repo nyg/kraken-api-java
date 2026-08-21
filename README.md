@@ -34,6 +34,14 @@ This example will generate the `rewards-summary.csv` file, showing how much cryp
 
 ![staking-reward-summary](images/staking-rewards-example.png)
 
+### Earn Overview
+
+This example prints where the assets of your account are earning — which strategy holds them, its lock type and estimated APR, what it has paid so far — and which spot balances could still be allocated to a strategy that accepts them, best estimated APR first. Read-only API key permissions are enough, the example never allocates or deallocates anything.
+
+```sh
+mvn -pl examples exec:java -Dexec.mainClass=dev.andstuff.kraken.example.EarnOverviewExample
+```
+
 ### End-of-Year Balance
 
 This example will generate the `eoy-balance.csv` file, showing the balance of your account at a given point in time. If you run the example from your IDE, modify the `dateTo` in `EoyBalanceExample.java`. Otherwise, you can run the example from the command line:
