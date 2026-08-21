@@ -33,6 +33,7 @@ public class EarnOverviewExample {
     private static final int TOP_STRATEGIES_PER_ASSET = 3;
     private static final DecimalFormat NATIVE_FORMAT = new DecimalFormat("#,##0.####", DecimalFormatSymbols.getInstance(Locale.ROOT));
     private static final DecimalFormat CONVERTED_FORMAT = new DecimalFormat("#,##0.00", DecimalFormatSymbols.getInstance(Locale.ROOT));
+    private static final DecimalFormat PRECISE_FORMAT = new DecimalFormat("#,##0.########", DecimalFormatSymbols.getInstance(Locale.ROOT));
     private static final DecimalFormat APR_FORMAT = new DecimalFormat("0.000", DecimalFormatSymbols.getInstance(Locale.ROOT));
 
     private final KrakenAPI api;
@@ -57,14 +58,29 @@ public class EarnOverviewExample {
 
         report.allocations().forEach(allocation -> log.info(String.format("%-6s %-22s %-8s %-9s %-16s %18s %14s %12s %12s",
                 allocation.asset(),
-                allocation.strategy() == null ? allocation.allocation().strategyId() : allocation.strategy().id(),
+                strategyId(allocation),
                 allocation.lockType(),
-                allocation.apr() == null ? "?" : percentage(allocation.apr()),
+                aprOf(allocation),
                 allocation.yieldSource(),
-                amount(allocation.nativeAmount()),
+                preciseAmount(allocation.nativeAmount()),
                 converted(allocation.convertedAmount()),
                 converted(allocation.rewardedAmount()),
                 converted(allocation.accruedReward()))));
+
+        log.info("");
+        log.info("Assets previously earning");
+        log.info("{}", "-".repeat(120));
+        log.info(String.format("%-6s %-22s %-8s %-9s %-16s %18s %12s",
+                "ASSET", "STRATEGY", "LOCK", "APR", "YIELD", "REWARDS", "EARNED"));
+
+        report.pastAllocations().forEach(allocation -> log.info(String.format("%-6s %-22s %-8s %-9s %-16s %18s %12s",
+                allocation.asset(),
+                strategyId(allocation),
+                allocation.lockType(),
+                aprOf(allocation),
+                allocation.yieldSource(),
+                preciseAmount(allocation.allocation().totalRewarded().nativeAmount()),
+                converted(allocation.rewardedAmount()))));
 
         log.info("");
         log.info("Spot balances that could be allocated");
@@ -86,6 +102,14 @@ public class EarnOverviewExample {
 
         log.info("");
         log.info("Strategies of the flex lock type earn on the spot balance where it sits, no allocation needed.");
+    }
+
+    private static String strategyId(EarnOverview.StrategyAllocation allocation) {
+        return allocation.strategy() == null ? allocation.allocation().strategyId() : allocation.strategy().id();
+    }
+
+    private static String aprOf(EarnOverview.StrategyAllocation allocation) {
+        return allocation.apr() == null ? "?" : percentage(allocation.apr());
     }
 
     private static String earningInPlace(EarnOverview.Opportunity opportunity) {
@@ -120,6 +144,10 @@ public class EarnOverviewExample {
 
     private static String amount(BigDecimal value) {
         return value == null ? "-" : NATIVE_FORMAT.format(value);
+    }
+
+    private static String preciseAmount(BigDecimal value) {
+        return value == null ? "-" : PRECISE_FORMAT.format(value);
     }
 
     private static String converted(BigDecimal value) {

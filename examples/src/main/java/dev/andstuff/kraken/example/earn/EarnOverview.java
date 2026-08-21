@@ -35,10 +35,19 @@ public class EarnOverview {
         Map<String, EarnStrategies.Strategy> strategiesById = strategies.stream()
                 .collect(toMap(EarnStrategies.Strategy::id, identity()));
 
-        List<ActiveAllocation> active = allocations.items().stream()
-                .filter(allocation -> isAllocated(allocation.amountAllocated().total()))
-                .map(allocation -> new ActiveAllocation(allocation, strategiesById.get(allocation.strategyId())))
-                .sorted(comparing(ActiveAllocation::convertedAmount).reversed())
+        List<StrategyAllocation> all = allocations.items().stream()
+                .map(allocation -> new StrategyAllocation(allocation, strategiesById.get(allocation.strategyId())))
+                .toList();
+
+        List<StrategyAllocation> active = all.stream()
+                .filter(StrategyAllocation::isAllocated)
+                .sorted(comparing(StrategyAllocation::convertedAmount).reversed())
+                .toList();
+
+        List<StrategyAllocation> past = all.stream()
+                .filter(allocation -> !allocation.isAllocated())
+                .filter(allocation -> isPositive(allocation.rewardedAmount()))
+                .sorted(comparing(StrategyAllocation::rewardedAmount).reversed())
                 .toList();
 
         List<Opportunity> opportunities = spotBalances().entrySet().stream()
@@ -51,7 +60,7 @@ public class EarnOverview {
                 .sorted(comparing(Opportunity::bestApr).reversed())
                 .toList();
 
-        return new Report(allocations.convertedAsset(), allocations.totalAllocated(), allocations.totalRewarded(), active, opportunities);
+        return new Report(allocations.convertedAsset(), allocations.totalAllocated(), allocations.totalRewarded(), active, past, opportunities);
     }
 
     private Map<String, BigDecimal> spotBalances() {
@@ -73,7 +82,7 @@ public class EarnOverview {
                 .toList();
     }
 
-    private static ActiveAllocation flexAllocationOf(List<ActiveAllocation> allocations, String asset) {
+    private static StrategyAllocation flexAllocationOf(List<StrategyAllocation> allocations, String asset) {
         return allocations.stream()
                 .filter(allocation -> asset.equals(AssetCodes.normalize(allocation.asset())))
                 .filter(allocation -> "flex".equals(allocation.lockType()))
@@ -91,10 +100,6 @@ public class EarnOverview {
                 .orElse(BigDecimal.ZERO);
     }
 
-    private static boolean isAllocated(EarnAllocations.Amount amount) {
-        return isPositive(amount.nativeAmount()) && (amount.converted() == null || isPositive(amount.converted()));
-    }
-
     private static boolean isPositive(BigDecimal amount) {
         return amount != null && amount.compareTo(BigDecimal.ZERO) > 0;
     }
@@ -102,11 +107,16 @@ public class EarnOverview {
     public record Report(String convertedAsset,
                          BigDecimal totalAllocated,
                          BigDecimal totalRewarded,
-                         List<ActiveAllocation> allocations,
+                         List<StrategyAllocation> allocations,
+                         List<StrategyAllocation> pastAllocations,
                          List<Opportunity> opportunities) {}
 
-    public record ActiveAllocation(EarnAllocations.Allocation allocation,
-                                   EarnStrategies.Strategy strategy) {
+    public record StrategyAllocation(EarnAllocations.Allocation allocation,
+                                     EarnStrategies.Strategy strategy) {
+
+        public boolean isAllocated() {
+            return isPositive(allocation.amountAllocated().total().nativeAmount());
+        }
 
         public String asset() {
             return allocation.nativeAsset();
@@ -150,7 +160,7 @@ public class EarnOverview {
     public record Opportunity(String asset,
                               BigDecimal spotBalance,
                               List<EarnStrategies.Strategy> strategies,
-                              ActiveAllocation earningInPlace) {
+                              StrategyAllocation earningInPlace) {
 
         public BigDecimal bestApr() {
             return strategies.stream().map(EarnOverview::aprOf).max(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
