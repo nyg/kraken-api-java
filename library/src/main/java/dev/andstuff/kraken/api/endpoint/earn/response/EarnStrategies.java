@@ -21,6 +21,7 @@ public record EarnStrategies(@JsonProperty("next_cursor") String nextCursor,
      *
      * @param id the identifier of the strategy, to be passed to the allocation endpoints
      * @param asset the asset that can be allocated to the strategy
+     * @param assetClass the class of that asset
      * @param lockType how the allocated funds are locked
      * @param aprEstimate the estimated annual percentage rate, based on previous revenues, {@code null} if Kraken gives none
      * @param allocationFee the fee taken when allocating, as a percentage
@@ -35,6 +36,7 @@ public record EarnStrategies(@JsonProperty("next_cursor") String nextCursor,
      */
     public record Strategy(String id,
                            String asset,
+                           @JsonProperty("asset_class") AssetClass assetClass,
                            @JsonProperty("lock_type") LockType lockType,
                            @JsonProperty("apr_estimate") AprEstimate aprEstimate,
                            @JsonProperty("allocation_fee") BigDecimal allocationFee,
@@ -52,6 +54,7 @@ public record EarnStrategies(@JsonProperty("next_cursor") String nextCursor,
      *
      * @param type the lock type
      * @param payoutFrequency how often rewards are paid out
+     * @param durationMonths how long the funds stay locked, on a timed strategy
      * @param bondingPeriod how long funds stay bonded before earning rewards
      * @param bondingPeriodVariable whether the bonding period varies
      * @param bondingRewards whether rewards are earned during the bonding period
@@ -62,6 +65,7 @@ public record EarnStrategies(@JsonProperty("next_cursor") String nextCursor,
      */
     public record LockType(Type type,
                            @JsonProperty("payout_frequency") Duration payoutFrequency,
+                           @JsonProperty("duration_months") Integer durationMonths,
                            @JsonProperty("bonding_period") Duration bondingPeriod,
                            @JsonProperty("bonding_period_variable") Boolean bondingPeriodVariable,
                            @JsonProperty("bonding_rewards") Boolean bondingRewards,
@@ -128,6 +132,8 @@ public record EarnStrategies(@JsonProperty("next_cursor") String nextCursor,
         public enum Type {
             STAKING,
             OFF_CHAIN,
+            OPT_IN_REWARDS,
+            BASE_REWARDS,
 
             @JsonEnumDefaultValue
             UNKNOWN

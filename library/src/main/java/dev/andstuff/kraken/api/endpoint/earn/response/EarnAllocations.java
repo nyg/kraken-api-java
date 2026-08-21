@@ -10,12 +10,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * The response of the {@code Earn/Allocations} endpoint, i.e. the earn allocations of the account.
  *
  * @param convertedAsset the asset the converted amounts are expressed in
+ * @param convertedAssetClass the class of that asset
  * @param totalAllocated the total amount allocated, in the converted asset
  * @param totalRewarded the total amount earned since the creation of the account, in the converted asset
  * @param nextCursor the cursor of the next page, {@code null} on the last one
  * @param items the allocations, one per strategy
  */
 public record EarnAllocations(@JsonProperty("converted_asset") String convertedAsset,
+                              @JsonProperty("converted_asset_class") AssetClass convertedAssetClass,
                               @JsonProperty("total_allocated") BigDecimal totalAllocated,
                               @JsonProperty("total_rewarded") BigDecimal totalRewarded,
                               @JsonProperty("next_cursor") String nextCursor,
@@ -26,15 +28,21 @@ public record EarnAllocations(@JsonProperty("converted_asset") String convertedA
      *
      * @param strategyId the identifier of the strategy
      * @param nativeAsset the asset allocated to the strategy
+     * @param assetClass the class of that asset
      * @param amountAllocated the allocated amount, split by state
      * @param totalRewarded the amount earned on the strategy since the creation of the account
      * @param payout the reward period in progress, {@code null} for strategies that have none
+     * @param isUtilized whether Kraken is currently putting the allocation to work
+     * @param utilizedPct the share of the allocation being put to work, as a percentage
      */
     public record Allocation(@JsonProperty("strategy_id") String strategyId,
                              @JsonProperty("native_asset") String nativeAsset,
+                             @JsonProperty("asset_class") AssetClass assetClass,
                              @JsonProperty("amount_allocated") AmountAllocated amountAllocated,
                              @JsonProperty("total_rewarded") Amount totalRewarded,
-                             Payout payout) {}
+                             Payout payout,
+                             @JsonProperty("is_utilized") boolean isUtilized,
+                             @JsonProperty("utilized_pct") BigDecimal utilizedPct) {}
 
     /**
      * The amount allocated to a strategy, split by the state the funds are in. Kraken omits the states that don't apply to the strategy.
