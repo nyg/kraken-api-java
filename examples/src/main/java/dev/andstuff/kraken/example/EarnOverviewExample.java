@@ -3,10 +3,12 @@ package dev.andstuff.kraken.example;
 import static dev.andstuff.kraken.example.helper.CredentialsHelper.readFromFile;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import dev.andstuff.kraken.api.KrakenAPI;
@@ -29,6 +31,9 @@ import lombok.extern.slf4j.Slf4j;
 public class EarnOverviewExample {
 
     private static final int TOP_STRATEGIES_PER_ASSET = 3;
+    private static final DecimalFormat NATIVE_FORMAT = new DecimalFormat("#,##0.####", DecimalFormatSymbols.getInstance(Locale.ROOT));
+    private static final DecimalFormat CONVERTED_FORMAT = new DecimalFormat("#,##0.00", DecimalFormatSymbols.getInstance(Locale.ROOT));
+    private static final DecimalFormat APR_FORMAT = new DecimalFormat("0.000", DecimalFormatSymbols.getInstance(Locale.ROOT));
 
     private final KrakenAPI api;
 
@@ -41,8 +46,8 @@ public class EarnOverviewExample {
         EarnOverview.Report report = new EarnOverview(api).generate();
 
         log.info("Allocated {} {}, earned {} {} since the creation of the account",
-                amount(report.totalAllocated()), report.convertedAsset(),
-                amount(report.totalRewarded()), report.convertedAsset());
+                converted(report.totalAllocated()), report.convertedAsset(),
+                converted(report.totalRewarded()), report.convertedAsset());
 
         log.info("");
         log.info("Assets currently earning");
@@ -54,12 +59,12 @@ public class EarnOverviewExample {
                 allocation.asset(),
                 allocation.strategy() == null ? allocation.allocation().strategyId() : allocation.strategy().id(),
                 allocation.lockType(),
-                allocation.apr(),
+                allocation.apr() == null ? "?" : percentage(allocation.apr()),
                 allocation.yieldSource(),
                 amount(allocation.nativeAmount()),
-                amount(allocation.convertedAmount()),
-                amount(allocation.rewardedAmount()),
-                amount(allocation.accruedReward()))));
+                converted(allocation.convertedAmount()),
+                converted(allocation.rewardedAmount()),
+                converted(allocation.accruedReward()))));
 
         log.info("");
         log.info("Spot balances that could be allocated");
@@ -76,6 +81,7 @@ public class EarnOverviewExample {
                             strategy.yieldSource().type().toString().toLowerCase(),
                             amount(strategy.userMinAllocation()),
                             terms(strategy))));
+            log.info("");
         });
 
         log.info("");
@@ -84,12 +90,16 @@ public class EarnOverviewExample {
 
     private static String earningInPlace(EarnOverview.Opportunity opportunity) {
         return Optional.ofNullable(opportunity.earningInPlace())
-                .map(allocation -> ", already earning %s in flex strategy %s".formatted(allocation.apr(), allocation.strategy().id()))
+                .map(allocation -> ", already earning %s in flex strategy %s".formatted(percentage(allocation.apr()), allocation.strategy().id()))
                 .orElse("");
     }
 
     private static String apr(EarnStrategies.Strategy strategy) {
-        return Optional.ofNullable(strategy.aprEstimate()).map(estimate -> estimate.high() + "%").orElse("?");
+        return Optional.ofNullable(strategy.aprEstimate()).map(estimate -> percentage(estimate.high())).orElse("?");
+    }
+
+    private static String percentage(BigDecimal rate) {
+        return APR_FORMAT.format(rate) + "%";
     }
 
     private static String terms(EarnStrategies.Strategy strategy) {
@@ -109,11 +119,10 @@ public class EarnOverviewExample {
     }
 
     private static String amount(BigDecimal value) {
-        if (value == null) {
-            return "-";
-        }
+        return value == null ? "-" : NATIVE_FORMAT.format(value);
+    }
 
-        BigDecimal stripped = value.stripTrailingZeros();
-        return stripped.scale() > 4 ? stripped.setScale(4, RoundingMode.HALF_UP).toPlainString() : stripped.toPlainString();
+    private static String converted(BigDecimal value) {
+        return value == null ? "-" : CONVERTED_FORMAT.format(value);
     }
 }

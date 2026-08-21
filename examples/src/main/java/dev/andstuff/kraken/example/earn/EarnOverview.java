@@ -136,8 +136,8 @@ public class EarnOverview {
                     .orElse("unknown");
         }
 
-        public String apr() {
-            return Optional.ofNullable(strategy).map(EarnOverview::aprOf).map(apr -> apr + "%").orElse("?");
+        public BigDecimal apr() {
+            return Optional.ofNullable(strategy).map(EarnOverview::aprOf).orElse(null);
         }
 
         public String yieldSource() {
