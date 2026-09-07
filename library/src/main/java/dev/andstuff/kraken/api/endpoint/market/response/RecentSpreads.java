@@ -12,22 +12,9 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
-/**
- * The {@code Spread} response containing recent top-of-book spreads; Kraken retains approximately 200 entries.
- *
- * @param spreads entries by Kraken's returned pair name (internal or display name)
- * @param last cursor to pass unchanged as {@code since} when polling for new data
- */
 @JsonDeserialize(builder = RecentSpreads.ResponseBuilder.class)
 public record RecentSpreads(Map<String, List<RecentSpreads.Spread>> spreads, Long last) {
 
-    /**
-     * A positional top-of-book spread returned by the {@code Spread} endpoint.
-     *
-     * @param time Unix timestamp in seconds
-     * @param bid best bid price
-     * @param ask best ask price
-     */
     @JsonFormat(shape = JsonFormat.Shape.ARRAY)
     @JsonPropertyOrder({"time", "bid", "ask"})
     public record Spread(long time, BigDecimal bid, BigDecimal ask) {}

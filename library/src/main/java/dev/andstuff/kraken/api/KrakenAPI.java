@@ -262,122 +262,46 @@ public class KrakenAPI {
         return query(new TickerEndpoint(pairs));
     }
 
-    /**
-     * Queries the {@code OHLC} endpoint using Kraken's default options.
-     *
-     * @param pair the asset pair to query, e.g. {@code BTC/USD}
-     * @return the candles by returned pair name and the cursor for committed updates
-     * @throws KrakenException if Kraken returns an error
-     */
     public OhlcData ohlc(String pair) {
         return query(new OhlcEndpoint(pair));
     }
 
-    /**
-     * Queries the {@code OHLC} endpoint.
-     *
-     * @param params the request parameters
-     * @return the candles by returned pair name and the cursor for committed updates
-     * @throws KrakenException if Kraken returns an error
-     */
     public OhlcData ohlc(OhlcParams params) {
         return query(new OhlcEndpoint(params));
     }
 
-    /**
-     * Queries the {@code Depth} endpoint using Kraken's default options.
-     *
-     * @param pair the asset pair to query, e.g. {@code BTC/USD}
-     * @return the L2 order books by returned pair name
-     * @throws KrakenException if Kraken returns an error
-     */
     public Map<String, OrderBook> orderBook(String pair) {
         return query(new OrderBookEndpoint(pair));
     }
 
-    /**
-     * Queries the {@code Depth} endpoint.
-     *
-     * @param params the request parameters
-     * @return the L2 order books by returned pair name
-     * @throws KrakenException if Kraken returns an error
-     */
     public Map<String, OrderBook> orderBook(OrderBookParams params) {
         return query(new OrderBookEndpoint(params));
     }
 
-    /**
-     * Queries the {@code Trades} endpoint using Kraken's default options.
-     *
-     * @param pair the asset pair to query, e.g. {@code BTC/USD}
-     * @return the trades by returned pair name and the next polling cursor
-     * @throws KrakenException if Kraken returns an error
-     */
     public RecentTrades recentTrades(String pair) {
         return query(new RecentTradesEndpoint(pair));
     }
 
-    /**
-     * Queries the {@code Trades} endpoint.
-     *
-     * @param params the request parameters
-     * @return the trades by returned pair name and the next polling cursor
-     * @throws KrakenException if Kraken returns an error
-     */
     public RecentTrades recentTrades(RecentTradesParams params) {
         return query(new RecentTradesEndpoint(params));
     }
 
-    /**
-     * Queries the {@code Spread} endpoint using Kraken's default options.
-     *
-     * @param pair the asset pair to query, e.g. {@code BTC/USD}
-     * @return the spreads by returned pair name and the next polling cursor
-     * @throws KrakenException if Kraken returns an error
-     */
     public RecentSpreads recentSpreads(String pair) {
         return query(new RecentSpreadsEndpoint(pair));
     }
 
-    /**
-     * Queries the {@code Spread} endpoint.
-     *
-     * @param params the request parameters
-     * @return the spreads by returned pair name and the next polling cursor
-     * @throws KrakenException if Kraken returns an error
-     */
     public RecentSpreads recentSpreads(RecentSpreadsParams params) {
         return query(new RecentSpreadsEndpoint(params));
     }
 
-    /**
-     * Queries the {@code GroupedBook} endpoint using Kraken's default options.
-     *
-     * @param pair the asset pair to query, e.g. {@code BTC/USD}
-     * @return the grouped bids and asks, pair and grouping value
-     * @throws KrakenException if Kraken returns an error
-     */
     public GroupedOrderBook groupedOrderBook(String pair) {
         return query(new GroupedOrderBookEndpoint(pair));
     }
 
-    /**
-     * Queries the {@code GroupedBook} endpoint.
-     *
-     * @param params the request parameters
-     * @return the grouped bids and asks, pair and grouping value
-     * @throws KrakenException if Kraken returns an error
-     */
     public GroupedOrderBook groupedOrderBook(GroupedOrderBookParams params) {
         return query(new GroupedOrderBookEndpoint(params));
     }
 
-    /**
-     * Queries the {@code MaintenanceSchedule} endpoint for scheduled events in the next seven days.
-     *
-     * @return the maintenance schedule
-     * @throws KrakenException if Kraken returns an error
-     */
     public MaintenanceSchedule maintenanceSchedule() {
         return query(new MaintenanceScheduleEndpoint());
     }
@@ -417,26 +341,10 @@ public class KrakenAPI {
 
     /* Implemented private endpoints */
 
-    /**
-     * Queries the {@code Level3} endpoint using Kraken's default options. Requires the Orders and trades - Query open orders &amp; trades API key permission.
-     *
-     * @param pair the asset pair to query, e.g. {@code BTC/USD}
-     * @return the individual bid and ask orders with IDs and nanosecond timestamps
-     * @throws KrakenException if Kraken returns an error
-     * @throws IllegalStateException if credentials are missing
-     */
     public Level3OrderBook level3OrderBook(String pair) {
         return query(new Level3OrderBookEndpoint(pair));
     }
 
-    /**
-     * Queries the {@code Level3} endpoint. Requires the Orders and trades - Query open orders &amp; trades API key permission.
-     *
-     * @param params the request parameters
-     * @return the individual bid and ask orders with IDs and nanosecond timestamps
-     * @throws KrakenException if Kraken returns an error
-     * @throws IllegalStateException if credentials are missing
-     */
     public Level3OrderBook level3OrderBook(Level3OrderBookParams params) {
         return query(new Level3OrderBookEndpoint(params));
     }

@@ -18,7 +18,6 @@ public class MarketDataExample {
 
         OhlcData candles = api.ohlc(OhlcParams.builder().pair(pair).interval(60).assetVersion(1).build());
         log.info("Hourly candles: {}", candles.candles().get(pair));
-        // The final candle is still forming. Reuse candles.last() as since for committed updates.
 
         log.info("L2 order book: {}", api.orderBook(OrderBookParams.builder().pair(pair).count(10).build()));
         log.info("Grouped book: {}", api.groupedOrderBook(GroupedOrderBookParams.builder()
@@ -27,7 +26,6 @@ public class MarketDataExample {
         RecentTrades trades = api.recentTrades(RecentTradesParams.builder().pair(pair).count(2).build());
         log.info("Recent trades: {}", trades.trades());
         log.info("Next trade cursor: {}", trades.last());
-        // Pass trades.last() unchanged as since when requesting the next batch.
 
         log.info("Recent spreads: {}", api.recentSpreads(pair));
         log.info("Upcoming maintenance: {}", api.maintenanceSchedule());

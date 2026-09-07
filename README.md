@@ -109,6 +109,19 @@ RecentTrades nextBatch = api.recentTrades(RecentTradesParams.builder()
 
 `OHLC`, `Depth`, `Trades`, and `Spread` accept `assetVersion(1)` for display pair keys such as `BTC/USD`; without it, Kraken returns internal keys such as `XXBTZUSD`. Their `assetClass("tokenized_asset")` option supports xStocks. Response maps preserve the keys Kraken returns.
 
+The required `pair` field selects one asset pair. Optional numeric fields accept the following values; omit them to use Kraken's defaults:
+
+| Endpoint | Option | Values | Default |
+|---|---|---|---|
+| `OHLC` | `interval` | 1, 5, 15, 30, 60, 240, 1440, 10080, 21600 minutes | 1 |
+| `Depth` | `count` | 1–500 entries per side | 100 |
+| `Trades` | `count` | 1–1000 trades | 1000 |
+| `GroupedBook` | `depth` | 10, 25, 100, 250, 1000 levels per side | 10 |
+| `GroupedBook` | `grouping` | 1, 5, 10, 25, 50, 100, 250, 500, 1000 ticks per level | 1 |
+| `Level3` | `depth` | 0 (full book), 10, 25, 100, 250, 1000 levels per side | 100 |
+
+OHLC candle times, L2 level times, spread times, and the `since` fields for OHLC and spreads use Unix seconds. Grouped books round asks up and bids down to the nearest grouped price level. `MaintenanceSchedule` returns scheduled events for the next seven days, ordered by expected start time; its times use `Instant`, and `cancelBefore` can be absent.
+
 OHLC includes a final candle that is still forming and retains at most 720 entries. Reuse its `last()` cursor as `since` to poll for committed updates. Trade cursors are opaque strings: pass `last()` unchanged. Prices and quantities use `BigDecimal`; trade times retain fractional Unix seconds, while Level3 timestamps are Unix nanoseconds.
 
 Level3 requires credentials with **Orders and trades – Query open orders & trades** permission:
