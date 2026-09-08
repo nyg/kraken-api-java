@@ -12,9 +12,27 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
+/**
+ * The {@code OHLC} response containing OHLC candles, including the final, uncommitted candle. At most 720 entries are available.
+ *
+ * @param candles entries by Kraken's returned pair name (internal or display name)
+ * @param last cursor to pass unchanged as {@code since} when polling for committed candles
+ */
 @JsonDeserialize(builder = OhlcData.ResponseBuilder.class)
 public record OhlcData(Map<String, List<OhlcData.Candle>> candles, Long last) {
 
+    /**
+     * A positional OHLC candle returned by the {@code OHLC} endpoint.
+     *
+     * @param time candle start, in Unix seconds
+     * @param open opening price
+     * @param high highest price
+     * @param low lowest price
+     * @param close closing price
+     * @param vwap volume weighted average price
+     * @param volume traded volume
+     * @param count number of trades
+     */
     @JsonFormat(shape = JsonFormat.Shape.ARRAY)
     @JsonPropertyOrder({"time", "open", "high", "low", "close", "vwap", "volume", "count"})
     public record Candle(long time, BigDecimal open, BigDecimal high, BigDecimal low,

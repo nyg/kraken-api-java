@@ -8,13 +8,22 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
 
+/**
+ * The parameters of the {@code Level3} endpoint; unset options use Kraken's defaults.
+ */
 @Getter
 @Builder(toBuilder = true)
 public class Level3OrderBookParams extends PostParams {
 
+    /**
+     * The asset pair to query, e.g. {@code BTC/USD}.
+     */
     @NonNull
     private final String pair;
 
+    /**
+     * Price levels per side: 0 (full book), 10, 25, 100, 250 or 1000; defaults to 100.
+     */
     private final Integer depth;
 
     @Override
