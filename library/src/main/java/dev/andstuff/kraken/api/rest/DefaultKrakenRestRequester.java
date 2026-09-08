@@ -15,10 +15,10 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import dev.andstuff.kraken.api.endpoint.Endpoint;
-import dev.andstuff.kraken.api.endpoint.KrakenException;
 import dev.andstuff.kraken.api.endpoint.KrakenResponse;
 import dev.andstuff.kraken.api.endpoint.priv.PrivateEndpoint;
 import dev.andstuff.kraken.api.endpoint.pub.PublicEndpoint;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -72,6 +72,7 @@ public class DefaultKrakenRestRequester implements KrakenRestRequester {
             log.info("Fetching private endpoint: {}", connection.getURL());
             connection.addRequestProperty("API-Key", credentials.getKey());
             connection.addRequestProperty("API-Sign", credentials.sign(connection.getURL(), nonce, postData));
+            connection.addRequestProperty("Content-Type", endpoint.getContentType());
             connection.setDoOutput(true);
 
             try (OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream())) {
@@ -97,7 +98,7 @@ public class DefaultKrakenRestRequester implements KrakenRestRequester {
         if ("application/json".equals(contentType)) {
             JavaType krakenResponseType = endpoint.wrappedResponseType(OBJECT_MAPPER.getTypeFactory());
             KrakenResponse<T> response = OBJECT_MAPPER.readValue(connection.getInputStream(), krakenResponseType);
-            return response.result().orElseThrow(() -> new KrakenException(response.error()));
+            return endpoint.unwrapResponse(response);
         }
         else if ("application/zip".equals(contentType)) {
             try (ZipInputStream zipStream = new ZipInputStream(connection.getInputStream())) {

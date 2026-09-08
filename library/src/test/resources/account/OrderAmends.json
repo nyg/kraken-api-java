@@ -1,0 +1,32 @@
+{
+  "error": [],
+  "result": {
+    "amends": [
+      {
+        "amend_id": "TSUN4B-EX2XN-WQ6GKG",
+        "amend_type": "original",
+        "order_qty": "0.01000000",
+        "remaining_qty": "0.01000000",
+        "limit_price": "61032.8",
+        "timestamp": 1724158070287558000
+      },
+      {
+        "amend_id": "TF6VAW-VUWMX-6SXTCH",
+        "amend_type": "user",
+        "order_qty": "0.01000000",
+        "remaining_qty": "0.01000000",
+        "limit_price": "61032.7",
+        "timestamp": 1724158076936755700
+      },
+      {
+        "amend_id": "TUMY4K-E4MPE-CSL2N3",
+        "amend_type": "user",
+        "order_qty": "0.01000000",
+        "remaining_qty": "0.01000000",
+        "limit_price": "61032.6",
+        "timestamp": 1724158214879660000
+      }
+    ],
+    "count": 3
+  }
+}

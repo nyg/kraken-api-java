@@ -8,6 +8,7 @@ import java.net.URL;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import dev.andstuff.kraken.api.endpoint.Endpoint;
+
 import lombok.Getter;
 
 /**
@@ -36,11 +37,20 @@ public class PrivateEndpoint<T> extends Endpoint<T> {
      * Returns the request body, built from the endpoint parameters and the given nonce.
      *
      * @param nonce the nonce of the request, which Kraken requires to be ever-increasing
-     * @return the URL encoded request body
+     * @return the request body, form-encoded unless an endpoint overrides the encoding
      */
     public String encodedParamsWith(String nonce) {
         postParams.setNonce(nonce);
         return postParams.encoded();
+    }
+
+    /**
+     * Returns the media type of the signed request body.
+     *
+     * @return the form media type, unless an endpoint uses a different body encoding
+     */
+    public String getContentType() {
+        return "application/x-www-form-urlencoded";
     }
 
     /**

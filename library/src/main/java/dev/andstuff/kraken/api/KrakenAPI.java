@@ -1,29 +1,71 @@
 package dev.andstuff.kraken.api;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
 import dev.andstuff.kraken.api.endpoint.KrakenException;
+import dev.andstuff.kraken.api.endpoint.account.AccountBalanceEndpoint;
+import dev.andstuff.kraken.api.endpoint.account.ApiKeyInfoEndpoint;
+import dev.andstuff.kraken.api.endpoint.account.ClosedOrdersEndpoint;
+import dev.andstuff.kraken.api.endpoint.account.CreditLinesEndpoint;
+import dev.andstuff.kraken.api.endpoint.account.ExtendedBalanceEndpoint;
 import dev.andstuff.kraken.api.endpoint.account.LedgerEntriesEndpoint;
 import dev.andstuff.kraken.api.endpoint.account.LedgerInfoEndpoint;
+import dev.andstuff.kraken.api.endpoint.account.OpenOrdersEndpoint;
+import dev.andstuff.kraken.api.endpoint.account.OpenPositionsEndpoint;
+import dev.andstuff.kraken.api.endpoint.account.OrderAmendsEndpoint;
+import dev.andstuff.kraken.api.endpoint.account.QueryOrdersEndpoint;
+import dev.andstuff.kraken.api.endpoint.account.QueryTradesEndpoint;
 import dev.andstuff.kraken.api.endpoint.account.RemoveReportEndpoint;
 import dev.andstuff.kraken.api.endpoint.account.ReportDataEndpoint;
 import dev.andstuff.kraken.api.endpoint.account.ReportsStatusesEndpoint;
 import dev.andstuff.kraken.api.endpoint.account.RequestReportEndpoint;
+import dev.andstuff.kraken.api.endpoint.account.TradeBalanceEndpoint;
+import dev.andstuff.kraken.api.endpoint.account.TradeVolumeEndpoint;
+import dev.andstuff.kraken.api.endpoint.account.TradesHistoryEndpoint;
+import dev.andstuff.kraken.api.endpoint.account.WalletAccountsEndpoint;
+import dev.andstuff.kraken.api.endpoint.account.params.AccountBalanceParams;
+import dev.andstuff.kraken.api.endpoint.account.params.ApiKeyInfoParams;
+import dev.andstuff.kraken.api.endpoint.account.params.ClosedOrdersParams;
+import dev.andstuff.kraken.api.endpoint.account.params.CreditLinesParams;
+import dev.andstuff.kraken.api.endpoint.account.params.ExtendedBalanceParams;
 import dev.andstuff.kraken.api.endpoint.account.params.LedgerEntriesParams;
 import dev.andstuff.kraken.api.endpoint.account.params.LedgerInfoParams;
+import dev.andstuff.kraken.api.endpoint.account.params.OpenOrdersParams;
+import dev.andstuff.kraken.api.endpoint.account.params.OpenPositionsParams;
+import dev.andstuff.kraken.api.endpoint.account.params.OrderAmendsParams;
+import dev.andstuff.kraken.api.endpoint.account.params.QueryOrdersParams;
+import dev.andstuff.kraken.api.endpoint.account.params.QueryTradesParams;
 import dev.andstuff.kraken.api.endpoint.account.params.RemovalType;
 import dev.andstuff.kraken.api.endpoint.account.params.RemoveReportParams;
 import dev.andstuff.kraken.api.endpoint.account.params.ReportDataParams;
 import dev.andstuff.kraken.api.endpoint.account.params.ReportType;
 import dev.andstuff.kraken.api.endpoint.account.params.ReportsStatusesParams;
 import dev.andstuff.kraken.api.endpoint.account.params.RequestReportParams;
+import dev.andstuff.kraken.api.endpoint.account.params.TradeBalanceParams;
+import dev.andstuff.kraken.api.endpoint.account.params.TradeVolumeParams;
+import dev.andstuff.kraken.api.endpoint.account.params.TradesHistoryParams;
+import dev.andstuff.kraken.api.endpoint.account.params.WalletAccountsParams;
+import dev.andstuff.kraken.api.endpoint.account.response.AccountTrade;
+import dev.andstuff.kraken.api.endpoint.account.response.ApiKeyInfo;
+import dev.andstuff.kraken.api.endpoint.account.response.ClosedOrders;
+import dev.andstuff.kraken.api.endpoint.account.response.CreditLines;
+import dev.andstuff.kraken.api.endpoint.account.response.ExtendedBalance;
 import dev.andstuff.kraken.api.endpoint.account.response.LedgerEntry;
 import dev.andstuff.kraken.api.endpoint.account.response.LedgerInfo;
+import dev.andstuff.kraken.api.endpoint.account.response.OpenOrders;
+import dev.andstuff.kraken.api.endpoint.account.response.OpenPosition;
+import dev.andstuff.kraken.api.endpoint.account.response.Order;
+import dev.andstuff.kraken.api.endpoint.account.response.OrderAmends;
 import dev.andstuff.kraken.api.endpoint.account.response.Report;
 import dev.andstuff.kraken.api.endpoint.account.response.ReportRequest;
+import dev.andstuff.kraken.api.endpoint.account.response.TradeBalance;
+import dev.andstuff.kraken.api.endpoint.account.response.TradeVolume;
+import dev.andstuff.kraken.api.endpoint.account.response.TradesHistory;
+import dev.andstuff.kraken.api.endpoint.account.response.WalletAccounts;
 import dev.andstuff.kraken.api.endpoint.earn.EarnAllocateEndpoint;
 import dev.andstuff.kraken.api.endpoint.earn.EarnAllocateStatusEndpoint;
 import dev.andstuff.kraken.api.endpoint.earn.EarnAllocationsEndpoint;
@@ -68,6 +110,7 @@ import dev.andstuff.kraken.api.rest.EpochBasedNonceGenerator;
 import dev.andstuff.kraken.api.rest.KrakenCredentials;
 import dev.andstuff.kraken.api.rest.KrakenNonceGenerator;
 import dev.andstuff.kraken.api.rest.KrakenRestRequester;
+
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -276,6 +319,306 @@ public class KrakenAPI {
     }
 
     /* Implemented private endpoints */
+
+    /**
+     * Queries the {@code Balance} endpoint using default options.
+     *
+     * @return the account balance returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public Map<String, BigDecimal> accountBalance() {
+        return query(new AccountBalanceEndpoint());
+    }
+
+    /**
+     * Queries the {@code Balance} endpoint.
+     *
+     * @param params the request options
+     * @return the account balance returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public Map<String, BigDecimal> accountBalance(AccountBalanceParams params) {
+        return query(new AccountBalanceEndpoint(params));
+    }
+
+    /**
+     * Queries the {@code BalanceEx} endpoint using default options.
+     *
+     * @return the extended balance returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public Map<String, ExtendedBalance> extendedBalance() {
+        return query(new ExtendedBalanceEndpoint());
+    }
+
+    /**
+     * Queries the {@code BalanceEx} endpoint.
+     *
+     * @param params the request options
+     * @return the extended balance returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public Map<String, ExtendedBalance> extendedBalance(ExtendedBalanceParams params) {
+        return query(new ExtendedBalanceEndpoint(params));
+    }
+
+    /**
+     * Queries the {@code CreditLines} endpoint using default options.
+     *
+     * @return the credit lines returned by Kraken, or null when no credit lines exist
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public CreditLines creditLines() {
+        return query(new CreditLinesEndpoint());
+    }
+
+    /**
+     * Queries the {@code CreditLines} endpoint.
+     *
+     * @param params the request options
+     * @return the credit lines returned by Kraken, or null when no credit lines exist
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public CreditLines creditLines(CreditLinesParams params) {
+        return query(new CreditLinesEndpoint(params));
+    }
+
+    /**
+     * Queries the {@code TradeBalance} endpoint using default options.
+     *
+     * @return the trade balance returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public TradeBalance tradeBalance() {
+        return query(new TradeBalanceEndpoint());
+    }
+
+    /**
+     * Queries the {@code TradeBalance} endpoint.
+     *
+     * @param params the request options
+     * @return the trade balance returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public TradeBalance tradeBalance(TradeBalanceParams params) {
+        return query(new TradeBalanceEndpoint(params));
+    }
+
+    /**
+     * Queries the {@code OpenOrders} endpoint using default options.
+     *
+     * @return the open orders returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public OpenOrders openOrders() {
+        return query(new OpenOrdersEndpoint());
+    }
+
+    /**
+     * Queries the {@code OpenOrders} endpoint.
+     *
+     * @param params the request options
+     * @return the open orders returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public OpenOrders openOrders(OpenOrdersParams params) {
+        return query(new OpenOrdersEndpoint(params));
+    }
+
+    /**
+     * Queries the {@code ClosedOrders} endpoint using default options.
+     *
+     * @return the closed orders returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public ClosedOrders closedOrders() {
+        return query(new ClosedOrdersEndpoint());
+    }
+
+    /**
+     * Queries the {@code ClosedOrders} endpoint.
+     *
+     * @param params the request options
+     * @return the closed orders returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public ClosedOrders closedOrders(ClosedOrdersParams params) {
+        return query(new ClosedOrdersEndpoint(params));
+    }
+
+    /**
+     * Queries the {@code QueryOrders} endpoint.
+     *
+     * @param params the request options
+     * @return the query orders returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public Map<String, Order> queryOrders(QueryOrdersParams params) {
+        return query(new QueryOrdersEndpoint(params));
+    }
+
+    /**
+     * Queries the {@code OrderAmends} endpoint using default options.
+     *
+     * @return the order amends returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public OrderAmends orderAmends() {
+        return query(new OrderAmendsEndpoint());
+    }
+
+    /**
+     * Queries the {@code OrderAmends} endpoint.
+     *
+     * @param params the request options
+     * @return the order amends returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public OrderAmends orderAmends(OrderAmendsParams params) {
+        return query(new OrderAmendsEndpoint(params));
+    }
+
+    /**
+     * Queries the {@code TradesHistory} endpoint using default options.
+     *
+     * @return the trades history returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public TradesHistory tradesHistory() {
+        return query(new TradesHistoryEndpoint());
+    }
+
+    /**
+     * Queries the {@code TradesHistory} endpoint.
+     *
+     * @param params the request options
+     * @return the trades history returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public TradesHistory tradesHistory(TradesHistoryParams params) {
+        return query(new TradesHistoryEndpoint(params));
+    }
+
+    /**
+     * Queries the {@code QueryTrades} endpoint.
+     *
+     * @param params the request options
+     * @return the query trades returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public Map<String, AccountTrade> queryTrades(QueryTradesParams params) {
+        return query(new QueryTradesEndpoint(params));
+    }
+
+    /**
+     * Queries the {@code OpenPositions} endpoint using default options.
+     *
+     * @return the open positions returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public Map<String, OpenPosition> openPositions() {
+        return query(new OpenPositionsEndpoint());
+    }
+
+    /**
+     * Queries the {@code OpenPositions} endpoint.
+     *
+     * @param params the request options
+     * @return the open positions returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public Map<String, OpenPosition> openPositions(OpenPositionsParams params) {
+        return query(new OpenPositionsEndpoint(params));
+    }
+
+    /**
+     * Queries the {@code TradeVolume} endpoint using default options.
+     *
+     * @return the trade volume returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public TradeVolume tradeVolume() {
+        return query(new TradeVolumeEndpoint());
+    }
+
+    /**
+     * Queries the {@code TradeVolume} endpoint.
+     *
+     * @param params the request options
+     * @return the trade volume returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public TradeVolume tradeVolume(TradeVolumeParams params) {
+        return query(new TradeVolumeEndpoint(params));
+    }
+
+    /**
+     * Queries the {@code GetApiKeyInfo} endpoint using default options.
+     *
+     * @return the api key info returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public ApiKeyInfo apiKeyInfo() {
+        return query(new ApiKeyInfoEndpoint());
+    }
+
+    /**
+     * Queries the {@code GetApiKeyInfo} endpoint.
+     *
+     * @param params the request options
+     * @return the api key info returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public ApiKeyInfo apiKeyInfo(ApiKeyInfoParams params) {
+        return query(new ApiKeyInfoEndpoint(params));
+    }
+
+    /**
+     * Queries the {@code ListWalletAccounts} endpoint using default options.
+     *
+     * @return the wallet accounts returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public WalletAccounts walletAccounts() {
+        return query(new WalletAccountsEndpoint());
+    }
+
+    /**
+     * Queries the {@code ListWalletAccounts} endpoint.
+     *
+     * @param params the request options
+     * @return the wallet accounts returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public WalletAccounts walletAccounts(WalletAccountsParams params) {
+        return query(new WalletAccountsEndpoint(params));
+    }
 
     /**
      * Queries the private {@code Ledgers} endpoint, returning at most 50 ledger entries per call.
@@ -644,6 +987,7 @@ public class KrakenAPI {
         GET_WEBSOCKETS_TOKEN("GetWebSocketsToken"),
         LEDGERS("Ledgers"),
         LEVEL3("Level3"),
+        LIST_WALLET_ACCOUNTS("ListWalletAccounts"),
         OPEN_ORDERS("OpenOrders"),
         OPEN_POSITIONS("OpenPositions"),
         ORDER_AMENDS("OrderAmends"),
