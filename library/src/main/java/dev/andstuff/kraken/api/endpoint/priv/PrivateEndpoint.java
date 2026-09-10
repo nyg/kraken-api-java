@@ -8,7 +8,6 @@ import java.net.URL;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import dev.andstuff.kraken.api.endpoint.Endpoint;
-
 import lombok.Getter;
 
 /**

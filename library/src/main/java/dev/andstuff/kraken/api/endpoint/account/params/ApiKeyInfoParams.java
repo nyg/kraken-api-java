@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import dev.andstuff.kraken.api.endpoint.priv.PostParams;
-
 import lombok.Builder;
 import lombok.Getter;
 

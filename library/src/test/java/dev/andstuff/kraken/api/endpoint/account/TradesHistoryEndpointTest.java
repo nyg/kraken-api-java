@@ -1,31 +1,31 @@
 package dev.andstuff.kraken.api.endpoint.account;
 
-import java.math.BigDecimal;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.io.InputStream;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.time.Instant;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-
-import dev.andstuff.kraken.api.endpoint.KrakenException;
-import dev.andstuff.kraken.api.endpoint.KrakenResponse;
-import dev.andstuff.kraken.api.endpoint.account.params.*;
-import dev.andstuff.kraken.api.endpoint.account.response.*;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
+import dev.andstuff.kraken.api.endpoint.KrakenResponse;
+import dev.andstuff.kraken.api.endpoint.account.params.AssetClass;
+import dev.andstuff.kraken.api.endpoint.account.params.TradeType;
+import dev.andstuff.kraken.api.endpoint.account.params.TradesHistoryParams;
+import dev.andstuff.kraken.api.endpoint.account.response.TradesHistory;
+import dev.andstuff.kraken.api.endpoint.priv.RebaseMultiplier;
 
 @ExtendWith(MockitoExtension.class)
 class TradesHistoryEndpointTest {
@@ -70,13 +70,16 @@ class TradesHistoryEndpointTest {
                 .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
                 .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
                 .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                .addModule(new Jdk8Module()).build();
-        String json = Files.readString(Path.of("src/test/resources/account/TradesHistory.json"));
+                .addModules(new JavaTimeModule(), new Jdk8Module()).build();
+        String json;
+        try (InputStream fixture = getClass().getResourceAsStream("/account/TradesHistory.json")) {
+            json = new String(fixture.readAllBytes(), StandardCharsets.UTF_8);
+        }
 
         KrakenResponse<TradesHistory> response = mapper.readValue(json, unit.wrappedResponseType(mapper.getTypeFactory()));
         TradesHistory result = unit.unwrapResponse(response);
 
-        assertThat(result.trades().get("THVRQM-33VKH-UCI7BS").time()).isEqualByComparingTo("1688667796.8802");
+        assertThat(result.trades().get("THVRQM-33VKH-UCI7BS").time()).isEqualTo(Instant.ofEpochSecond(1688667796L, 880200000L));
         assertThat(result.trades().get("THVRQM-33VKH-UCI7BS").volume()).isEqualByComparingTo("0.02000000");
         assertThat(result.count()).isNull();
     }

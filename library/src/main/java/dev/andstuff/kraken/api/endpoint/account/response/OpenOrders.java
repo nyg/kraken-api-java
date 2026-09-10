@@ -2,8 +2,6 @@ package dev.andstuff.kraken.api.endpoint.account.response;
 
 import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 /**
  * The open orders returned by {@code OpenOrders}.
  *

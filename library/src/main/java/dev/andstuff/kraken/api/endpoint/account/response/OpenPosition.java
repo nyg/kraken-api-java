@@ -1,6 +1,7 @@
 package dev.andstuff.kraken.api.endpoint.account.response;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -12,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @param assetClass the asset class
  * @param positionStatus the position status
  * @param pair the pair
- * @param time the time as Unix seconds
+ * @param time the time as an instant
  * @param type the type
  * @param orderType the order type
  * @param cost the cost
@@ -23,28 +24,28 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @param value the value
  * @param net the net
  * @param terms the terms
- * @param rolloverTime the rollover time as Unix seconds, preserving Kraken's string representation
+ * @param rolloverTime the rollover time as an instant, preserving Kraken's string representation
  * @param miscellaneous the miscellaneous
  * @param orderFlags the order flags
  */
 public record OpenPosition(@JsonProperty("ordertxid") String orderId,
-        @JsonProperty("class") String assetClass,
-        @JsonProperty("posstatus") PositionStatus positionStatus,
-        String pair,
-        BigDecimal time,
-        String type,
-        @JsonProperty("ordertype") String orderType,
-        BigDecimal cost,
-        BigDecimal fee,
-        @JsonProperty("vol") BigDecimal volume,
-        @JsonProperty("vol_closed") BigDecimal closedVolume,
-        BigDecimal margin,
-        BigDecimal value,
-        BigDecimal net,
-        String terms,
-        @JsonProperty("rollovertm") String rolloverTime,
-        @JsonProperty("misc") String miscellaneous,
-        @JsonProperty("oflags") String orderFlags) {
+                           @JsonProperty("class") String assetClass,
+                           @JsonProperty("posstatus") PositionStatus positionStatus,
+                           String pair,
+                           Instant time,
+                           String type,
+                           @JsonProperty("ordertype") String orderType,
+                           BigDecimal cost,
+                           BigDecimal fee,
+                           @JsonProperty("vol") BigDecimal volume,
+                           @JsonProperty("vol_closed") BigDecimal closedVolume,
+                           BigDecimal margin,
+                           BigDecimal value,
+                           BigDecimal net,
+                           String terms,
+                           @JsonProperty("rollovertm") String rolloverTime,
+                           @JsonProperty("misc") String miscellaneous,
+                           @JsonProperty("oflags") String orderFlags) {
 
     /**
      * The position status values used by the {@code OpenPositions} endpoint.

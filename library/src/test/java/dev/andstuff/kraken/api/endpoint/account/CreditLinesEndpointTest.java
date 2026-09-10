@@ -1,31 +1,31 @@
 package dev.andstuff.kraken.api.endpoint.account;
 
-import java.math.BigDecimal;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import java.io.InputStream;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
-
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-
-import dev.andstuff.kraken.api.endpoint.KrakenException;
-import dev.andstuff.kraken.api.endpoint.KrakenResponse;
-import dev.andstuff.kraken.api.endpoint.account.params.*;
-import dev.andstuff.kraken.api.endpoint.account.response.*;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
+import dev.andstuff.kraken.api.endpoint.KrakenException;
+import dev.andstuff.kraken.api.endpoint.KrakenResponse;
+import dev.andstuff.kraken.api.endpoint.account.params.CreditLinesParams;
+import dev.andstuff.kraken.api.endpoint.account.response.CreditLines;
+import dev.andstuff.kraken.api.endpoint.priv.RebaseMultiplier;
 
 @ExtendWith(MockitoExtension.class)
 class CreditLinesEndpointTest {
@@ -59,11 +59,14 @@ class CreditLinesEndpointTest {
                 .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
                 .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
                 .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                .addModule(new Jdk8Module()).build();
-        String json = Files.readString(Path.of("src/test/resources/account/CreditLines.json"));
+                .addModules(new JavaTimeModule(), new Jdk8Module()).build();
+        String json;
+        try (InputStream fixture = getClass().getResourceAsStream("/account/CreditLines.json")) {
+            json = new String(fixture.readAllBytes(), StandardCharsets.UTF_8);
+        }
 
-        KrakenResponse<CreditLines> response = mapper.readValue(json, unit.wrappedResponseType(mapper.getTypeFactory()));
-        CreditLines result = unit.unwrapResponse(response);
+        KrakenResponse<Optional<CreditLines>> response = mapper.readValue(json, unit.wrappedResponseType(mapper.getTypeFactory()));
+        CreditLines result = unit.unwrapResponse(response).orElseThrow();
 
         assertThat(result.assetDetails().get("USD").availableCredit()).isEqualByComparingTo("37500.0000");
         assertThat(result.limitsMonitor().debtToEquity()).isEqualByComparingTo("0.2000");
@@ -72,17 +75,17 @@ class CreditLinesEndpointTest {
     @Test
     void should_return_null_when_no_credit_lines_exist() throws Exception {
         CreditLinesEndpoint unit = new CreditLinesEndpoint();
-        JsonMapper mapper = JsonMapper.builder().addModule(new Jdk8Module()).build();
-        KrakenResponse<CreditLines> response = mapper.readValue("{\"error\":[],\"result\":null}", unit.wrappedResponseType(mapper.getTypeFactory()));
+        JsonMapper mapper = JsonMapper.builder().addModules(new JavaTimeModule(), new Jdk8Module()).build();
+        KrakenResponse<Optional<CreditLines>> response = mapper.readValue("{\"error\":[],\"result\":null}", unit.wrappedResponseType(mapper.getTypeFactory()));
 
-        assertThat(unit.unwrapResponse(response)).isNull();
+        assertThat(unit.unwrapResponse(response)).isEmpty();
     }
 
     @Test
     void should_throw_kraken_error_when_credit_request_is_rejected() throws Exception {
         CreditLinesEndpoint unit = new CreditLinesEndpoint();
-        JsonMapper mapper = JsonMapper.builder().addModule(new Jdk8Module()).build();
-        KrakenResponse<CreditLines> response = mapper.readValue("{\"error\":[\"EGeneral:Permission denied\"]}", unit.wrappedResponseType(mapper.getTypeFactory()));
+        JsonMapper mapper = JsonMapper.builder().addModules(new JavaTimeModule(), new Jdk8Module()).build();
+        KrakenResponse<Optional<CreditLines>> response = mapper.readValue("{\"error\":[\"EGeneral:Permission denied\"]}", unit.wrappedResponseType(mapper.getTypeFactory()));
 
         assertThatThrownBy(() -> unit.unwrapResponse(response)).isInstanceOf(KrakenException.class);
     }

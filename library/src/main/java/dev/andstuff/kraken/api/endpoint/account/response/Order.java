@@ -1,6 +1,7 @@
 package dev.andstuff.kraken.api.endpoint.account.response;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
@@ -13,9 +14,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @param userReference the user reference
  * @param clientOrderId the client order id
  * @param status the status
- * @param openTime the open time as Unix seconds
- * @param startTime the start time as Unix seconds
- * @param expireTime the expire time as Unix seconds
+ * @param openTime the open time as an instant
+ * @param startTime the start time as an instant
+ * @param expireTime the expire time as an instant
  * @param description the description
  * @param timeInForce the time in force
  * @param volume the volume
@@ -31,33 +32,33 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @param senderSubId the sender sub id
  * @param orderFlags the order flags
  * @param trades the trades
- * @param closeTime the close time as Unix seconds
+ * @param closeTime the close time as an instant
  * @param reason the reason
  */
 public record Order(@JsonProperty("refid") String referenceId,
-        @JsonProperty("userref") Long userReference,
-        @JsonProperty("cl_ord_id") String clientOrderId,
-        Status status,
-        @JsonProperty("opentm") BigDecimal openTime,
-        @JsonProperty("starttm") BigDecimal startTime,
-        @JsonProperty("expiretm") BigDecimal expireTime,
-        @JsonProperty("descr") Description description,
-        @JsonProperty("time_in_force") TimeInForce timeInForce,
-        @JsonProperty("vol") BigDecimal volume,
-        @JsonProperty("vol_exec") BigDecimal executedVolume,
-        BigDecimal cost,
-        BigDecimal fee,
-        BigDecimal price,
-        @JsonProperty("stopprice") BigDecimal stopPrice,
-        @JsonProperty("limitprice") BigDecimal limitPrice,
-        Trigger trigger,
-        Boolean margin,
-        @JsonProperty("misc") String miscellaneous,
-        @JsonProperty("sender_sub_id") String senderSubId,
-        @JsonProperty("oflags") String orderFlags,
-        List<String> trades,
-        @JsonProperty("closetm") BigDecimal closeTime,
-        String reason) {
+                    @JsonProperty("userref") Long userReference,
+                    @JsonProperty("cl_ord_id") String clientOrderId,
+                    Status status,
+                    @JsonProperty("opentm") Instant openTime,
+                    @JsonProperty("starttm") Instant startTime,
+                    @JsonProperty("expiretm") Instant expireTime,
+                    @JsonProperty("descr") Description description,
+                    @JsonProperty("time_in_force") TimeInForce timeInForce,
+                    @JsonProperty("vol") BigDecimal volume,
+                    @JsonProperty("vol_exec") BigDecimal executedVolume,
+                    BigDecimal cost,
+                    BigDecimal fee,
+                    BigDecimal price,
+                    @JsonProperty("stopprice") BigDecimal stopPrice,
+                    @JsonProperty("limitprice") BigDecimal limitPrice,
+                    Trigger trigger,
+                    Boolean margin,
+                    @JsonProperty("misc") String miscellaneous,
+                    @JsonProperty("sender_sub_id") String senderSubId,
+                    @JsonProperty("oflags") String orderFlags,
+                    List<String> trades,
+                    @JsonProperty("closetm") Instant closeTime,
+                    String reason) {
 
     /**
      * The status values used by the {@code OpenOrders, ClosedOrders and QueryOrders} endpoint.
@@ -111,14 +112,14 @@ public record Order(@JsonProperty("refid") String referenceId,
      * @param assetClass the asset class
      */
     public record Description(String pair,
-            Type type,
-            @JsonProperty("ordertype") OrderType orderType,
-            BigDecimal price,
-            BigDecimal price2,
-            String leverage,
-            String order,
-            String close,
-            @JsonProperty("aclass") String assetClass) {}
+                              Type type,
+                              @JsonProperty("ordertype") OrderType orderType,
+                              BigDecimal price,
+                              BigDecimal price2,
+                              String leverage,
+                              String order,
+                              String close,
+                              @JsonProperty("aclass") String assetClass) {}
 
     /**
      * The time in force values used by the {@code OpenOrders, ClosedOrders and QueryOrders} endpoint.

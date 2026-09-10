@@ -3,6 +3,7 @@ package dev.andstuff.kraken.api;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -110,7 +111,6 @@ import dev.andstuff.kraken.api.rest.EpochBasedNonceGenerator;
 import dev.andstuff.kraken.api.rest.KrakenCredentials;
 import dev.andstuff.kraken.api.rest.KrakenNonceGenerator;
 import dev.andstuff.kraken.api.rest.KrakenRestRequester;
-
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -321,6 +321,28 @@ public class KrakenAPI {
     /* Implemented private endpoints */
 
     /**
+     * Queries the private {@code Ledgers} endpoint, returning at most 50 ledger entries per call.
+     *
+     * @param params the filtering and pagination parameters
+     * @return the matching ledger entries and their total count
+     * @throws KrakenException if Kraken returns an error
+     */
+    public LedgerInfo ledgerInfo(LedgerInfoParams params) {
+        return query(new LedgerInfoEndpoint(params));
+    }
+
+    /**
+     * Queries the private {@code QueryLedgers} endpoint, returning specific ledger entries by identifier.
+     *
+     * @param params the ledger entry identifiers to retrieve
+     * @return the ledger entries, by identifier
+     * @throws KrakenException if Kraken returns an error
+     */
+    public Map<String, LedgerEntry> ledgerEntries(LedgerEntriesParams params) {
+        return query(new LedgerEntriesEndpoint(params));
+    }
+
+    /**
      * Queries the {@code Balance} endpoint using default options.
      *
      * @return the account balance returned by Kraken
@@ -369,11 +391,11 @@ public class KrakenAPI {
     /**
      * Queries the {@code CreditLines} endpoint using default options.
      *
-     * @return the credit lines returned by Kraken, or null when no credit lines exist
+     * @return the credit lines returned by Kraken, or an empty optional when no credit lines exist
      * @throws KrakenException if Kraken rejects the request
      * @throws IllegalStateException if credentials are missing
      */
-    public CreditLines creditLines() {
+    public Optional<CreditLines> creditLines() {
         return query(new CreditLinesEndpoint());
     }
 
@@ -381,11 +403,11 @@ public class KrakenAPI {
      * Queries the {@code CreditLines} endpoint.
      *
      * @param params the request options
-     * @return the credit lines returned by Kraken, or null when no credit lines exist
+     * @return the credit lines returned by Kraken, or an empty optional when no credit lines exist
      * @throws KrakenException if Kraken rejects the request
      * @throws IllegalStateException if credentials are missing
      */
-    public CreditLines creditLines(CreditLinesParams params) {
+    public Optional<CreditLines> creditLines(CreditLinesParams params) {
         return query(new CreditLinesEndpoint(params));
     }
 
@@ -618,28 +640,6 @@ public class KrakenAPI {
      */
     public WalletAccounts walletAccounts(WalletAccountsParams params) {
         return query(new WalletAccountsEndpoint(params));
-    }
-
-    /**
-     * Queries the private {@code Ledgers} endpoint, returning at most 50 ledger entries per call.
-     *
-     * @param params the filtering and pagination parameters
-     * @return the matching ledger entries and their total count
-     * @throws KrakenException if Kraken returns an error
-     */
-    public LedgerInfo ledgerInfo(LedgerInfoParams params) {
-        return query(new LedgerInfoEndpoint(params));
-    }
-
-    /**
-     * Queries the private {@code QueryLedgers} endpoint, returning specific ledger entries by identifier.
-     *
-     * @param params the ledger entry identifiers to retrieve
-     * @return the ledger entries, by identifier
-     * @throws KrakenException if Kraken returns an error
-     */
-    public Map<String, LedgerEntry> ledgerEntries(LedgerEntriesParams params) {
-        return query(new LedgerEntriesEndpoint(params));
     }
 
     /**

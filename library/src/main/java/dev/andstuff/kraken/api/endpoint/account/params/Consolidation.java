@@ -1,29 +1,20 @@
 package dev.andstuff.kraken.api.endpoint.account.params;
 
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 /**
  * The consolidation values accepted by {@code OpenPositions}.
  */
+@Getter
+@RequiredArgsConstructor
 public enum Consolidation {
-    @JsonProperty("market") MARKET("market"),
+    MARKET("market"),
     @JsonEnumDefaultValue UNKNOWN("unknown");
 
-    private final String value;
-
-    Consolidation(String value) {
-        this.value = value;
-    }
-
-    /**
-     * Returns the value sent to Kraken.
- *
- * @return the API value
-     */
     @JsonValue
-    public String getValue() {
-        return value;
-    }
+    private final String value;
 }

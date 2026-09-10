@@ -1,31 +1,31 @@
 package dev.andstuff.kraken.api.endpoint.account;
 
-import java.math.BigDecimal;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import java.io.InputStream;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-
-import dev.andstuff.kraken.api.endpoint.KrakenException;
-import dev.andstuff.kraken.api.endpoint.KrakenResponse;
-import dev.andstuff.kraken.api.endpoint.account.params.*;
-import dev.andstuff.kraken.api.endpoint.account.response.*;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
+import dev.andstuff.kraken.api.endpoint.KrakenResponse;
+import dev.andstuff.kraken.api.endpoint.account.params.QueryOrdersParams;
+import dev.andstuff.kraken.api.endpoint.account.response.Order;
+import dev.andstuff.kraken.api.endpoint.priv.RebaseMultiplier;
 
 @ExtendWith(MockitoExtension.class)
 class QueryOrdersEndpointTest {
@@ -61,13 +61,16 @@ class QueryOrdersEndpointTest {
                 .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
                 .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
                 .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                .addModule(new Jdk8Module()).build();
-        String json = Files.readString(Path.of("src/test/resources/account/QueryOrders.json"));
+                .addModules(new JavaTimeModule(), new Jdk8Module()).build();
+        String json;
+        try (InputStream fixture = getClass().getResourceAsStream("/account/QueryOrders.json")) {
+            json = new String(fixture.readAllBytes(), StandardCharsets.UTF_8);
+        }
 
         KrakenResponse<Map<String, Order>> response = mapper.readValue(json, unit.wrappedResponseType(mapper.getTypeFactory()));
         Map<String, Order> result = unit.unwrapResponse(response);
 
-        assertThat(result.get("OBCMZD-JIEE7-77TH3F").closeTime()).isEqualByComparingTo("1688665499.1922");
+        assertThat(result.get("OBCMZD-JIEE7-77TH3F").closeTime()).isEqualTo(Instant.ofEpochSecond(1688665499L, 192200000L));
         assertThat(result.get("OBCMZD-JIEE7-77TH3F").reason()).isNull();
     }
 }

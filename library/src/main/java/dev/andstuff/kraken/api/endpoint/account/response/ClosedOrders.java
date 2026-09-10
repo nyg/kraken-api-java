@@ -2,8 +2,6 @@ package dev.andstuff.kraken.api.endpoint.account.response;
 
 import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 /**
  * The closed orders returned by {@code ClosedOrders}.
  *
@@ -11,4 +9,4 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @param count the count; null when the count is omitted
  */
 public record ClosedOrders(Map<String, Order> closed,
-        Long count) {}
+                           Long count) {}

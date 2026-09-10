@@ -20,13 +20,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @param unexecutedValue the unexecuted value
  */
 public record TradeBalance(@JsonProperty("eb") BigDecimal equivalentBalance,
-        @JsonProperty("tb") BigDecimal tradeBalance,
-        @JsonProperty("m") BigDecimal margin,
-        @JsonProperty("n") BigDecimal unrealizedNet,
-        @JsonProperty("c") BigDecimal costBasis,
-        @JsonProperty("v") BigDecimal floatingValue,
-        @JsonProperty("e") BigDecimal equity,
-        @JsonProperty("mf") BigDecimal freeMargin,
-        @JsonProperty("mfo") BigDecimal freeMarginForOrders,
-        @JsonProperty("ml") BigDecimal marginLevel,
-        @JsonProperty("uv") BigDecimal unexecutedValue) {}
+                           @JsonProperty("tb") BigDecimal tradeBalance,
+                           @JsonProperty("m") BigDecimal margin,
+                           @JsonProperty("n") BigDecimal unrealizedNet,
+                           @JsonProperty("c") BigDecimal costBasis,
+                           @JsonProperty("v") BigDecimal floatingValue,
+                           @JsonProperty("e") BigDecimal equity,
+                           @JsonProperty("mf") BigDecimal freeMargin,
+                           @JsonProperty("mfo") BigDecimal freeMarginForOrders,
+                           @JsonProperty("ml") BigDecimal marginLevel,
+                           @JsonProperty("uv") BigDecimal unexecutedValue) {}

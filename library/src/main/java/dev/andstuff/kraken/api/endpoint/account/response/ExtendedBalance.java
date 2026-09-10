@@ -13,6 +13,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @param holdTrade the hold trade
  */
 public record ExtendedBalance(BigDecimal balance,
-        BigDecimal credit,
-        @JsonProperty("credit_used") BigDecimal creditUsed,
-        @JsonProperty("hold_trade") BigDecimal holdTrade) {}
+                              BigDecimal credit,
+                              @JsonProperty("credit_used") BigDecimal creditUsed,
+                              @JsonProperty("hold_trade") BigDecimal holdTrade) {}

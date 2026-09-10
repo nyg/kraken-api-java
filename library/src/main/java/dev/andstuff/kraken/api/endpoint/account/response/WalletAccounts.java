@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @param cursor the cursor
  */
 public record WalletAccounts(List<Account> accounts,
-        Cursor cursor) {
+                             Cursor cursor) {
 
     /**
      * The flags returned by {@code ListWalletAccounts}.
@@ -21,7 +21,7 @@ public record WalletAccounts(List<Account> accounts,
      * @param active the active
      */
     public record Flags(@JsonProperty("user_defined") Boolean userDefined,
-            Boolean active) {}
+                        Boolean active) {}
 
     /**
      * The status values used by the {@code ListWalletAccounts} endpoint.
@@ -55,10 +55,10 @@ public record WalletAccounts(List<Account> accounts,
      * @param name the name
      */
     public record Account(@JsonProperty("account_id") String accountId,
-            Flags flags,
-            Status status,
-            Type type,
-            String name) {}
+                          Flags flags,
+                          Status status,
+                          Type type,
+                          String name) {}
 
     /**
      * The cursor returned by {@code ListWalletAccounts}.

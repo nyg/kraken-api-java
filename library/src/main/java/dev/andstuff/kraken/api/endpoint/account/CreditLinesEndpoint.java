@@ -1,5 +1,7 @@
 package dev.andstuff.kraken.api.endpoint.account;
 
+import java.util.Optional;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import dev.andstuff.kraken.api.endpoint.KrakenException;
@@ -11,7 +13,7 @@ import dev.andstuff.kraken.api.endpoint.priv.PrivateEndpoint;
 /**
  * The private {@code CreditLines} endpoint for credit lines.
  */
-public class CreditLinesEndpoint extends PrivateEndpoint<CreditLines> {
+public class CreditLinesEndpoint extends PrivateEndpoint<Optional<CreditLines>> {
 
     /**
      * Creates the {@code CreditLines} endpoint with default options.
@@ -33,14 +35,14 @@ public class CreditLinesEndpoint extends PrivateEndpoint<CreditLines> {
      * Unwraps {@code CreditLines}, whose successful result can be null.
      *
      * @param response the response envelope
-     * @return the credit details, or null when Kraken returns no credit lines
+     * @return the credit details, or an empty optional when Kraken returns no credit lines
      * @throws KrakenException if Kraken reports an error
      */
     @Override
-    public CreditLines unwrapResponse(KrakenResponse<CreditLines> response) {
+    public Optional<CreditLines> unwrapResponse(KrakenResponse<Optional<CreditLines>> response) {
         if (!response.error().isEmpty()) {
             throw new KrakenException(response.error());
         }
-        return response.result().orElse(null);
+        return response.result().orElseGet(Optional::empty);
     }
 }

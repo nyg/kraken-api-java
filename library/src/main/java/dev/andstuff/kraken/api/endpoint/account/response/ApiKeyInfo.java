@@ -22,15 +22,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @param lastUsed the last used as Unix seconds, preserving Kraken's string representation
  */
 public record ApiKeyInfo(@JsonProperty("apiKeyName") String name,
-        String apiKey,
-        String nonce,
-        Long nonceWindow,
-        List<String> permissions,
-        String iban,
-        String validUntil,
-        String queryFrom,
-        String queryTo,
-        String createdTime,
-        String modifiedTime,
-        List<String> ipAllowlist,
-        String lastUsed) {}
+                         String apiKey,
+                         String nonce,
+                         Long nonceWindow,
+                         List<String> permissions,
+                         String iban,
+                         String validUntil,
+                         String queryFrom,
+                         String queryTo,
+                         String createdTime,
+                         String modifiedTime,
+                         List<String> ipAllowlist,
+                         String lastUsed) {}

@@ -1,31 +1,27 @@
 package dev.andstuff.kraken.api.endpoint.account;
 
-import java.math.BigDecimal;
-import java.net.URLDecoder;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-
-import dev.andstuff.kraken.api.endpoint.KrakenException;
-import dev.andstuff.kraken.api.endpoint.KrakenResponse;
-import dev.andstuff.kraken.api.endpoint.account.params.*;
-import dev.andstuff.kraken.api.endpoint.account.response.*;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
+import dev.andstuff.kraken.api.endpoint.KrakenResponse;
+import dev.andstuff.kraken.api.endpoint.account.params.AssetClass;
+import dev.andstuff.kraken.api.endpoint.account.params.TradeVolumeParams;
+import dev.andstuff.kraken.api.endpoint.account.response.TradeVolume;
+import dev.andstuff.kraken.api.endpoint.priv.RebaseMultiplier;
 
 @ExtendWith(MockitoExtension.class)
 class TradeVolumeEndpointTest {
@@ -44,8 +40,11 @@ class TradeVolumeEndpointTest {
                 .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
                 .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
                 .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                .addModule(new Jdk8Module()).build();
-        String json = Files.readString(Path.of("src/test/resources/account/TradeVolume.json"));
+                .addModules(new JavaTimeModule(), new Jdk8Module()).build();
+        String json;
+        try (InputStream fixture = getClass().getResourceAsStream("/account/TradeVolume.json")) {
+            json = new String(fixture.readAllBytes(), StandardCharsets.UTF_8);
+        }
 
         KrakenResponse<TradeVolume> response = mapper.readValue(json, unit.wrappedResponseType(mapper.getTypeFactory()));
         TradeVolume result = unit.unwrapResponse(response);
@@ -89,7 +88,7 @@ class TradeVolumeEndpointTest {
     @Test
     void should_parse_fee_schedules_when_requested() throws Exception {
         TradeVolumeEndpoint unit = new TradeVolumeEndpoint();
-        JsonMapper mapper = JsonMapper.builder().addModule(new Jdk8Module())
+        JsonMapper mapper = JsonMapper.builder().addModules(new JavaTimeModule(), new Jdk8Module())
                 .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE).build();
         String json = """
                 {"error":[],"result":{"asset_class":"future-class","volume_subaccounts":[{"iiban":"subaccount","volume":"0.0000000000123456789"}],"schedules":[{"pair":"XBTUSD","class":"volume","tiers":[{"maker_fee":"0.25","taker_fee":"0.4","min_spot_volume":"0","min_futures_volume":"10000","min_assets_on_platform":"0","active":true}]}]}}
@@ -103,5 +102,11 @@ class TradeVolumeEndpointTest {
         assertThat(result.schedules().getFirst().assetClass()).isEqualTo(TradeVolume.AssetClass.VOLUME);
         assertThat(result.schedules().getFirst().tiers().getFirst().active()).isTrue();
         assertThat(result.schedules().getFirst().tiers().getFirst().makerFee()).isEqualByComparingTo("0.25");
+    }
+    @Test
+    void should_reject_nonnumeric_nonce_when_encoding_json() {
+        TradeVolumeEndpoint unit = new TradeVolumeEndpoint();
+
+        assertThatThrownBy(() -> unit.encodedParamsWith("not-a-number")).isInstanceOf(NumberFormatException.class);
     }
 }

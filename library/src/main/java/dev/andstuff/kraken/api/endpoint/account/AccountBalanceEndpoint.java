@@ -18,8 +18,6 @@ import dev.andstuff.kraken.api.endpoint.priv.PrivateEndpoint;
  */
 public class AccountBalanceEndpoint extends PrivateEndpoint<Map<String, BigDecimal>> {
 
-    private final AccountBalanceParams params;
-
     /**
      * Creates the {@code Balance} endpoint with default options.
      */
@@ -34,7 +32,6 @@ public class AccountBalanceEndpoint extends PrivateEndpoint<Map<String, BigDecim
      */
     public AccountBalanceEndpoint(AccountBalanceParams params) {
         super("Balance", params, new TypeReference<>() {});
-        this.params = params;
     }
 
     /**
@@ -44,6 +41,7 @@ public class AccountBalanceEndpoint extends PrivateEndpoint<Map<String, BigDecim
      */
     @Override
     public URL buildURL() {
+        AccountBalanceParams params = (AccountBalanceParams) getPostParams();
         if (params.getAccountId() == null) {
             return super.buildURL();
         }

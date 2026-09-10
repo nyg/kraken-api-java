@@ -20,13 +20,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @param schedules the schedules
  */
 public record TradeVolume(String currency,
-        @JsonProperty("asset_class") AssetClass assetClass,
-        BigDecimal volume,
-        Inputs inputs,
-        Map<String, FeeTier> fees,
-        @JsonProperty("fees_maker") Map<String, FeeTier> feesMaker,
-        @JsonProperty("volume_subaccounts") List<SubaccountVolume> volumeSubaccounts,
-        List<FeeSchedule> schedules) {
+                          @JsonProperty("asset_class") AssetClass assetClass,
+                          BigDecimal volume,
+                          Inputs inputs,
+                          Map<String, FeeTier> fees,
+                          @JsonProperty("fees_maker") Map<String, FeeTier> feesMaker,
+                          @JsonProperty("volume_subaccounts") List<SubaccountVolume> volumeSubaccounts,
+                          List<FeeSchedule> schedules) {
 
     /**
      * The asset class values used by the {@code TradeVolume} endpoint.
@@ -52,8 +52,8 @@ public record TradeVolume(String currency,
      * @param domainAssetsOnPlatform the domain assets on platform
      */
     public record Inputs(@JsonProperty("domain_spot_volume_30d") BigDecimal domainSpotVolume30d,
-            @JsonProperty("domain_futures_volume_30d") BigDecimal domainFuturesVolume30d,
-            @JsonProperty("domain_assets_on_platform") BigDecimal domainAssetsOnPlatform) {}
+                         @JsonProperty("domain_futures_volume_30d") BigDecimal domainFuturesVolume30d,
+                         @JsonProperty("domain_assets_on_platform") BigDecimal domainAssetsOnPlatform) {}
 
     /**
      * The fee tier returned by {@code TradeVolume}.
@@ -69,14 +69,14 @@ public record TradeVolume(String currency,
      * @param volumeOffset the volume offset
      */
     public record FeeTier(BigDecimal fee,
-            @JsonProperty("minfee") BigDecimal minimumFee,
-            @JsonProperty("maxfee") BigDecimal maximumFee,
-            @JsonProperty("nextfee") BigDecimal nextFee,
-            @JsonProperty("tiervolume") BigDecimal tierVolume,
-            @JsonProperty("tierfuturesvolume") BigDecimal tierFuturesVolume,
-            @JsonProperty("nextvolume") BigDecimal nextVolume,
-            @JsonProperty("nextfuturesvolume") BigDecimal nextFuturesVolume,
-            @JsonProperty("volumeoffset") BigDecimal volumeOffset) {}
+                          @JsonProperty("minfee") BigDecimal minimumFee,
+                          @JsonProperty("maxfee") BigDecimal maximumFee,
+                          @JsonProperty("nextfee") BigDecimal nextFee,
+                          @JsonProperty("tiervolume") BigDecimal tierVolume,
+                          @JsonProperty("tierfuturesvolume") BigDecimal tierFuturesVolume,
+                          @JsonProperty("nextvolume") BigDecimal nextVolume,
+                          @JsonProperty("nextfuturesvolume") BigDecimal nextFuturesVolume,
+                          @JsonProperty("volumeoffset") BigDecimal volumeOffset) {}
 
     /**
      * The subaccount volume returned by {@code TradeVolume}.
@@ -85,7 +85,7 @@ public record TradeVolume(String currency,
      * @param volume the volume
      */
     public record SubaccountVolume(String iiban,
-            BigDecimal volume) {}
+                                   BigDecimal volume) {}
 
     /**
      * The tier returned by {@code TradeVolume}.
@@ -98,11 +98,11 @@ public record TradeVolume(String currency,
      * @param active the active
      */
     public record Tier(@JsonProperty("maker_fee") BigDecimal makerFee,
-            @JsonProperty("taker_fee") BigDecimal takerFee,
-            @JsonProperty("min_spot_volume") BigDecimal minSpotVolume,
-            @JsonProperty("min_futures_volume") BigDecimal minFuturesVolume,
-            @JsonProperty("min_assets_on_platform") BigDecimal minAssetsOnPlatform,
-            Boolean active) {}
+                       @JsonProperty("taker_fee") BigDecimal takerFee,
+                       @JsonProperty("min_spot_volume") BigDecimal minSpotVolume,
+                       @JsonProperty("min_futures_volume") BigDecimal minFuturesVolume,
+                       @JsonProperty("min_assets_on_platform") BigDecimal minAssetsOnPlatform,
+                       Boolean active) {}
 
     /**
      * The fee schedule returned by {@code TradeVolume}.
@@ -112,6 +112,6 @@ public record TradeVolume(String currency,
      * @param tiers the tiers
      */
     public record FeeSchedule(String pair,
-            @JsonProperty("class") AssetClass assetClass,
-            List<Tier> tiers) {}
+                              @JsonProperty("class") AssetClass assetClass,
+                              List<Tier> tiers) {}
 }

@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import dev.andstuff.kraken.api.endpoint.priv.PostParams;
-
+import dev.andstuff.kraken.api.endpoint.priv.RebaseMultiplier;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
@@ -20,6 +20,8 @@ import lombok.NonNull;
 @Getter
 @Builder(toBuilder = true)
 public class TradeVolumeParams extends PostParams {
+
+    private static final JsonMapper OBJECT_MAPPER = JsonMapper.builder().build();
 
     /**
      * The pairs for {@code TradeVolume}.
@@ -54,7 +56,7 @@ public class TradeVolumeParams extends PostParams {
         Map<String, String> params = new HashMap<>();
         if (pairsWithClass != null) {
             try {
-                params.put("pair", JsonMapper.builder().build().writeValueAsString(pairsWithClass));
+                params.put("pair", OBJECT_MAPPER.writeValueAsString(pairsWithClass));
             }
             catch (JsonProcessingException e) {
                 throw new IllegalStateException("Cannot encode class-qualified pairs", e);

@@ -1,6 +1,7 @@
 package dev.andstuff.kraken.api.endpoint.account.response;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -11,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @param orderId the order id
  * @param positionId the position id
  * @param pair the pair
- * @param time the time as Unix seconds
+ * @param time the time as an instant
  * @param type the type
  * @param orderType the order type
  * @param price the price
@@ -36,28 +37,28 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @param trades the trades
  */
 public record AccountTrade(@JsonProperty("ordertxid") String orderId,
-        @JsonProperty("postxid") String positionId,
-        String pair,
-        BigDecimal time,
-        String type,
-        @JsonProperty("ordertype") String orderType,
-        BigDecimal price,
-        BigDecimal cost,
-        BigDecimal fee,
-        @JsonProperty("vol") BigDecimal volume,
-        BigDecimal margin,
-        String leverage,
-        @JsonProperty("misc") String miscellaneous,
-        List<String> ledgers,
-        @JsonProperty("trade_id") Long tradeId,
-        Boolean maker,
-        @JsonProperty("aclass") String assetClass,
-        @JsonProperty("tradeordertype") String tradeOrderType,
-        @JsonProperty("posstatus") String positionStatus,
-        @JsonProperty("cprice") BigDecimal closedPrice,
-        @JsonProperty("ccost") BigDecimal closedCost,
-        @JsonProperty("cfee") BigDecimal closedFee,
-        @JsonProperty("cvol") BigDecimal closedVolume,
-        @JsonProperty("cmargin") BigDecimal closedMargin,
-        BigDecimal net,
-        List<String> trades) {}
+                           @JsonProperty("postxid") String positionId,
+                           String pair,
+                           Instant time,
+                           String type,
+                           @JsonProperty("ordertype") String orderType,
+                           BigDecimal price,
+                           BigDecimal cost,
+                           BigDecimal fee,
+                           @JsonProperty("vol") BigDecimal volume,
+                           BigDecimal margin,
+                           String leverage,
+                           @JsonProperty("misc") String miscellaneous,
+                           List<String> ledgers,
+                           @JsonProperty("trade_id") Long tradeId,
+                           Boolean maker,
+                           @JsonProperty("aclass") String assetClass,
+                           @JsonProperty("tradeordertype") String tradeOrderType,
+                           @JsonProperty("posstatus") String positionStatus,
+                           @JsonProperty("cprice") BigDecimal closedPrice,
+                           @JsonProperty("ccost") BigDecimal closedCost,
+                           @JsonProperty("cfee") BigDecimal closedFee,
+                           @JsonProperty("cvol") BigDecimal closedVolume,
+                           @JsonProperty("cmargin") BigDecimal closedMargin,
+                           BigDecimal net,
+                           List<String> trades) {}

@@ -17,7 +17,7 @@ import dev.andstuff.kraken.api.endpoint.priv.PrivateEndpoint;
  */
 public class TradeVolumeEndpoint extends PrivateEndpoint<TradeVolume> {
 
-    private final TradeVolumeParams params;
+    private static final JsonMapper OBJECT_MAPPER = JsonMapper.builder().build();
 
     /**
      * Creates the {@code TradeVolume} endpoint with default options.
@@ -33,7 +33,6 @@ public class TradeVolumeEndpoint extends PrivateEndpoint<TradeVolume> {
      */
     public TradeVolumeEndpoint(TradeVolumeParams params) {
         super("TradeVolume", params, new TypeReference<>() {});
-        this.params = params;
     }
 
     /**
@@ -45,6 +44,7 @@ public class TradeVolumeEndpoint extends PrivateEndpoint<TradeVolume> {
      */
     @Override
     public String encodedParamsWith(String nonce) {
+        TradeVolumeParams params = (TradeVolumeParams) getPostParams();
         if (params.getPairs() != null && params.getPairsWithClass() != null) {
             throw new IllegalArgumentException("Specify pairs or pairsWithClass, not both");
         }
@@ -66,7 +66,7 @@ public class TradeVolumeEndpoint extends PrivateEndpoint<TradeVolume> {
             body.put("rebase_multiplier", params.getRebaseMultiplier().getValue());
         }
         try {
-            return JsonMapper.builder().build().writeValueAsString(body);
+            return OBJECT_MAPPER.writeValueAsString(body);
         }
         catch (JsonProcessingException e) {
             throw new IllegalStateException("Cannot encode TradeVolume parameters", e);
