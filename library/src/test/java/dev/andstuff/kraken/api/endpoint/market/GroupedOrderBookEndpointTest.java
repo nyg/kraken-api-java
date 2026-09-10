@@ -9,7 +9,6 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -45,7 +44,6 @@ class GroupedOrderBookEndpointTest {
         assertThat(unit.getHttpMethod()).isEqualTo("GET");
         assertThat(url).hasProtocol("https").hasHost("api.kraken.com").hasPath("/0/public/GroupedBook");
         assertThat(parameters).containsExactlyInAnyOrderEntriesOf(Map.of("pair", "BTC/USD", "depth", "25", "grouping", "1000"));
-        assertThat(Arrays.asList(KrakenAPI.Public.values())).extracting(KrakenAPI.Public::getPath).contains("GroupedBook");
     }
 
     @Test
@@ -107,5 +105,9 @@ class GroupedOrderBookEndpointTest {
 
         assertThat(result.asks()).isEmpty();
         assertThat(result.bids()).isEmpty();
+    }
+    @Test
+    void should_expose_endpoint_path_when_listing_api_endpoints() {
+        assertThat(Arrays.asList(KrakenAPI.Public.values())).extracting(KrakenAPI.Public::getPath).contains("GroupedBook");
     }
 }

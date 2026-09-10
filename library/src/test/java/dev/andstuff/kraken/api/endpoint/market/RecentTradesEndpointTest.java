@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +46,6 @@ class RecentTradesEndpointTest {
         assertThat(unit.getHttpMethod()).isEqualTo("GET");
         assertThat(url).hasProtocol("https").hasHost("api.kraken.com").hasPath("/0/public/Trades");
         assertThat(parameters).containsExactlyInAnyOrderEntriesOf(Map.of("pair", "BTC/USD", "since", "1688671969993150842", "count", "2", "assetVersion", "1", "asset_class", "tokenized_asset"));
-        assertThat(Arrays.asList(KrakenAPI.Public.values())).extracting(KrakenAPI.Public::getPath).contains("Trades");
     }
 
     @Test
@@ -83,7 +83,7 @@ class RecentTradesEndpointTest {
         RecentTrades result = response.result().orElseThrow();
 
         assertThat(result.trades().get("XXBTZUSD")).hasSize(2).first().isEqualTo(
-                new RecentTrades.Trade(new BigDecimal("30243.40000"), new BigDecimal("0.34507674"), new BigDecimal("1688669597.8277369"),
+                new RecentTrades.Trade(new BigDecimal("30243.40000"), new BigDecimal("0.34507674"), Instant.ofEpochSecond(1688669597L, 827736900L),
                         RecentTrades.Side.BUY, RecentTrades.OrderType.MARKET, "", 61044952));
         assertThat(result.trades().get("XXBTZUSD").getLast()).extracting(RecentTrades.Trade::side, RecentTrades.Trade::orderType)
                 .containsExactly(RecentTrades.Side.SELL, RecentTrades.OrderType.LIMIT);
@@ -168,7 +168,7 @@ class RecentTradesEndpointTest {
         RecentTrades result = response.result().orElseThrow();
 
         assertThat(result.trades().get("XXBTZUSD").getFirst()).extracting(RecentTrades.Trade::time, RecentTrades.Trade::tradeId)
-                .containsExactly(new BigDecimal("1688669597.123456789"), 61044952000000001L);
+                .containsExactly(Instant.ofEpochSecond(1688669597L, 123456789L), 61044952000000001L);
     }
 
     @Test
@@ -190,5 +190,9 @@ class RecentTradesEndpointTest {
 
         assertThat(result.trades().get("XXBTZUSD").getFirst()).extracting(RecentTrades.Trade::side, RecentTrades.Trade::orderType)
                 .containsExactly(RecentTrades.Side.UNKNOWN, RecentTrades.OrderType.UNKNOWN);
+    }
+    @Test
+    void should_expose_endpoint_path_when_listing_api_endpoints() {
+        assertThat(Arrays.asList(KrakenAPI.Public.values())).extracting(KrakenAPI.Public::getPath).contains("Trades");
     }
 }

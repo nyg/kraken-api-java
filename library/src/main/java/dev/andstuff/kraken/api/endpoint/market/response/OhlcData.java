@@ -1,6 +1,7 @@
 package dev.andstuff.kraken.api.endpoint.market.response;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +25,7 @@ public record OhlcData(Map<String, List<OhlcData.Candle>> candles, Long last) {
     /**
      * A positional OHLC candle returned by the {@code OHLC} endpoint.
      *
-     * @param time candle start, in Unix seconds
+     * @param time candle start instant
      * @param open opening price
      * @param high highest price
      * @param low lowest price
@@ -35,7 +36,7 @@ public record OhlcData(Map<String, List<OhlcData.Candle>> candles, Long last) {
      */
     @JsonFormat(shape = JsonFormat.Shape.ARRAY)
     @JsonPropertyOrder({"time", "open", "high", "low", "close", "vwap", "volume", "count"})
-    public record Candle(long time, BigDecimal open, BigDecimal high, BigDecimal low,
+    public record Candle(Instant time, BigDecimal open, BigDecimal high, BigDecimal low,
                          BigDecimal close, BigDecimal vwap, BigDecimal volume, long count) {}
 
     @JsonPOJOBuilder(withPrefix = "")

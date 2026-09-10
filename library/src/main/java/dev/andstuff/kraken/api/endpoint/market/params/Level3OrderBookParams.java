@@ -30,7 +30,7 @@ public class Level3OrderBookParams extends PostParams {
     protected Map<String, String> params() {
         Map<String, String> params = new HashMap<>();
         params.put("pair", pair);
-        putIfNonNull(params, "depth", depth, String::valueOf);
+        putIfNonNull(params, "depth", depth);
         return params;
     }
 }

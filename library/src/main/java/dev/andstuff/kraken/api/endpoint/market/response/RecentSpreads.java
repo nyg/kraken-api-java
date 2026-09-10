@@ -1,6 +1,7 @@
 package dev.andstuff.kraken.api.endpoint.market.response;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,13 +25,13 @@ public record RecentSpreads(Map<String, List<RecentSpreads.Spread>> spreads, Lon
     /**
      * A positional top-of-book spread returned by the {@code Spread} endpoint.
      *
-     * @param time Unix timestamp in seconds
+     * @param time timestamp as an instant
      * @param bid best bid price
      * @param ask best ask price
      */
     @JsonFormat(shape = JsonFormat.Shape.ARRAY)
     @JsonPropertyOrder({"time", "bid", "ask"})
-    public record Spread(long time, BigDecimal bid, BigDecimal ask) {}
+    public record Spread(Instant time, BigDecimal bid, BigDecimal ask) {}
 
     @JsonPOJOBuilder(withPrefix = "")
     static class ResponseBuilder {

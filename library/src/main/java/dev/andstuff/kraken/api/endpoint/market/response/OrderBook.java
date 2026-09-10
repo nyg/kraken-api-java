@@ -1,6 +1,7 @@
 package dev.andstuff.kraken.api.endpoint.market.response;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -19,9 +20,9 @@ public record OrderBook(List<Level> asks, List<Level> bids) {
      *
      * @param price price of this level
      * @param volume aggregated volume at this price
-     * @param time Unix timestamp in seconds
+     * @param time timestamp as an instant
      */
     @JsonFormat(shape = JsonFormat.Shape.ARRAY)
     @JsonPropertyOrder({"price", "volume", "time"})
-    public record Level(BigDecimal price, BigDecimal volume, long time) {}
+    public record Level(BigDecimal price, BigDecimal volume, Instant time) {}
 }

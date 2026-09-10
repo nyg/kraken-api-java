@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +46,6 @@ class OhlcEndpointTest {
         assertThat(unit.getHttpMethod()).isEqualTo("GET");
         assertThat(url).hasProtocol("https").hasHost("api.kraken.com").hasPath("/0/public/OHLC");
         assertThat(parameters).containsExactlyInAnyOrderEntriesOf(Map.of("pair", "BTC/USD", "interval", "60", "since", "1688671200", "assetVersion", "1", "asset_class", "tokenized_asset"));
-        assertThat(Arrays.asList(KrakenAPI.Public.values())).extracting(KrakenAPI.Public::getPath).contains("OHLC");
     }
 
     @Test
@@ -83,9 +83,9 @@ class OhlcEndpointTest {
         OhlcData result = response.result().orElseThrow();
 
         assertThat(result.candles().get("XXBTZUSD")).hasSize(2).first().isEqualTo(
-                new OhlcData.Candle(1688671200, new BigDecimal("30306.1"), new BigDecimal("30306.2"), new BigDecimal("30305.7"),
+                new OhlcData.Candle(Instant.ofEpochSecond(1688671200), new BigDecimal("30306.1"), new BigDecimal("30306.2"), new BigDecimal("30305.7"),
                         new BigDecimal("30305.7"), new BigDecimal("30306.1"), new BigDecimal("3.39243896"), 23));
-        assertThat(result.candles().get("XXBTZUSD").getLast().time()).isEqualTo(1688671260L);
+        assertThat(result.candles().get("XXBTZUSD").getLast().time()).isEqualTo(Instant.ofEpochSecond(1688671260L));
         assertThat(result.last()).isEqualTo(1688672160L);
         assertThat(OhlcParams.builder().pair("BTC/USD").since(result.last()).build().toMap()).containsEntry("since", "1688672160");
     }
@@ -147,5 +147,9 @@ class OhlcEndpointTest {
         OhlcData result = response.result().orElseThrow();
 
         assertThat(result.candles().get("BTC/USD")).isEmpty();
+    }
+    @Test
+    void should_expose_endpoint_path_when_listing_api_endpoints() {
+        assertThat(Arrays.asList(KrakenAPI.Public.values())).extracting(KrakenAPI.Public::getPath).contains("OHLC");
     }
 }

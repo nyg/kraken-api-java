@@ -8,8 +8,8 @@ import java.math.BigDecimal;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -45,7 +45,6 @@ class OrderBookEndpointTest {
         assertThat(unit.getHttpMethod()).isEqualTo("GET");
         assertThat(url).hasProtocol("https").hasHost("api.kraken.com").hasPath("/0/public/Depth");
         assertThat(parameters).containsExactlyInAnyOrderEntriesOf(Map.of("pair", "BTC/USD", "count", "500", "assetVersion", "1", "asset_class", "tokenized_asset"));
-        assertThat(Arrays.asList(KrakenAPI.Public.values())).extracting(KrakenAPI.Public::getPath).contains("Depth");
     }
 
     @Test
@@ -83,9 +82,9 @@ class OrderBookEndpointTest {
         Map<String, OrderBook> result = response.result().orElseThrow();
 
         assertThat(result.get("XXBTZUSD").asks()).hasSize(2).first()
-                .isEqualTo(new OrderBook.Level(new BigDecimal("30384.10000"), new BigDecimal("2.059"), 1688671659));
+                .isEqualTo(new OrderBook.Level(new BigDecimal("30384.10000"), new BigDecimal("2.059"), Instant.ofEpochSecond(1688671659)));
         assertThat(result.get("XXBTZUSD").bids()).hasSize(2).first()
-                .isEqualTo(new OrderBook.Level(new BigDecimal("30297.00000"), new BigDecimal("1.115"), 1688671636));
+                .isEqualTo(new OrderBook.Level(new BigDecimal("30297.00000"), new BigDecimal("1.115"), Instant.ofEpochSecond(1688671636)));
     }
 
     @Test
@@ -126,5 +125,9 @@ class OrderBookEndpointTest {
 
         assertThat(result.get("BTC/USD").asks()).isEmpty();
         assertThat(result.get("BTC/USD").bids()).isEmpty();
+    }
+    @Test
+    void should_expose_endpoint_path_when_listing_api_endpoints() {
+        assertThat(Arrays.asList(KrakenAPI.Public.values())).extracting(KrakenAPI.Public::getPath).contains("Depth");
     }
 }

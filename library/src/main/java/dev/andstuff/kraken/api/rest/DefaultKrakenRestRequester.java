@@ -2,8 +2,8 @@ package dev.andstuff.kraken.api.rest;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.net.URL;
 import java.util.zip.ZipInputStream;
-
 import javax.net.ssl.HttpsURLConnection;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -38,6 +38,21 @@ public class DefaultKrakenRestRequester implements KrakenRestRequester {
                 .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 .addModules(new JavaTimeModule(), new Jdk8Module())
                 .build();
+    }
+
+    private final ConnectionFactory connectionFactory;
+
+    public DefaultKrakenRestRequester() {
+        this(url -> (HttpsURLConnection) url.openConnection());
+    }
+
+    DefaultKrakenRestRequester(ConnectionFactory connectionFactory) {
+        this.connectionFactory = connectionFactory;
+    }
+
+    @FunctionalInterface
+    interface ConnectionFactory {
+        HttpsURLConnection open(URL url) throws IOException;
     }
 
     /**
@@ -85,8 +100,8 @@ public class DefaultKrakenRestRequester implements KrakenRestRequester {
         }
     }
 
-    private static <T> HttpsURLConnection createHttpsConnection(Endpoint<T> endpoint) throws IOException {
-        HttpsURLConnection connection = (HttpsURLConnection) endpoint.buildURL().openConnection();
+    private <T> HttpsURLConnection createHttpsConnection(Endpoint<T> endpoint) throws IOException {
+        HttpsURLConnection connection = connectionFactory.open(endpoint.buildURL());
         connection.setRequestMethod(endpoint.getHttpMethod());
         connection.addRequestProperty("User-Agent", "github.com/nyg/kraken-api-java");
         return connection;

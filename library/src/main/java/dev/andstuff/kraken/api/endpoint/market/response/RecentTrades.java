@@ -1,6 +1,7 @@
 package dev.andstuff.kraken.api.endpoint.market.response;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +28,7 @@ public record RecentTrades(Map<String, List<RecentTrades.Trade>> trades, String 
      *
      * @param price trade price
      * @param volume traded volume
-     * @param time Unix timestamp in seconds, retaining fractional precision
+     * @param time trade instant, retaining nanosecond precision
      * @param side buy or sell
      * @param orderType market or limit
      * @param miscellaneous additional trade information
@@ -35,7 +36,7 @@ public record RecentTrades(Map<String, List<RecentTrades.Trade>> trades, String 
      */
     @JsonFormat(shape = JsonFormat.Shape.ARRAY)
     @JsonPropertyOrder({"price", "volume", "time", "side", "orderType", "miscellaneous", "tradeId"})
-    public record Trade(BigDecimal price, BigDecimal volume, BigDecimal time, Side side,
+    public record Trade(BigDecimal price, BigDecimal volume, Instant time, Side side,
                         OrderType orderType, String miscellaneous, long tradeId) {}
 
     /**

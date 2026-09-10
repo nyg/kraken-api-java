@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +46,6 @@ class RecentSpreadsEndpointTest {
         assertThat(unit.getHttpMethod()).isEqualTo("GET");
         assertThat(url).hasProtocol("https").hasHost("api.kraken.com").hasPath("/0/public/Spread");
         assertThat(parameters).containsExactlyInAnyOrderEntriesOf(Map.of("pair", "BTC/USD", "since", "1688672106", "assetVersion", "1", "asset_class", "tokenized_asset"));
-        assertThat(Arrays.asList(KrakenAPI.Public.values())).extracting(KrakenAPI.Public::getPath).contains("Spread");
     }
 
     @Test
@@ -83,7 +83,7 @@ class RecentSpreadsEndpointTest {
         RecentSpreads result = response.result().orElseThrow();
 
         assertThat(result.spreads().get("XXBTZUSD")).hasSize(2).first()
-                .isEqualTo(new RecentSpreads.Spread(1688671834, new BigDecimal("30292.10000"), new BigDecimal("30297.50000")));
+                .isEqualTo(new RecentSpreads.Spread(Instant.ofEpochSecond(1688671834), new BigDecimal("30292.10000"), new BigDecimal("30297.50000")));
         assertThat(result.last()).isEqualTo(1688672106L);
         assertThat(RecentSpreadsParams.builder().pair("BTC/USD").since(result.last()).build().toMap()).containsEntry("since", "1688672106");
     }
@@ -145,5 +145,9 @@ class RecentSpreadsEndpointTest {
         RecentSpreads result = response.result().orElseThrow();
 
         assertThat(result.spreads().get("BTC/USD")).isEmpty();
+    }
+    @Test
+    void should_expose_endpoint_path_when_listing_api_endpoints() {
+        assertThat(Arrays.asList(KrakenAPI.Public.values())).extracting(KrakenAPI.Public::getPath).contains("Spread");
     }
 }

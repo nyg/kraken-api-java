@@ -8,8 +8,8 @@ import java.math.BigDecimal;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -45,7 +45,6 @@ class Level3OrderBookEndpointTest {
         assertThat(unit.getHttpMethod()).isEqualTo("POST");
         assertThat(url).hasProtocol("https").hasHost("api.kraken.com").hasPath("/0/private/Level3");
         assertThat(parameters).containsExactlyInAnyOrderEntriesOf(Map.of("pair", "YFI/EUR", "depth", "0", "nonce", "123"));
-        assertThat(List.of(KrakenAPI.Private.LEVEL3)).extracting(KrakenAPI.Private::getPath).contains("Level3");
     }
 
     @Test
@@ -86,10 +85,10 @@ class Level3OrderBookEndpointTest {
 
         assertThat(result.pair()).isEqualTo("YFI/EUR");
         assertThat(result.bids()).hasSize(2).first().isEqualTo(
-                new Level3OrderBook.Order(new BigDecimal("3062.00000"), new BigDecimal("0.29665800"), "O5KJU4-IEQTM-NDMS6W", 1765622008594292000L));
+                new Level3OrderBook.Order(new BigDecimal("3062.00000"), new BigDecimal("0.29665800"), "O5KJU4-IEQTM-NDMS6W", Instant.ofEpochSecond(0, 1765622008594292000L)));
         assertThat(result.bids().getLast().orderId()).isNotEqualTo(result.bids().getFirst().orderId());
         assertThat(result.asks().getFirst().quantity()).isEqualTo(new BigDecimal("0.00278335"));
-        assertThat(result.asks().getLast().timestamp()).isEqualTo(1765622021013826600L);
+        assertThat(result.asks().getLast().timestamp()).isEqualTo(Instant.ofEpochSecond(0, 1765622021013826600L));
     }
 
     @Test
@@ -102,7 +101,7 @@ class Level3OrderBookEndpointTest {
                 .addModules(new JavaTimeModule(), new Jdk8Module())
                 .build();
         String json = """
-                {"error":[],"result":{"pair":"BTC/USD","grouping":1,"asks":[],"bids":[]}}
+                {"error":[],"result":{"pair":"BTC/USD","asks":[],"bids":[]}}
                 """;
 
         KrakenResponse<Level3OrderBook> response = mapper.readValue(json, unit.wrappedResponseType(mapper.getTypeFactory()));
@@ -123,5 +122,9 @@ class Level3OrderBookEndpointTest {
                         entry -> URLDecoder.decode(entry[1], StandardCharsets.UTF_8)));
 
         assertThat(parameters).containsExactlyInAnyOrderEntriesOf(Map.of("pair", "YFI/EUR", "nonce", "124"));
+    }
+    @Test
+    void should_expose_endpoint_path_when_listing_api_endpoints() {
+        assertThat(Arrays.asList(KrakenAPI.Private.values())).extracting(KrakenAPI.Private::getPath).contains("Level3");
     }
 }

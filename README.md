@@ -120,9 +120,9 @@ The required `pair` field selects one asset pair. Optional numeric fields accept
 | `GroupedBook` | `grouping` | 1, 5, 10, 25, 50, 100, 250, 500, 1000 ticks per level | 1 |
 | `Level3` | `depth` | 0 (full book), 10, 25, 100, 250, 1000 levels per side | 100 |
 
-OHLC candle times, L2 level times, spread times, and the `since` fields for OHLC and spreads use Unix seconds. Grouped books round asks up and bids down to the nearest grouped price level. `MaintenanceSchedule` returns scheduled events for the next seven days, ordered by expected start time; its times use `Instant`, and `cancelBefore` can be absent.
+OHLC candle times, L2 level times and spread times use `Instant`; the `since` fields for OHLC and spreads remain Unix seconds. Grouped books round asks up and bids down to the nearest grouped price level. `MaintenanceSchedule` returns scheduled events for the next seven days, ordered by expected start time; its times use `Instant`, and `cancelBefore` can be absent.
 
-OHLC includes a final candle that is still forming and retains at most 720 entries. Reuse its `last()` cursor as `since` to poll for committed updates. Trade cursors are opaque strings: pass `last()` unchanged. Prices and quantities use `BigDecimal`; trade times retain fractional Unix seconds, while Level3 timestamps are Unix nanoseconds.
+OHLC includes a final candle that is still forming and retains at most 720 entries. Reuse its `last()` cursor as `since` to poll for committed updates. Trade cursors are opaque strings: pass `last()` unchanged. Prices and quantities use `BigDecimal`; trade and Level3 times use `Instant`, retaining nanosecond precision. Level3 decodes Kraken's integer epoch nanoseconds explicitly.
 
 Level3 requires credentials with **Orders and trades – Query open orders & trades** permission:
 
