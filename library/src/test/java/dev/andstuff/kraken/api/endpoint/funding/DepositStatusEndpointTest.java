@@ -1,31 +1,32 @@
 package dev.andstuff.kraken.api.endpoint.funding;
 
-import java.math.BigDecimal;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import java.io.InputStream;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.time.Instant;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-
-import dev.andstuff.kraken.api.endpoint.KrakenException;
-import dev.andstuff.kraken.api.endpoint.KrakenResponse;
-import dev.andstuff.kraken.api.endpoint.funding.params.*;
-import dev.andstuff.kraken.api.endpoint.funding.response.*;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
+import dev.andstuff.kraken.api.endpoint.KrakenResponse;
+import dev.andstuff.kraken.api.endpoint.funding.params.AssetClass;
+import dev.andstuff.kraken.api.endpoint.funding.params.DepositStatusParams;
+import dev.andstuff.kraken.api.endpoint.funding.response.Deposit;
+import dev.andstuff.kraken.api.endpoint.funding.response.DepositStatus;
+import dev.andstuff.kraken.api.endpoint.priv.RebaseMultiplier;
 
 @ExtendWith(MockitoExtension.class)
 class DepositStatusEndpointTest {
@@ -66,8 +67,11 @@ class DepositStatusEndpointTest {
                 .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
                 .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
                 .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                .addModule(new Jdk8Module()).build();
-        String json = Files.readString(Path.of("src/test/resources/funding/DepositStatus.json"));
+                .addModules(new JavaTimeModule(), new Jdk8Module()).build();
+        String json;
+        try (InputStream fixture = getClass().getResourceAsStream("/funding/DepositStatus.json")) {
+            json = new String(fixture.readAllBytes(), StandardCharsets.UTF_8);
+        }
 
         KrakenResponse<DepositStatus> response = mapper.readValue(json, unit.wrappedResponseType(mapper.getTypeFactory()));
         DepositStatus result = response.result().orElseThrow();
@@ -97,7 +101,7 @@ class DepositStatusEndpointTest {
     @Test
     void should_preserve_cursor_and_precision_when_reading_a_page() throws Exception {
         DepositStatusEndpoint unit = new DepositStatusEndpoint();
-        JsonMapper mapper = JsonMapper.builder().addModule(new Jdk8Module())
+        JsonMapper mapper = JsonMapper.builder().addModules(new JavaTimeModule(), new Jdk8Module())
                 .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
                 .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
         String json = """
@@ -109,7 +113,7 @@ class DepositStatusEndpointTest {
 
         assertThat(result.nextCursor()).isEqualTo("opaque +/=cursor");
         assertThat(result.deposits().getFirst().amount()).isEqualByComparingTo("0.0000000000123456789");
-        assertThat(result.deposits().getFirst().time()).isEqualTo(4102444800L);
+        assertThat(result.deposits().getFirst().time()).isEqualTo(Instant.ofEpochSecond(4102444800L));
         assertThat(result.deposits().getFirst().status()).isEqualTo(Deposit.Status.UNKNOWN);
         assertThat(result.deposits().getFirst().statusProp()).isEqualTo(Deposit.StatusProp.UNKNOWN);
     }
@@ -117,7 +121,7 @@ class DepositStatusEndpointTest {
     @Test
     void should_accept_singular_field_when_returned_in_a_page() throws Exception {
         DepositStatusEndpoint unit = new DepositStatusEndpoint();
-        JsonMapper mapper = JsonMapper.builder().addModule(new Jdk8Module()).build();
+        JsonMapper mapper = JsonMapper.builder().addModules(new JavaTimeModule(), new Jdk8Module()).build();
         String json = """
                 {"error":[],"result":{"deposit":[{"refid":"reference"}],"next_cursor":""}}
                 """;
@@ -132,7 +136,7 @@ class DepositStatusEndpointTest {
     @Test
     void should_return_empty_transactions_when_last_page_is_empty() throws Exception {
         DepositStatusEndpoint unit = new DepositStatusEndpoint();
-        JsonMapper mapper = JsonMapper.builder().addModule(new Jdk8Module()).build();
+        JsonMapper mapper = JsonMapper.builder().addModules(new JavaTimeModule(), new Jdk8Module()).build();
         String json = """
                 {"error":[],"result":{"deposits":[],"next_cursor":null}}
                 """;
@@ -147,7 +151,7 @@ class DepositStatusEndpointTest {
     @Test
     void should_reject_malformed_page_when_transactions_are_missing() {
         DepositStatusEndpoint unit = new DepositStatusEndpoint();
-        JsonMapper mapper = JsonMapper.builder().addModule(new Jdk8Module()).build();
+        JsonMapper mapper = JsonMapper.builder().addModules(new JavaTimeModule(), new Jdk8Module()).build();
 
         assertThatThrownBy(() -> mapper.readValue("{\"error\":[],\"result\":{\"next_cursor\":\"next\"}}", unit.wrappedResponseType(mapper.getTypeFactory())))
                 .isInstanceOf(com.fasterxml.jackson.databind.JsonMappingException.class);

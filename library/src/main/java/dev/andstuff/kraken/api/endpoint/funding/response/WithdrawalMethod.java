@@ -19,13 +19,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @param limits the limits
  */
 public record WithdrawalMethod(String asset,
-        String method,
-        @JsonProperty("method_id") String methodId,
-        String network,
-        @JsonProperty("network_id") String networkId,
-        BigDecimal minimum,
-        Fee fee,
-        List<Limits> limits) {
+                               String method,
+                               @JsonProperty("method_id") String methodId,
+                               String network,
+                               @JsonProperty("network_id") String networkId,
+                               BigDecimal minimum,
+                               Fee fee,
+                               List<Limits> limits) {
 
     /**
      * The fee returned by {@code WithdrawMethods}.
@@ -36,9 +36,9 @@ public record WithdrawalMethod(String asset,
      * @param feePercentage the fee percentage
      */
     public record Fee(@JsonProperty("aclass") String assetClass,
-            String asset,
-            BigDecimal fee,
-            @JsonProperty("fee_percentage") BigDecimal feePercentage) {}
+                      String asset,
+                      BigDecimal fee,
+                      @JsonProperty("fee_percentage") BigDecimal feePercentage) {}
 
     /**
      * The limits returned by {@code WithdrawMethods}.
@@ -48,8 +48,8 @@ public record WithdrawalMethod(String asset,
      * @param limits the limits
      */
     public record Limits(String description,
-            @JsonProperty("limit_type") String limitType,
-            Map<String, LimitWindow> limits) {}
+                         @JsonProperty("limit_type") String limitType,
+                         Map<String, LimitWindow> limits) {}
 
     /**
      * Amounts within one {@code WithdrawMethods} limit window.

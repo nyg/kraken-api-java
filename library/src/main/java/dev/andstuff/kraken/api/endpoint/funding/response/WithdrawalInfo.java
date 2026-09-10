@@ -2,8 +2,6 @@ package dev.andstuff.kraken.api.endpoint.funding.response;
 
 import java.math.BigDecimal;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 /**
  * The withdrawal info returned by {@code WithdrawInfo}.
  *
@@ -13,6 +11,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @param fee the fee
  */
 public record WithdrawalInfo(String method,
-        BigDecimal limit,
-        BigDecimal amount,
-        BigDecimal fee) {}
+                             BigDecimal limit,
+                             BigDecimal amount,
+                             BigDecimal fee) {}

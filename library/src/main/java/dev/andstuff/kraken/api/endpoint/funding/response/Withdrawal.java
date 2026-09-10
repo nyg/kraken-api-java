@@ -1,6 +1,7 @@
 package dev.andstuff.kraken.api.endpoint.funding.response;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -17,24 +18,24 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @param info the info
  * @param amount the amount
  * @param fee the fee
- * @param time the time as Unix seconds
+ * @param time the time as an instant
  * @param status the status
  * @param statusProp the status prop
  * @param key the key
  */
 public record Withdrawal(String method,
-        String network,
-        @JsonProperty("aclass") String assetClass,
-        String asset,
-        @JsonProperty("refid") String referenceId,
-        @JsonProperty("txid") String transactionId,
-        String info,
-        BigDecimal amount,
-        BigDecimal fee,
-        Long time,
-        Status status,
-        @JsonProperty("status-prop") StatusProp statusProp,
-        String key) {
+                         String network,
+                         @JsonProperty("aclass") String assetClass,
+                         String asset,
+                         @JsonProperty("refid") String referenceId,
+                         @JsonProperty("txid") String transactionId,
+                         String info,
+                         BigDecimal amount,
+                         BigDecimal fee,
+                         Instant time,
+                         Status status,
+                         @JsonProperty("status-prop") StatusProp statusProp,
+                         String key) {
 
     /**
      * The status values used by the {@code WithdrawStatus} endpoint.

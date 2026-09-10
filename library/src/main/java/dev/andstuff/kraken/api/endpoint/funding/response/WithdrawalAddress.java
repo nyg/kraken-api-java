@@ -1,6 +1,5 @@
 package dev.andstuff.kraken.api.endpoint.funding.response;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * The withdrawal address returned by {@code WithdrawAddresses}.
@@ -14,9 +13,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @param verified the verified
  */
 public record WithdrawalAddress(String address,
-        String asset,
-        String method,
-        String key,
-        String tag,
-        String memo,
-        Boolean verified) {}
+                                String asset,
+                                String method,
+                                String key,
+                                String tag,
+                                String memo,
+                                Boolean verified) {}

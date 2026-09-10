@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import dev.andstuff.kraken.api.endpoint.priv.PostParams;
-
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
@@ -47,9 +46,9 @@ public class DepositAddressesParams extends PostParams {
     @Override
     protected Map<String, String> params() {
         Map<String, String> params = new HashMap<>();
-        putIfNonNull(params, "asset", asset);
+        params.put("asset", asset);
         putIfNonNull(params, "aclass", assetClass, AssetClass::getValue);
-        putIfNonNull(params, "method", method);
+        params.put("method", method);
         putIfNonNull(params, "new", generateNew);
         putIfNonNull(params, "amount", amount, BigDecimal::toPlainString);
         return params;

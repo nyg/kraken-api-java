@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @param memo the destination memo
  */
 public record DepositAddress(String address,
-        @JsonProperty("expiretm") String expireTime,
-        @JsonProperty("new") Boolean unused,
-        String tag,
-        String memo) {}
+                             @JsonProperty("expiretm") String expireTime,
+                             @JsonProperty("new") Boolean unused,
+                             String tag,
+                             String memo) {}

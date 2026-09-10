@@ -13,4 +13,4 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  */
 @JsonDeserialize(using = WithdrawalStatusDeserializer.class)
 public record WithdrawalStatus(List<Withdrawal> withdrawals,
-        @JsonProperty("next_cursor") String nextCursor) {}
+                               @JsonProperty("next_cursor") String nextCursor) {}

@@ -16,9 +16,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @param minimum the minimum
  */
 public record DepositMethod(String method,
-        DepositLimit limit,
-        BigDecimal fee,
-        @JsonProperty("fee-percentage") BigDecimal feePercentage,
-        @JsonProperty("address-setup-fee") String addressSetupFee,
-        @JsonProperty("gen-address") Boolean genAddress,
-        BigDecimal minimum) {}
+                            DepositLimit limit,
+                            BigDecimal fee,
+                            @JsonProperty("fee-percentage") BigDecimal feePercentage,
+                            @JsonProperty("address-setup-fee") String addressSetupFee,
+                            @JsonProperty("gen-address") Boolean genAddress,
+                            BigDecimal minimum) {}

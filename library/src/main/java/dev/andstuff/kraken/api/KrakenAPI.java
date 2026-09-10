@@ -96,7 +96,6 @@ import dev.andstuff.kraken.api.rest.EpochBasedNonceGenerator;
 import dev.andstuff.kraken.api.rest.KrakenCredentials;
 import dev.andstuff.kraken.api.rest.KrakenNonceGenerator;
 import dev.andstuff.kraken.api.rest.KrakenRestRequester;
-
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

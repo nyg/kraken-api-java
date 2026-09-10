@@ -1,4 +1,4 @@
-package dev.andstuff.kraken.api.endpoint.funding.params;
+package dev.andstuff.kraken.api.endpoint.priv;
 
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -7,12 +7,13 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
- * The source wallet values accepted by {@code WalletTransfer}.
+ * The rebase multiplier values accepted by private endpoints.
  */
 @Getter
 @RequiredArgsConstructor
-public enum SourceWallet {
-    SPOT_WALLET("Spot Wallet"),
+public enum RebaseMultiplier {
+    REBASED("rebased"),
+    BASE("base"),
     @JsonEnumDefaultValue UNKNOWN("unknown");
 
     @JsonValue

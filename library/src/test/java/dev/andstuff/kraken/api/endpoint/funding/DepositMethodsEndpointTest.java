@@ -1,31 +1,31 @@
 package dev.andstuff.kraken.api.endpoint.funding;
 
-import java.math.BigDecimal;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import java.io.InputStream;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-
-import dev.andstuff.kraken.api.endpoint.KrakenException;
-import dev.andstuff.kraken.api.endpoint.KrakenResponse;
-import dev.andstuff.kraken.api.endpoint.funding.params.*;
-import dev.andstuff.kraken.api.endpoint.funding.response.*;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
+import dev.andstuff.kraken.api.endpoint.KrakenResponse;
+import dev.andstuff.kraken.api.endpoint.funding.params.AssetClass;
+import dev.andstuff.kraken.api.endpoint.funding.params.DepositMethodsParams;
+import dev.andstuff.kraken.api.endpoint.funding.response.DepositMethod;
+import dev.andstuff.kraken.api.endpoint.priv.RebaseMultiplier;
 
 @ExtendWith(MockitoExtension.class)
 class DepositMethodsEndpointTest {
@@ -59,8 +59,11 @@ class DepositMethodsEndpointTest {
                 .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
                 .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
                 .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                .addModule(new Jdk8Module()).build();
-        String json = Files.readString(Path.of("src/test/resources/funding/DepositMethods.json"));
+                .addModules(new JavaTimeModule(), new Jdk8Module()).build();
+        String json;
+        try (InputStream fixture = getClass().getResourceAsStream("/funding/DepositMethods.json")) {
+            json = new String(fixture.readAllBytes(), StandardCharsets.UTF_8);
+        }
 
         KrakenResponse<List<DepositMethod>> response = mapper.readValue(json, unit.wrappedResponseType(mapper.getTypeFactory()));
         List<DepositMethod> result = response.result().orElseThrow();
@@ -75,7 +78,7 @@ class DepositMethodsEndpointTest {
     @Test
     void should_preserve_finite_limits_when_strings_or_numbers_are_returned() throws Exception {
         DepositMethodsEndpoint unit = new DepositMethodsEndpoint("XBT");
-        JsonMapper mapper = JsonMapper.builder().addModule(new Jdk8Module()).build();
+        JsonMapper mapper = JsonMapper.builder().addModules(new JavaTimeModule(), new Jdk8Module()).build();
         String json = """
                 {"error":[],"result":[{"limit":"0.0000000000123456789","fee-percentage":"0.1"},{"limit":1234567890.1234567890123456789},{"limit":0},{"limit":null},{}]}
                 """;
@@ -96,7 +99,7 @@ class DepositMethodsEndpointTest {
     @Test
     void should_reject_invalid_limit_when_true_is_returned() {
         DepositMethodsEndpoint unit = new DepositMethodsEndpoint("XBT");
-        JsonMapper mapper = JsonMapper.builder().addModule(new Jdk8Module()).build();
+        JsonMapper mapper = JsonMapper.builder().addModules(new JavaTimeModule(), new Jdk8Module()).build();
 
         assertThatThrownBy(() -> mapper.readValue("{\"error\":[],\"result\":[{\"limit\":true}]}", unit.wrappedResponseType(mapper.getTypeFactory())))
                 .isInstanceOf(com.fasterxml.jackson.databind.JsonMappingException.class);

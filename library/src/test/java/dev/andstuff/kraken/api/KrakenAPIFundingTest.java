@@ -1,8 +1,21 @@
 package dev.andstuff.kraken.api;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import dev.andstuff.kraken.api.endpoint.funding.CancelWithdrawalEndpoint;
 import dev.andstuff.kraken.api.endpoint.funding.DepositAddressesEndpoint;
@@ -38,31 +51,16 @@ import dev.andstuff.kraken.api.rest.KrakenCredentials;
 import dev.andstuff.kraken.api.rest.KrakenNonceGenerator;
 import dev.andstuff.kraken.api.rest.KrakenRestRequester;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
-class FundingKrakenAPITest {
+class KrakenAPIFundingTest {
 
     @Mock private KrakenCredentials credentials;
     @Mock private KrakenNonceGenerator nonceGenerator;
     @Mock private KrakenRestRequester requester;
     @Mock private List<DepositMethod> depositMethodsResponse;
     @Mock private List<DepositAddress> depositAddressesResponse;
-    @Mock private DepositStatus depositStatusResponse;
     @Mock private List<WithdrawalMethod> withdrawalMethodsResponse;
     @Mock private List<WithdrawalAddress> withdrawalAddressesResponse;
-    @Mock private WithdrawalInfo withdrawalInfoResponse;
-    @Mock private FundingReference withdrawResponse;
-    @Mock private WithdrawalStatus withdrawalStatusResponse;
-    @Mock private FundingReference walletTransferResponse;
 
     @Test
     void should_route_depositMethods_options_when_called() {
@@ -108,6 +106,7 @@ class FundingKrakenAPITest {
 
     @Test
     void should_route_depositStatus_options_when_called() {
+        DepositStatus depositStatusResponse = new DepositStatus(List.of(), null);
         KrakenAPI unit = new KrakenAPI(credentials, nonceGenerator, requester);
         DepositStatusParams params = DepositStatusParams.builder().build();
         when(requester.execute(any(DepositStatusEndpoint.class), same(credentials), same(nonceGenerator))).thenReturn(depositStatusResponse);
@@ -120,6 +119,7 @@ class FundingKrakenAPITest {
 
     @Test
     void should_route_depositStatus_defaults_when_called() {
+        DepositStatus depositStatusResponse = new DepositStatus(List.of(), null);
         KrakenAPI unit = new KrakenAPI(credentials, nonceGenerator, requester);
         when(requester.execute(any(DepositStatusEndpoint.class), same(credentials), same(nonceGenerator))).thenReturn(depositStatusResponse);
 
@@ -201,6 +201,7 @@ class FundingKrakenAPITest {
 
     @Test
     void should_route_withdrawalInfo_options_when_called() {
+        WithdrawalInfo withdrawalInfoResponse = new WithdrawalInfo(null, null, null, null);
         KrakenAPI unit = new KrakenAPI(credentials, nonceGenerator, requester);
         WithdrawalInfoParams params = WithdrawalInfoParams.builder().asset("id +/&=").key("id +/&=").amount(new BigDecimal("0.0000000012300")).build();
         when(requester.execute(any(WithdrawalInfoEndpoint.class), same(credentials), same(nonceGenerator))).thenReturn(withdrawalInfoResponse);
@@ -222,6 +223,7 @@ class FundingKrakenAPITest {
 
     @Test
     void should_route_withdraw_options_when_called() {
+        FundingReference withdrawResponse = new FundingReference(null);
         KrakenAPI unit = new KrakenAPI(credentials, nonceGenerator, requester);
         WithdrawParams params = WithdrawParams.builder().asset("id +/&=").key("id +/&=").amount(new BigDecimal("0.0000000012300")).build();
         when(requester.execute(any(WithdrawEndpoint.class), same(credentials), same(nonceGenerator))).thenReturn(withdrawResponse);
@@ -243,6 +245,7 @@ class FundingKrakenAPITest {
 
     @Test
     void should_route_withdrawalStatus_options_when_called() {
+        WithdrawalStatus withdrawalStatusResponse = new WithdrawalStatus(List.of(), null);
         KrakenAPI unit = new KrakenAPI(credentials, nonceGenerator, requester);
         WithdrawalStatusParams params = WithdrawalStatusParams.builder().build();
         when(requester.execute(any(WithdrawalStatusEndpoint.class), same(credentials), same(nonceGenerator))).thenReturn(withdrawalStatusResponse);
@@ -255,6 +258,7 @@ class FundingKrakenAPITest {
 
     @Test
     void should_route_withdrawalStatus_defaults_when_called() {
+        WithdrawalStatus withdrawalStatusResponse = new WithdrawalStatus(List.of(), null);
         KrakenAPI unit = new KrakenAPI(credentials, nonceGenerator, requester);
         when(requester.execute(any(WithdrawalStatusEndpoint.class), same(credentials), same(nonceGenerator))).thenReturn(withdrawalStatusResponse);
 
@@ -295,6 +299,7 @@ class FundingKrakenAPITest {
 
     @Test
     void should_route_walletTransfer_options_when_called() {
+        FundingReference walletTransferResponse = new FundingReference(null);
         KrakenAPI unit = new KrakenAPI(credentials, nonceGenerator, requester);
         WalletTransferParams params = WalletTransferParams.builder().asset("id +/&=").sourceWallet(SourceWallet.SPOT_WALLET).destinationWallet(DestinationWallet.FUTURES_WALLET).amount(new BigDecimal("0.0000000012300")).build();
         when(requester.execute(any(WalletTransferEndpoint.class), same(credentials), same(nonceGenerator))).thenReturn(walletTransferResponse);
