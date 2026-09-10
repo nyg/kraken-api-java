@@ -2,6 +2,7 @@ package dev.andstuff.kraken.api.endpoint.priv;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -9,7 +10,7 @@ import lombok.AccessLevel;
 import lombok.Setter;
 
 /**
- * The form-encoded body parameters of a {@link PrivateEndpoint}. The nonce is set by the library just before the request is signed.
+ * The body parameters of a {@link PrivateEndpoint}, form-encoded by default. The nonce is set by the library just before the request is signed.
  */
 @Setter(AccessLevel.PACKAGE)
 public abstract class PostParams {
@@ -19,25 +20,28 @@ public abstract class PostParams {
      *
      * @return the POST parameters
      */
-    protected abstract Map<String, String> params();
+    protected abstract Map<String, ?> params();
 
     private String nonce;
 
     /**
-     * Returns the parameters and the nonce as a URL encoded request body.
+     * Returns the parameters and the nonce as a request body using the parameter type's encoding.
      *
      * @return the encoded request body
      */
     public String encoded() {
-        Map<String, String> params = params();
+        Map<String, Object> params = new LinkedHashMap<>(params());
         params.put("nonce", nonce);
+        return encode(params);
+    }
 
+    protected String encode(Map<String, Object> params) {
         return params.keySet().stream()
                 .reduce(
                         new StringBuilder(),
                         (postData, key) -> postData.append(key)
                                 .append("=")
-                                .append(URLEncoder.encode(params.get(key), StandardCharsets.UTF_8))
+                                .append(URLEncoder.encode(params.get(key).toString(), StandardCharsets.UTF_8))
                                 .append("&"),
                         StringBuilder::append)
                 .toString()

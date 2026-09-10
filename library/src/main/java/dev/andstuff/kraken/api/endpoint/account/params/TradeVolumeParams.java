@@ -1,6 +1,7 @@
 package dev.andstuff.kraken.api.endpoint.account.params;
 
-import java.util.HashMap;
+import java.math.BigInteger;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -49,24 +50,43 @@ public class TradeVolumeParams extends PostParams {
     private final RebaseMultiplier rebaseMultiplier;
 
     @Override
-    protected Map<String, String> params() {
+    protected Map<String, Object> params() {
         if (pairs != null && pairsWithClass != null) {
             throw new IllegalArgumentException("Specify pairs or pairsWithClass, not both");
         }
-        Map<String, String> params = new HashMap<>();
-        if (pairsWithClass != null) {
-            try {
-                params.put("pair", OBJECT_MAPPER.writeValueAsString(pairsWithClass));
-            }
-            catch (JsonProcessingException e) {
-                throw new IllegalStateException("Cannot encode class-qualified pairs", e);
-            }
+        Map<String, Object> params = new LinkedHashMap<>();
+        if (pairs != null) {
+            params.put("pair", String.join(",", pairs));
         }
-        putIfNonNull(params, "pair", pairs, v -> String.join(",", v));
-        putIfNonNull(params, "fee-info", feeInfo);
-        putIfNonNull(params, "fee_schedule", feeSchedule);
-        putIfNonNull(params, "rebase_multiplier", rebaseMultiplier, RebaseMultiplier::getValue);
+        else if (pairsWithClass != null) {
+            params.put("pair", pairsWithClass);
+        }
+        if (feeInfo != null) {
+            params.put("fee-info", feeInfo);
+        }
+        if (feeSchedule != null) {
+            params.put("fee_schedule", feeSchedule);
+        }
+        if (rebaseMultiplier != null) {
+            params.put("rebase_multiplier", rebaseMultiplier.getValue());
+        }
         return params;
+    }
+
+    @Override
+    protected String encode(Map<String, Object> params) {
+        String nonce = (String) params.get("nonce");
+        BigInteger numericNonce = nonce != null && nonce.matches("0|[1-9][0-9]{0,19}") ? new BigInteger(nonce) : null;
+        if (numericNonce == null || numericNonce.bitLength() > 64) {
+            throw new IllegalStateException("TradeVolume requires KrakenNonceGenerator to return an unsigned 64-bit integer in canonical decimal form");
+        }
+        params.put("nonce", numericNonce);
+        try {
+            return OBJECT_MAPPER.writeValueAsString(params);
+        }
+        catch (JsonProcessingException e) {
+            throw new IllegalStateException("Cannot encode TradeVolume parameters", e);
+        }
     }
 
     /**

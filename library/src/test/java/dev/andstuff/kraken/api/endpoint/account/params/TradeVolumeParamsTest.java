@@ -14,26 +14,26 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class TradeVolumeParamsTest {
 
     @Test
-    void should_retain_structured_pairs_when_building_form_parameters() {
+    void should_retain_structured_pairs_when_building_request_parameters() {
         TradeVolumeParams unit = TradeVolumeParams.builder()
                 .pairsWithClass(List.of(new TradeVolumeParams.Pair("TSLAx/USD", "equity_pair"))).build();
 
-        Map<String, String> result = unit.params();
+        Map<String, Object> result = unit.params();
 
-        assertThat(result).containsOnlyKeys("pair").containsEntry("pair", "[{\"asset\":\"TSLAx/USD\",\"aclass\":\"equity_pair\"}]");
+        assertThat(result).containsOnlyKeys("pair").containsEntry("pair", List.of(new TradeVolumeParams.Pair("TSLAx/USD", "equity_pair")));
     }
 
     @Test
-    void should_join_pair_names_when_building_form_parameters() {
+    void should_join_pair_names_when_building_request_parameters() {
         TradeVolumeParams unit = TradeVolumeParams.builder().pairs(List.of("XBTUSD", "ETHUSD")).build();
 
-        Map<String, String> result = unit.params();
+        Map<String, Object> result = unit.params();
 
         assertThat(result).containsOnlyKeys("pair").containsEntry("pair", "XBTUSD,ETHUSD");
     }
 
     @Test
-    void should_reject_ambiguous_pairs_when_building_form_parameters() {
+    void should_reject_ambiguous_pairs_when_building_request_parameters() {
         TradeVolumeParams unit = TradeVolumeParams.builder().pairs(List.of("XBTUSD"))
                 .pairsWithClass(List.of(new TradeVolumeParams.Pair("TSLAx/USD", "equity_pair"))).build();
 

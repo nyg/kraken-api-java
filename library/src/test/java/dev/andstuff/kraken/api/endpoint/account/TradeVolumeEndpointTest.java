@@ -4,11 +4,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -18,7 +22,6 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import dev.andstuff.kraken.api.endpoint.KrakenResponse;
-import dev.andstuff.kraken.api.endpoint.account.params.AssetClass;
 import dev.andstuff.kraken.api.endpoint.account.params.TradeVolumeParams;
 import dev.andstuff.kraken.api.endpoint.account.response.TradeVolume;
 import dev.andstuff.kraken.api.endpoint.priv.RebaseMultiplier;
@@ -103,10 +106,35 @@ class TradeVolumeEndpointTest {
         assertThat(result.schedules().getFirst().tiers().getFirst().active()).isTrue();
         assertThat(result.schedules().getFirst().tiers().getFirst().makerFee()).isEqualByComparingTo("0.25");
     }
-    @Test
-    void should_reject_nonnumeric_nonce_when_encoding_json() {
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = {"", "not-a-number", "-1", "+1", "001", "1.0", "18446744073709551616"})
+    void should_explain_invalid_nonce_when_encoding_json(String nonce) {
         TradeVolumeEndpoint unit = new TradeVolumeEndpoint();
 
-        assertThatThrownBy(() -> unit.encodedParamsWith("not-a-number")).isInstanceOf(NumberFormatException.class);
+        assertThatThrownBy(() -> unit.encodedParamsWith(nonce)).isInstanceOf(IllegalStateException.class)
+                .hasMessage("TradeVolume requires KrakenNonceGenerator to return an unsigned 64-bit integer in canonical decimal form");
+    }
+
+    @Test
+    void should_preserve_unsigned_nonce_when_encoding_its_maximum_value() throws Exception {
+        TradeVolumeEndpoint unit = new TradeVolumeEndpoint();
+        JsonMapper mapper = JsonMapper.builder().build();
+
+        String result = unit.encodedParamsWith("18446744073709551615");
+
+        assertThat(mapper.readTree(result).get("nonce").bigIntegerValue()).isEqualTo(new BigInteger("18446744073709551615"));
+    }
+
+    @Test
+    void should_reuse_json_encoding_when_parameters_are_encoded_directly() throws Exception {
+        TradeVolumeParams params = TradeVolumeParams.builder().pairs(List.of("XBTUSD")).feeSchedule(true).build();
+        TradeVolumeEndpoint unit = new TradeVolumeEndpoint(params);
+
+        String result = unit.encodedParamsWith("123");
+
+        assertThat(params.encoded()).isEqualTo(result);
+        assertThat(result).isEqualTo("{\"pair\":\"XBTUSD\",\"fee_schedule\":true,\"nonce\":123}");
     }
 }
