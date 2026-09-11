@@ -1,0 +1,20 @@
+{
+  "error": [],
+  "result": {
+    "accounts": [
+      {
+        "account_id": "WX6V-JUKW-KKPB-QE36",
+        "flags": {
+          "user_defined": false,
+          "active": true
+        },
+        "status": "active",
+        "type": "main",
+        "name": null
+      }
+    ],
+    "cursor": {
+      "next": null
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "error": [],
+  "result": {
+    "apiKeyName": "my-api-key",
+    "apiKey": "documentation-test-key",
+    "nonce": "1772627060997",
+    "nonceWindow": 0,
+    "permissions": [
+      "query-funds",
+      "withdraw-funds",
+      "query-open-trades",
+      "modify-trades"
+    ],
+    "iban": "AA88 N84G WOAK NMOI",
+    "validUntil": "0",
+    "queryFrom": "0",
+    "queryTo": "0",
+    "createdTime": "1772542900",
+    "modifiedTime": "1772543095",
+    "ipAllowlist": [],
+    "lastUsed": "1772627061"
+  }
+}

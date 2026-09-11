@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.node.NullNode;
  *
  * @param <T> the type the {@code result} field is deserialized into
  * @param error the errors returned by Kraken, empty when the request succeeded
- * @param result the payload of the response, empty when the request failed
+ * @param result the payload of the response, empty when the request failed or the endpoint returns a nullable result
  */
 public record KrakenResponse<T>(List<String> error,
                                 Optional<T> result) {
@@ -18,7 +18,7 @@ public record KrakenResponse<T>(List<String> error,
     /**
      * Returns the payload of the response.
      *
-     * @return the payload, or an empty optional if the request failed
+     * @return the payload, or an empty optional if the request failed or its result is null
      */
     public Optional<T> result() {
         // TODO looks like an issue with jackson which returns Optional.of(NullNode.instance) instead of Optional.empty

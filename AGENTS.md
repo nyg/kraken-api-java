@@ -21,6 +21,8 @@ Java 25 with Temurin is required (configured via `maven-compiler-plugin` with `<
 
 Every endpoint extends `Endpoint<T>`, either `PublicEndpoint<T>` (GET on `/0/public/{path}`, parameters from `QueryParams`) or `PrivateEndpoint<T>` (POST on `/0/private/{path}`, parameters from `PostParams`, signed with a nonce-based HMAC). Concrete endpoints live in a domain package under `endpoint/` — `market/` for market data, including authenticated Level3, `account/` for private account data, `subaccount/` for subaccount management, `transparency/` for public pre- and post-trade data, `earn/` for earn strategies and allocations — and follow `{Name}Endpoint`, `params/{Name}Params`, `response/{ResponseType}`.
 
+`funding/` contains the private Funding (Legacy) endpoints for deposits, withdrawals and wallet transfers, using the same endpoint, parameter and response layout.
+
 `KrakenRestRequester` performs the HTTP calls and can be swapped for another HTTP client. Responses are unwrapped from the Kraken `{error, result}` envelope by `KrakenResponse<T>`; ZIP responses (report exports) go through `Endpoint.processZipResponse()`.
 
 ## Conventions

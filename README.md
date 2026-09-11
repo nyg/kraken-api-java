@@ -161,6 +161,26 @@ JsonNode order = api.query(KrakenAPI.Private.ADD_ORDER, Map.of(
 // Exception in thread "main" KrakenException(errors=[EGeneral:Permission denied])
 ```
 
+### Account data
+
+All Account Data operations have typed methods, including balances, credit lines, orders, amendments, trades, positions, fee tiers, API key information, wallets, ledgers, and report exports. Optional settings use the corresponding `...Params.builder()`; omitted values keep Kraken's defaults.
+
+```java
+Map<String, BigDecimal> balances = api.accountBalance();
+OpenOrders orders = api.openOrders(OpenOrdersParams.builder().trades(true).build());
+ClosedOrders page = api.closedOrders(ClosedOrdersParams.builder().offset(50).withoutCount(true).build());
+Map<String, AccountTrade> trades = api.queryTrades(QueryTradesParams.builder().transactionIds(List.of("THVRQM-33VKH-UCI7BS")).build());
+TradeVolume fees = api.tradeVolume(TradeVolumeParams.builder()
+        .pairsWithClass(List.of(new TradeVolumeParams.Pair("TSLAx/USD", "equity_pair")))
+        .feeSchedule(true).build());
+```
+
+`closedOrders` and `tradesHistory` expose the returned count, which is null when omitted by Kraken. Their `start` and `end` filters accept timestamp strings or transaction IDs. Monetary values use `BigDecimal`, timestamps use `Instant`, including fractional trade times and amendment times decoded from epoch nanoseconds. `creditLines` returns `Optional.empty()` when Kraken reports no credit lines. `accountBalance` can select a wallet using `AccountBalanceParams.accountId`, while `walletAccounts` lists the available wallets.
+
+`TradeVolumeParams` encodes requests as JSON to support class-qualified pairs. Custom REST requesters should send `endpoint.encodedParamsWith(nonce)` unchanged with `endpoint.getContentType()` and use `endpoint.unwrapResponse(response)` to handle endpoint-specific nullable results.
+
+Custom `KrakenNonceGenerator` implementations must produce increasing unsigned 64-bit integers as canonical decimal strings. `TradeVolume` encodes the nonce as a JSON number and rejects malformed, out-of-range or noncanonical values with an `IllegalStateException` that names the generator contract. Canonical formatting keeps the nonce used for signing identical to the number in the JSON body.
+
 ### Custom endpoints
 
 You can also define typed endpoints outside the library. The following example demonstrates the same mechanism used by the built-in order book endpoint. Extend `PublicEndpoint<T>`, or `PrivateEndpoint<T>` for a private one, and pass your endpoint to `query`:
@@ -181,6 +201,24 @@ Map<String, OrderBook> books = api.query(new MyOrderBookEndpoint("XBTUSD"));
 The endpoint is run through the same `KrakenRestRequester` as the built-in ones, and a `PrivateEndpoint` is signed with the credentials and nonce generator the `KrakenAPI` instance was built with. Querying one on an instance built without credentials throws an `IllegalStateException`.
 
 Pull requests adding such an endpoint to the library are welcome, see the [architecture documentation](docs/ARCHITECTURE.md).
+
+### Funding
+
+The ten Funding operations listed in issue #82 have typed methods: `depositMethods`, `depositAddresses`, `depositStatus`, `withdrawalMethods`, `withdrawalAddresses`, `withdrawalInfo`, `withdraw`, `withdrawalStatus`, `cancelWithdrawal`, and `walletTransfer`. These wrap Kraken's `/0/private` Funding endpoints, now grouped as [Funding (Legacy)](https://docs.kraken.com/api-reference/funding/get-deposit-methods); Funding (Beta) is a separate API group.
+
+```java
+List<DepositMethod> methods = api.depositMethods(DepositMethodsParams.builder().asset("XBT").build());
+DepositStatus page = api.depositStatus(DepositStatusParams.builder().asset("XBT").cursor(true).limit(25).build());
+if (page.nextCursor() != null && !page.nextCursor().isEmpty()) {
+    DepositStatus nextPage = api.depositStatus(DepositStatusParams.builder().cursor(page.nextCursor()).limit(25).build());
+}
+WithdrawalInfo estimate = api.withdrawalInfo(WithdrawalInfoParams.builder()
+        .asset("XBT").key("my-saved-withdrawal-key").amount(new BigDecimal("0.01")).build());
+```
+
+Status methods return the same response record for paginated objects and unpaginated arrays. Pass `cursor(true)` to start pagination and then pass each non-empty `nextCursor()` token to retrieve the next page. An unlimited deposit limit is represented by `DepositLimit.unlimited() == true`, with a null amount; a missing limit remains null. Amounts and fees use `BigDecimal`.
+
+`withdraw` submits a withdrawal to a saved key, `cancelWithdrawal` requests cancellation, and `walletTransfer` moves assets from the Spot Wallet to the Futures Wallet. Withdrawal parameters support address confirmation and `maxFee`. A false cancellation result means Kraken did not accept the cancellation. Deposit address parameters support generating a new address and specifying the amount for Lightning invoices; responses preserve destination tags and memos.
 
 ### Custom REST requester
 
