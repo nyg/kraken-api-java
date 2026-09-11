@@ -161,6 +161,26 @@ JsonNode order = api.query(KrakenAPI.Private.ADD_ORDER, Map.of(
 // Exception in thread "main" KrakenException(errors=[EGeneral:Permission denied])
 ```
 
+### Account data
+
+All Account Data operations have typed methods, including balances, credit lines, orders, amendments, trades, positions, fee tiers, API key information, wallets, ledgers, and report exports. Optional settings use the corresponding `...Params.builder()`; omitted values keep Kraken's defaults.
+
+```java
+Map<String, BigDecimal> balances = api.accountBalance();
+OpenOrders orders = api.openOrders(OpenOrdersParams.builder().trades(true).build());
+ClosedOrders page = api.closedOrders(ClosedOrdersParams.builder().offset(50).withoutCount(true).build());
+Map<String, AccountTrade> trades = api.queryTrades(QueryTradesParams.builder().transactionIds(List.of("THVRQM-33VKH-UCI7BS")).build());
+TradeVolume fees = api.tradeVolume(TradeVolumeParams.builder()
+        .pairsWithClass(List.of(new TradeVolumeParams.Pair("TSLAx/USD", "equity_pair")))
+        .feeSchedule(true).build());
+```
+
+`closedOrders` and `tradesHistory` expose the returned count, which is null when omitted by Kraken. Their `start` and `end` filters accept timestamp strings or transaction IDs. Monetary values use `BigDecimal`, timestamps use `Instant`, including fractional trade times and amendment times decoded from epoch nanoseconds. `creditLines` returns `Optional.empty()` when Kraken reports no credit lines. `accountBalance` can select a wallet using `AccountBalanceParams.accountId`, while `walletAccounts` lists the available wallets.
+
+`TradeVolumeParams` encodes requests as JSON to support class-qualified pairs. Custom REST requesters should send `endpoint.encodedParamsWith(nonce)` unchanged with `endpoint.getContentType()` and use `endpoint.unwrapResponse(response)` to handle endpoint-specific nullable results.
+
+Custom `KrakenNonceGenerator` implementations must produce increasing unsigned 64-bit integers as canonical decimal strings. `TradeVolume` encodes the nonce as a JSON number and rejects malformed, out-of-range or noncanonical values with an `IllegalStateException` that names the generator contract. Canonical formatting keeps the nonce used for signing identical to the number in the JSON body.
+
 ### Custom endpoints
 
 You can also define typed endpoints outside the library. The following example demonstrates the same mechanism used by the built-in order book endpoint. Extend `PublicEndpoint<T>`, or `PrivateEndpoint<T>` for a private one, and pass your endpoint to `query`:

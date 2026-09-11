@@ -56,6 +56,17 @@ public abstract class Endpoint<T> {
     }
 
     /**
+     * Unwraps a JSON response or raises the Kraken error associated with an absent result.
+     *
+     * @param response the deserialized response envelope
+     * @return the endpoint result
+     * @throws KrakenException if the response has no result
+     */
+    public T unwrapResponse(KrakenResponse<T> response) {
+        return response.result().orElseThrow(() -> new KrakenException(response.error()));
+    }
+
+    /**
      * Reads the response of endpoints answering with a ZIP archive instead of JSON, e.g. report exports. Endpoints that can return such a response override this method.
      *
      * @param zipStream the response body
