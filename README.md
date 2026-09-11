@@ -202,6 +202,24 @@ The endpoint is run through the same `KrakenRestRequester` as the built-in ones,
 
 Pull requests adding such an endpoint to the library are welcome, see the [architecture documentation](docs/ARCHITECTURE.md).
 
+### Funding
+
+The ten Funding operations listed in issue #82 have typed methods: `depositMethods`, `depositAddresses`, `depositStatus`, `withdrawalMethods`, `withdrawalAddresses`, `withdrawalInfo`, `withdraw`, `withdrawalStatus`, `cancelWithdrawal`, and `walletTransfer`. These wrap Kraken's `/0/private` Funding endpoints, now grouped as [Funding (Legacy)](https://docs.kraken.com/api-reference/funding/get-deposit-methods); Funding (Beta) is a separate API group.
+
+```java
+List<DepositMethod> methods = api.depositMethods(DepositMethodsParams.builder().asset("XBT").build());
+DepositStatus page = api.depositStatus(DepositStatusParams.builder().asset("XBT").cursor(true).limit(25).build());
+if (page.nextCursor() != null && !page.nextCursor().isEmpty()) {
+    DepositStatus nextPage = api.depositStatus(DepositStatusParams.builder().cursor(page.nextCursor()).limit(25).build());
+}
+WithdrawalInfo estimate = api.withdrawalInfo(WithdrawalInfoParams.builder()
+        .asset("XBT").key("my-saved-withdrawal-key").amount(new BigDecimal("0.01")).build());
+```
+
+Status methods return the same response record for paginated objects and unpaginated arrays. Pass `cursor(true)` to start pagination and then pass each non-empty `nextCursor()` token to retrieve the next page. An unlimited deposit limit is represented by `DepositLimit.unlimited() == true`, with a null amount; a missing limit remains null. Amounts and fees use `BigDecimal`.
+
+`withdraw` submits a withdrawal to a saved key, `cancelWithdrawal` requests cancellation, and `walletTransfer` moves assets from the Spot Wallet to the Futures Wallet. Withdrawal parameters support address confirmation and `maxFee`. A false cancellation result means Kraken did not accept the cancellation. Deposit address parameters support generating a new address and specifying the amount for Lightning invoices; responses preserve destination tags and memos.
+
 ### Custom REST requester
 
 The current implementation of the library uses the JDK's HttpsURLConnection to make HTTP request. If that doesn't suit your needs and wish to use something else (e.g. Spring RestTemplate, Apache HttpComponents, OkHttp), you can implement the KrakenRestRequester interface and pass it to the KrakenAPI constructor:

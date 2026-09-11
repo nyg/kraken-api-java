@@ -80,6 +80,34 @@ import dev.andstuff.kraken.api.endpoint.earn.params.EarnStrategiesParams;
 import dev.andstuff.kraken.api.endpoint.earn.response.AllocationStatus;
 import dev.andstuff.kraken.api.endpoint.earn.response.EarnAllocations;
 import dev.andstuff.kraken.api.endpoint.earn.response.EarnStrategies;
+import dev.andstuff.kraken.api.endpoint.funding.CancelWithdrawalEndpoint;
+import dev.andstuff.kraken.api.endpoint.funding.DepositAddressesEndpoint;
+import dev.andstuff.kraken.api.endpoint.funding.DepositMethodsEndpoint;
+import dev.andstuff.kraken.api.endpoint.funding.DepositStatusEndpoint;
+import dev.andstuff.kraken.api.endpoint.funding.WalletTransferEndpoint;
+import dev.andstuff.kraken.api.endpoint.funding.WithdrawEndpoint;
+import dev.andstuff.kraken.api.endpoint.funding.WithdrawalAddressesEndpoint;
+import dev.andstuff.kraken.api.endpoint.funding.WithdrawalInfoEndpoint;
+import dev.andstuff.kraken.api.endpoint.funding.WithdrawalMethodsEndpoint;
+import dev.andstuff.kraken.api.endpoint.funding.WithdrawalStatusEndpoint;
+import dev.andstuff.kraken.api.endpoint.funding.params.CancelWithdrawalParams;
+import dev.andstuff.kraken.api.endpoint.funding.params.DepositAddressesParams;
+import dev.andstuff.kraken.api.endpoint.funding.params.DepositMethodsParams;
+import dev.andstuff.kraken.api.endpoint.funding.params.DepositStatusParams;
+import dev.andstuff.kraken.api.endpoint.funding.params.WalletTransferParams;
+import dev.andstuff.kraken.api.endpoint.funding.params.WithdrawParams;
+import dev.andstuff.kraken.api.endpoint.funding.params.WithdrawalAddressesParams;
+import dev.andstuff.kraken.api.endpoint.funding.params.WithdrawalInfoParams;
+import dev.andstuff.kraken.api.endpoint.funding.params.WithdrawalMethodsParams;
+import dev.andstuff.kraken.api.endpoint.funding.params.WithdrawalStatusParams;
+import dev.andstuff.kraken.api.endpoint.funding.response.DepositAddress;
+import dev.andstuff.kraken.api.endpoint.funding.response.DepositMethod;
+import dev.andstuff.kraken.api.endpoint.funding.response.DepositStatus;
+import dev.andstuff.kraken.api.endpoint.funding.response.FundingReference;
+import dev.andstuff.kraken.api.endpoint.funding.response.WithdrawalAddress;
+import dev.andstuff.kraken.api.endpoint.funding.response.WithdrawalInfo;
+import dev.andstuff.kraken.api.endpoint.funding.response.WithdrawalMethod;
+import dev.andstuff.kraken.api.endpoint.funding.response.WithdrawalStatus;
 import dev.andstuff.kraken.api.endpoint.market.AssetInfoEndpoint;
 import dev.andstuff.kraken.api.endpoint.market.AssetPairEndpoint;
 import dev.andstuff.kraken.api.endpoint.market.GroupedOrderBookEndpoint;
@@ -859,6 +887,170 @@ public class KrakenAPI {
      */
     public boolean cancelReport(String id) {
         return query(new RemoveReportEndpoint(RemoveReportParams.of(id, RemovalType.CANCEL))).wasCanceled();
+    }
+
+    /**
+     * Queries the {@code DepositMethods} endpoint.
+     *
+     * @param params the request options
+     * @return the deposit methods returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public List<DepositMethod> depositMethods(DepositMethodsParams params) {
+        return query(new DepositMethodsEndpoint(params));
+    }
+
+    /**
+     * Queries the {@code DepositAddresses} endpoint.
+     *
+     * @param params the request options
+     * @return the deposit addresses returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public List<DepositAddress> depositAddresses(DepositAddressesParams params) {
+        return query(new DepositAddressesEndpoint(params));
+    }
+
+    /**
+     * Queries the {@code DepositStatus} endpoint using default options.
+     *
+     * @return the deposit status returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public DepositStatus depositStatus() {
+        return query(new DepositStatusEndpoint());
+    }
+
+    /**
+     * Queries the {@code DepositStatus} endpoint.
+     *
+     * @param params the request options
+     * @return the deposit status returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public DepositStatus depositStatus(DepositStatusParams params) {
+        return query(new DepositStatusEndpoint(params));
+    }
+
+    /**
+     * Queries the {@code WithdrawMethods} endpoint using default options.
+     *
+     * @return the withdrawal methods returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public List<WithdrawalMethod> withdrawalMethods() {
+        return query(new WithdrawalMethodsEndpoint());
+    }
+
+    /**
+     * Queries the {@code WithdrawMethods} endpoint.
+     *
+     * @param params the request options
+     * @return the withdrawal methods returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public List<WithdrawalMethod> withdrawalMethods(WithdrawalMethodsParams params) {
+        return query(new WithdrawalMethodsEndpoint(params));
+    }
+
+    /**
+     * Queries the {@code WithdrawAddresses} endpoint using default options.
+     *
+     * @return the withdrawal addresses returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public List<WithdrawalAddress> withdrawalAddresses() {
+        return query(new WithdrawalAddressesEndpoint());
+    }
+
+    /**
+     * Queries the {@code WithdrawAddresses} endpoint.
+     *
+     * @param params the request options
+     * @return the withdrawal addresses returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public List<WithdrawalAddress> withdrawalAddresses(WithdrawalAddressesParams params) {
+        return query(new WithdrawalAddressesEndpoint(params));
+    }
+
+    /**
+     * Queries the {@code WithdrawInfo} endpoint.
+     *
+     * @param params the request options
+     * @return the withdrawal info returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public WithdrawalInfo withdrawalInfo(WithdrawalInfoParams params) {
+        return query(new WithdrawalInfoEndpoint(params));
+    }
+
+    /**
+     * Requests a withdrawal using {@code Withdraw}.
+     *
+     * @param params the request options
+     * @return the withdraw returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public FundingReference withdraw(WithdrawParams params) {
+        return query(new WithdrawEndpoint(params));
+    }
+
+    /**
+     * Queries the {@code WithdrawStatus} endpoint using default options.
+     *
+     * @return the withdrawal status returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public WithdrawalStatus withdrawalStatus() {
+        return query(new WithdrawalStatusEndpoint());
+    }
+
+    /**
+     * Queries the {@code WithdrawStatus} endpoint.
+     *
+     * @param params the request options
+     * @return the withdrawal status returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public WithdrawalStatus withdrawalStatus(WithdrawalStatusParams params) {
+        return query(new WithdrawalStatusEndpoint(params));
+    }
+
+    /**
+     * Requests cancellation of a withdrawal using {@code WithdrawCancel}.
+     *
+     * @param params the request options
+     * @return whether Kraken accepted the cancellation; false is a valid unsuccessful result
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public boolean cancelWithdrawal(CancelWithdrawalParams params) {
+        return query(new CancelWithdrawalEndpoint(params));
+    }
+
+    /**
+     * Transfers funds between wallets using {@code WalletTransfer}.
+     *
+     * @param params the request options
+     * @return the wallet transfer returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public FundingReference walletTransfer(WalletTransferParams params) {
+        return query(new WalletTransferEndpoint(params));
     }
 
     /**
