@@ -11,7 +11,7 @@ mvn -pl library package    # build only the library module
 mvn -pl examples package   # build only the examples module
 ```
 
-There are no tests in this project. CI runs `mvn clean package` on PRs targeting `master`.
+The library's JUnit 5 tests use JSON fixtures and Mockito mocks of `KrakenRestRequester`, without network access or API keys. Run them with `mvn -pl library test`. CI runs `mvn clean package` on PRs targeting `master`.
 
 Java 25 with Temurin is required (configured via `maven-compiler-plugin` with `<release>25</release>`).
 
@@ -19,7 +19,7 @@ Java 25 with Temurin is required (configured via `maven-compiler-plugin` with `<
 
 `KrakenAPI` is the entry point: typed methods for implemented endpoints, generic `query()` methods taking a `Public`/`Private` enum value and returning a `JsonNode`, and raw `queryPublic()`/`queryPrivate()` taking a path string.
 
-Every endpoint extends `Endpoint<T>`, either `PublicEndpoint<T>` (GET on `/0/public/{path}`, parameters from `QueryParams`) or `PrivateEndpoint<T>` (POST on `/0/private/{path}`, parameters from `PostParams`, signed with a nonce-based HMAC). Concrete endpoints live in a domain package under `endpoint/` — `market/` for public market data, `account/` for private account data, `subaccount/` for subaccount management, `transparency/` for public pre- and post-trade data, `earn/` for earn strategies and allocations — and follow `{Name}Endpoint`, `params/{Name}Params`, `response/{ResponseType}`.
+Every endpoint extends `Endpoint<T>`, either `PublicEndpoint<T>` (GET on `/0/public/{path}`, parameters from `QueryParams`) or `PrivateEndpoint<T>` (POST on `/0/private/{path}`, parameters from `PostParams`, signed with a nonce-based HMAC). Concrete endpoints live in a domain package under `endpoint/` — `market/` for market data, including authenticated Level3, `account/` for private account data, `subaccount/` for subaccount management, `transparency/` for public pre- and post-trade data, `earn/` for earn strategies and allocations — and follow `{Name}Endpoint`, `params/{Name}Params`, `response/{ResponseType}`.
 
 `KrakenRestRequester` performs the HTTP calls and can be swapped for another HTTP client. Responses are unwrapped from the Kraken `{error, result}` envelope by `KrakenResponse<T>`; ZIP responses (report exports) go through `Endpoint.processZipResponse()`.
 

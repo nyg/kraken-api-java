@@ -39,12 +39,32 @@ import dev.andstuff.kraken.api.endpoint.earn.response.EarnAllocations;
 import dev.andstuff.kraken.api.endpoint.earn.response.EarnStrategies;
 import dev.andstuff.kraken.api.endpoint.market.AssetInfoEndpoint;
 import dev.andstuff.kraken.api.endpoint.market.AssetPairEndpoint;
+import dev.andstuff.kraken.api.endpoint.market.GroupedOrderBookEndpoint;
+import dev.andstuff.kraken.api.endpoint.market.Level3OrderBookEndpoint;
+import dev.andstuff.kraken.api.endpoint.market.MaintenanceScheduleEndpoint;
+import dev.andstuff.kraken.api.endpoint.market.OhlcEndpoint;
+import dev.andstuff.kraken.api.endpoint.market.OrderBookEndpoint;
+import dev.andstuff.kraken.api.endpoint.market.RecentSpreadsEndpoint;
+import dev.andstuff.kraken.api.endpoint.market.RecentTradesEndpoint;
 import dev.andstuff.kraken.api.endpoint.market.ServerTimeEndpoint;
 import dev.andstuff.kraken.api.endpoint.market.SystemStatusEndpoint;
 import dev.andstuff.kraken.api.endpoint.market.TickerEndpoint;
 import dev.andstuff.kraken.api.endpoint.market.params.AssetPairParams;
+import dev.andstuff.kraken.api.endpoint.market.params.GroupedOrderBookParams;
+import dev.andstuff.kraken.api.endpoint.market.params.Level3OrderBookParams;
+import dev.andstuff.kraken.api.endpoint.market.params.OhlcParams;
+import dev.andstuff.kraken.api.endpoint.market.params.OrderBookParams;
+import dev.andstuff.kraken.api.endpoint.market.params.RecentSpreadsParams;
+import dev.andstuff.kraken.api.endpoint.market.params.RecentTradesParams;
 import dev.andstuff.kraken.api.endpoint.market.response.AssetInfo;
 import dev.andstuff.kraken.api.endpoint.market.response.AssetPairs;
+import dev.andstuff.kraken.api.endpoint.market.response.GroupedOrderBook;
+import dev.andstuff.kraken.api.endpoint.market.response.Level3OrderBook;
+import dev.andstuff.kraken.api.endpoint.market.response.MaintenanceSchedule;
+import dev.andstuff.kraken.api.endpoint.market.response.OhlcData;
+import dev.andstuff.kraken.api.endpoint.market.response.OrderBook;
+import dev.andstuff.kraken.api.endpoint.market.response.RecentSpreads;
+import dev.andstuff.kraken.api.endpoint.market.response.RecentTrades;
 import dev.andstuff.kraken.api.endpoint.market.response.ServerTime;
 import dev.andstuff.kraken.api.endpoint.market.response.SystemStatus;
 import dev.andstuff.kraken.api.endpoint.market.response.Ticker;
@@ -243,6 +263,126 @@ public class KrakenAPI {
     }
 
     /**
+     * Queries the {@code OHLC} endpoint using Kraken's default options.
+     *
+     * @param pair the asset pair to query, e.g. {@code BTC/USD}
+     * @return the candles by returned pair name and the cursor for committed updates
+     * @throws KrakenException if Kraken returns an error
+     */
+    public OhlcData ohlc(String pair) {
+        return query(new OhlcEndpoint(pair));
+    }
+
+    /**
+     * Queries the {@code OHLC} endpoint.
+     *
+     * @param params the request parameters
+     * @return the candles by returned pair name and the cursor for committed updates
+     * @throws KrakenException if Kraken returns an error
+     */
+    public OhlcData ohlc(OhlcParams params) {
+        return query(new OhlcEndpoint(params));
+    }
+
+    /**
+     * Queries the {@code Depth} endpoint using Kraken's default options.
+     *
+     * @param pair the asset pair to query, e.g. {@code BTC/USD}
+     * @return the L2 order books by returned pair name
+     * @throws KrakenException if Kraken returns an error
+     */
+    public Map<String, OrderBook> orderBook(String pair) {
+        return query(new OrderBookEndpoint(pair));
+    }
+
+    /**
+     * Queries the {@code Depth} endpoint.
+     *
+     * @param params the request parameters
+     * @return the L2 order books by returned pair name
+     * @throws KrakenException if Kraken returns an error
+     */
+    public Map<String, OrderBook> orderBook(OrderBookParams params) {
+        return query(new OrderBookEndpoint(params));
+    }
+
+    /**
+     * Queries the {@code Trades} endpoint using Kraken's default options.
+     *
+     * @param pair the asset pair to query, e.g. {@code BTC/USD}
+     * @return the trades by returned pair name and the next polling cursor
+     * @throws KrakenException if Kraken returns an error
+     */
+    public RecentTrades recentTrades(String pair) {
+        return query(new RecentTradesEndpoint(pair));
+    }
+
+    /**
+     * Queries the {@code Trades} endpoint.
+     *
+     * @param params the request parameters
+     * @return the trades by returned pair name and the next polling cursor
+     * @throws KrakenException if Kraken returns an error
+     */
+    public RecentTrades recentTrades(RecentTradesParams params) {
+        return query(new RecentTradesEndpoint(params));
+    }
+
+    /**
+     * Queries the {@code Spread} endpoint using Kraken's default options.
+     *
+     * @param pair the asset pair to query, e.g. {@code BTC/USD}
+     * @return the spreads by returned pair name and the next polling cursor
+     * @throws KrakenException if Kraken returns an error
+     */
+    public RecentSpreads recentSpreads(String pair) {
+        return query(new RecentSpreadsEndpoint(pair));
+    }
+
+    /**
+     * Queries the {@code Spread} endpoint.
+     *
+     * @param params the request parameters
+     * @return the spreads by returned pair name and the next polling cursor
+     * @throws KrakenException if Kraken returns an error
+     */
+    public RecentSpreads recentSpreads(RecentSpreadsParams params) {
+        return query(new RecentSpreadsEndpoint(params));
+    }
+
+    /**
+     * Queries the {@code GroupedBook} endpoint using Kraken's default options.
+     *
+     * @param pair the asset pair to query, e.g. {@code BTC/USD}
+     * @return the grouped bids and asks, pair and grouping value
+     * @throws KrakenException if Kraken returns an error
+     */
+    public GroupedOrderBook groupedOrderBook(String pair) {
+        return query(new GroupedOrderBookEndpoint(pair));
+    }
+
+    /**
+     * Queries the {@code GroupedBook} endpoint.
+     *
+     * @param params the request parameters
+     * @return the grouped bids and asks, pair and grouping value
+     * @throws KrakenException if Kraken returns an error
+     */
+    public GroupedOrderBook groupedOrderBook(GroupedOrderBookParams params) {
+        return query(new GroupedOrderBookEndpoint(params));
+    }
+
+    /**
+     * Queries the {@code MaintenanceSchedule} endpoint for scheduled events in the next seven days.
+     *
+     * @return the maintenance schedule
+     * @throws KrakenException if Kraken returns an error
+     */
+    public MaintenanceSchedule maintenanceSchedule() {
+        return query(new MaintenanceScheduleEndpoint());
+    }
+
+    /**
      * Queries the {@code PreTrade} endpoint, returning the aggregated order book of a currency pair, with at most ten price levels on each side.
      *
      * @param symbol the currency pair, in the {@code BASE/QUOTE} display format, e.g. {@code BTC/USD}
@@ -276,6 +416,30 @@ public class KrakenAPI {
     }
 
     /* Implemented private endpoints */
+
+    /**
+     * Queries the {@code Level3} endpoint using Kraken's default options. Requires the Orders and trades - Query open orders &amp; trades API key permission.
+     *
+     * @param pair the asset pair to query, e.g. {@code BTC/USD}
+     * @return the individual bid and ask orders with IDs and nanosecond timestamps
+     * @throws KrakenException if Kraken returns an error
+     * @throws IllegalStateException if credentials are missing
+     */
+    public Level3OrderBook level3OrderBook(String pair) {
+        return query(new Level3OrderBookEndpoint(pair));
+    }
+
+    /**
+     * Queries the {@code Level3} endpoint. Requires the Orders and trades - Query open orders &amp; trades API key permission.
+     *
+     * @param params the request parameters
+     * @return the individual bid and ask orders with IDs and nanosecond timestamps
+     * @throws KrakenException if Kraken returns an error
+     * @throws IllegalStateException if credentials are missing
+     */
+    public Level3OrderBook level3OrderBook(Level3OrderBookParams params) {
+        return query(new Level3OrderBookEndpoint(params));
+    }
 
     /**
      * Queries the private {@code Ledgers} endpoint, returning at most 50 ledger entries per call.
@@ -597,6 +761,7 @@ public class KrakenAPI {
         ASSET_PAIRS("AssetPairs"),
         DEPTH("Depth"),
         GROUPED_BOOK("GroupedBook"),
+        MAINTENANCE_SCHEDULE("MaintenanceSchedule"),
         OHLC("OHLC"),
         POST_TRADE("PostTrade"),
         PRE_TRADE("PreTrade"),

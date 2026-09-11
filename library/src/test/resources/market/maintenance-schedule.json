@@ -1,0 +1,18 @@
+{
+  "error": [],
+  "result": {
+    "events": [{
+      "event_id": 21,
+      "title": "Scheduled Maintenance - Website",
+      "expected_start_utc": "2026-05-11T09:00:00Z",
+      "expected_end_utc": "2026-05-11T10:00:00Z",
+      "time_to_start_s": 1740,
+      "phase": "approaching_30m",
+      "affected_services": ["spot_trading"],
+      "order_submission": "allowed",
+      "recommended_action": "reduce_activity",
+      "cancel_before_utc": "2026-05-11T08:55:00Z",
+      "source_url": "https://status.kraken.com/incidents/b7k2r9wqmn41"
+    }]
+  }
+}

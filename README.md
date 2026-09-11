@@ -80,6 +80,64 @@ JsonNode trades = api.queryPublic("Trades", Map.of("pair", "XBTUSD", "count", "1
 // {"XXBTZUSD":[["68515.60000","0.00029628",1.7100231295628998E9,"s","m","",68007835]], …
 ```
 
+### Market Data
+
+All 12 Market Data endpoints in Kraken's current Spot REST specification have typed methods. In addition to `serverTime`, `systemStatus`, `assetInfo`, `assetPairs`, and `ticker`:
+
+| Endpoint | Typed method | Response |
+|---|---|---|
+| `OHLC` | `ohlc(pair)` / `ohlc(params)` | `OhlcData`: candles by pair and a `last` cursor |
+| `Depth` | `orderBook(pair)` / `orderBook(params)` | `Map<String, OrderBook>` |
+| `GroupedBook` | `groupedOrderBook(pair)` / `groupedOrderBook(params)` | `GroupedOrderBook` |
+| `Trades` | `recentTrades(pair)` / `recentTrades(params)` | `RecentTrades`: trades by pair and a `last` cursor |
+| `Spread` | `recentSpreads(pair)` / `recentSpreads(params)` | `RecentSpreads`: spreads by pair and a `last` cursor |
+| `Level3` (private) | `level3OrderBook(pair)` / `level3OrderBook(params)` | `Level3OrderBook` |
+| `MaintenanceSchedule` | `maintenanceSchedule()` | `MaintenanceSchedule` |
+
+Use parameter builders to set optional fields; omitted fields retain Kraken's defaults:
+
+```java
+OhlcData candles = api.ohlc(OhlcParams.builder()
+        .pair("BTC/USD").interval(60).assetVersion(1).build());
+List<OhlcData.Candle> hourly = candles.candles().get("BTC/USD");
+
+RecentTrades trades = api.recentTrades(RecentTradesParams.builder()
+        .pair("BTC/USD").count(10).build());
+RecentTrades nextBatch = api.recentTrades(RecentTradesParams.builder()
+        .pair("BTC/USD").since(trades.last()).count(10).build());
+```
+
+`OHLC`, `Depth`, `Trades`, and `Spread` accept `assetVersion(1)` for display pair keys such as `BTC/USD`; without it, Kraken returns internal keys such as `XXBTZUSD`. Their `assetClass("tokenized_asset")` option supports xStocks. Response maps preserve the keys Kraken returns.
+
+The required `pair` field selects one asset pair. Optional numeric fields accept the following values; omit them to use Kraken's defaults:
+
+| Endpoint | Option | Values | Default |
+|---|---|---|---|
+| `OHLC` | `interval` | 1, 5, 15, 30, 60, 240, 1440, 10080, 21600 minutes | 1 |
+| `Depth` | `count` | 1–500 entries per side | 100 |
+| `Trades` | `count` | 1–1000 trades | 1000 |
+| `GroupedBook` | `depth` | 10, 25, 100, 250, 1000 levels per side | 10 |
+| `GroupedBook` | `grouping` | 1, 5, 10, 25, 50, 100, 250, 500, 1000 ticks per level | 1 |
+| `Level3` | `depth` | 0 (full book), 10, 25, 100, 250, 1000 levels per side | 100 |
+
+OHLC candle times, L2 level times and spread times use `Instant`; the `since` fields for OHLC and spreads remain Unix seconds. Grouped books round asks up and bids down to the nearest grouped price level. `MaintenanceSchedule` returns scheduled events for the next seven days, ordered by expected start time; its times use `Instant`, and `cancelBefore` can be absent.
+
+OHLC includes a final candle that is still forming and retains at most 720 entries. Reuse its `last()` cursor as `since` to poll for committed updates. Trade cursors are opaque strings: pass `last()` unchanged. Prices and quantities use `BigDecimal`; trade and Level3 times use `Instant`, retaining nanosecond precision. Level3 decodes Kraken's integer epoch nanoseconds explicitly.
+
+Level3 requires credentials with **Orders and trades – Query open orders & trades** permission:
+
+```java
+KrakenAPI authenticated = new KrakenAPI("my key", "my secret");
+Level3OrderBook book = authenticated.level3OrderBook(Level3OrderBookParams.builder()
+        .pair("YFI/EUR").depth(10).build());
+```
+
+Run the public examples without credentials (after `mvn clean install`):
+
+```sh
+mvn -pl examples exec:java -Dexec.mainClass=dev.andstuff.kraken.example.MarketDataExample
+```
+
 ### Private endpoints
 
 Private endpoints can be queried in the same way as the public ones, but an API key and secret must be provided to the `KrakenAPI` instance:
@@ -105,22 +163,19 @@ JsonNode order = api.query(KrakenAPI.Private.ADD_ORDER, Map.of(
 
 ### Custom endpoints
 
-An endpoint the library doesn't implement can also be given a proper type, instead of falling back to `JsonNode`. Extend `PublicEndpoint<T>`, or `PrivateEndpoint<T>` for a private one, and pass your endpoint to `query`:
+You can also define typed endpoints outside the library. The following example demonstrates the same mechanism used by the built-in order book endpoint. Extend `PublicEndpoint<T>`, or `PrivateEndpoint<T>` for a private one, and pass your endpoint to `query`:
 
 ```java
-public class TradesEndpoint extends PublicEndpoint<Map<String, List<Trade>>> {
+public class MyOrderBookEndpoint extends PublicEndpoint<Map<String, OrderBook>> {
 
-    public TradesEndpoint(String pair) {
-        super("Trades", () -> Map.of("pair", pair), new TypeReference<>() {});
+    public MyOrderBookEndpoint(String pair) {
+        super("Depth", () -> Map.of("pair", pair), new TypeReference<>() {});
     }
 }
 
-record Trade(BigDecimal price, BigDecimal volume) {}
-
 KrakenAPI api = new KrakenAPI();
 
-Map<String, List<Trade>> trades = api.query(new TradesEndpoint("XBTUSD"));
-// {XXBTZUSD=[Trade[price=68515.60000, volume=0.00029628]], …
+Map<String, OrderBook> books = api.query(new MyOrderBookEndpoint("XBTUSD"));
 ```
 
 The endpoint is run through the same `KrakenRestRequester` as the built-in ones, and a `PrivateEndpoint` is signed with the credentials and nonce generator the `KrakenAPI` instance was built with. Querying one on an instance built without credentials throws an `IllegalStateException`.
