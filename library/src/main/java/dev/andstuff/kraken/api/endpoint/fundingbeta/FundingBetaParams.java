@@ -31,6 +31,7 @@ public abstract class FundingBetaParams implements QueryParams {
      *
      * @return the body parameters, or {@code null} for an endpoint sending no body
      */
+    @SuppressWarnings("java:S1168")
     protected Map<String, Object> body() {
         return null;
     }

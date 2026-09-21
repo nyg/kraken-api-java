@@ -85,7 +85,10 @@ public class CreateFundingWithdrawalParams extends FundingBetaParams {
         body.put("scope", scope.json());
         body.put("address_id", addressId);
         body.put("amount", rebasable("asset_amount", amount.json()));
-        putIfNonNull(body, "fee", fee());
+        Map<String, Object> fee = fee();
+        if (!fee.isEmpty()) {
+            body.put("fee", fee);
+        }
         putIfNonNull(body, "expected_address", expectedAddress);
         return body;
     }
@@ -95,7 +98,7 @@ public class CreateFundingWithdrawalParams extends FundingBetaParams {
             throw new IllegalArgumentException("Specify at most one of withdrawalFeeToken or maxFee");
         }
         if (withdrawalFeeToken == null && maxFee == null && feeIncluded == null) {
-            return null;
+            return Map.of();
         }
         if (feeIncluded == null) {
             throw new IllegalArgumentException("feeIncluded is required with withdrawalFeeToken or maxFee");

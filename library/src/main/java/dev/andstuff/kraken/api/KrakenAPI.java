@@ -247,6 +247,7 @@ import lombok.RequiredArgsConstructor;
  * @see <a href="https://docs.kraken.com/rest/">Kraken REST API documentation</a>
  */
 @Builder(toBuilder = true)
+@SuppressWarnings("java:S6539")
 public class KrakenAPI {
 
     private final KrakenCredentials credentials;

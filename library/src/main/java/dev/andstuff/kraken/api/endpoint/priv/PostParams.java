@@ -20,6 +20,7 @@ public abstract class PostParams {
      *
      * @return the POST parameters
      */
+    @SuppressWarnings("java:S1452")
     protected abstract Map<String, ?> params();
 
     private String nonce;
