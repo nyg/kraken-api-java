@@ -24,11 +24,17 @@ import dev.andstuff.kraken.api.endpoint.account.ApiKeyInfoEndpoint;
 import dev.andstuff.kraken.api.endpoint.account.ClosedOrdersEndpoint;
 import dev.andstuff.kraken.api.endpoint.account.CreditLinesEndpoint;
 import dev.andstuff.kraken.api.endpoint.account.ExtendedBalanceEndpoint;
+import dev.andstuff.kraken.api.endpoint.account.LedgerEntriesEndpoint;
+import dev.andstuff.kraken.api.endpoint.account.LedgerInfoEndpoint;
 import dev.andstuff.kraken.api.endpoint.account.OpenOrdersEndpoint;
 import dev.andstuff.kraken.api.endpoint.account.OpenPositionsEndpoint;
 import dev.andstuff.kraken.api.endpoint.account.OrderAmendsEndpoint;
 import dev.andstuff.kraken.api.endpoint.account.QueryOrdersEndpoint;
 import dev.andstuff.kraken.api.endpoint.account.QueryTradesEndpoint;
+import dev.andstuff.kraken.api.endpoint.account.RemoveReportEndpoint;
+import dev.andstuff.kraken.api.endpoint.account.ReportDataEndpoint;
+import dev.andstuff.kraken.api.endpoint.account.ReportsStatusesEndpoint;
+import dev.andstuff.kraken.api.endpoint.account.RequestReportEndpoint;
 import dev.andstuff.kraken.api.endpoint.account.TradeBalanceEndpoint;
 import dev.andstuff.kraken.api.endpoint.account.TradeVolumeEndpoint;
 import dev.andstuff.kraken.api.endpoint.account.TradesHistoryEndpoint;
@@ -38,11 +44,19 @@ import dev.andstuff.kraken.api.endpoint.account.params.ApiKeyInfoParams;
 import dev.andstuff.kraken.api.endpoint.account.params.ClosedOrdersParams;
 import dev.andstuff.kraken.api.endpoint.account.params.CreditLinesParams;
 import dev.andstuff.kraken.api.endpoint.account.params.ExtendedBalanceParams;
+import dev.andstuff.kraken.api.endpoint.account.params.LedgerEntriesParams;
+import dev.andstuff.kraken.api.endpoint.account.params.LedgerInfoParams;
 import dev.andstuff.kraken.api.endpoint.account.params.OpenOrdersParams;
 import dev.andstuff.kraken.api.endpoint.account.params.OpenPositionsParams;
 import dev.andstuff.kraken.api.endpoint.account.params.OrderAmendsParams;
 import dev.andstuff.kraken.api.endpoint.account.params.QueryOrdersParams;
 import dev.andstuff.kraken.api.endpoint.account.params.QueryTradesParams;
+import dev.andstuff.kraken.api.endpoint.account.params.RemovalType;
+import dev.andstuff.kraken.api.endpoint.account.params.RemoveReportParams;
+import dev.andstuff.kraken.api.endpoint.account.params.ReportDataParams;
+import dev.andstuff.kraken.api.endpoint.account.params.ReportType;
+import dev.andstuff.kraken.api.endpoint.account.params.ReportsStatusesParams;
+import dev.andstuff.kraken.api.endpoint.account.params.RequestReportParams;
 import dev.andstuff.kraken.api.endpoint.account.params.TradeBalanceParams;
 import dev.andstuff.kraken.api.endpoint.account.params.TradeVolumeParams;
 import dev.andstuff.kraken.api.endpoint.account.params.TradesHistoryParams;
@@ -52,10 +66,15 @@ import dev.andstuff.kraken.api.endpoint.account.response.ApiKeyInfo;
 import dev.andstuff.kraken.api.endpoint.account.response.ClosedOrders;
 import dev.andstuff.kraken.api.endpoint.account.response.CreditLines;
 import dev.andstuff.kraken.api.endpoint.account.response.ExtendedBalance;
+import dev.andstuff.kraken.api.endpoint.account.response.LedgerEntry;
+import dev.andstuff.kraken.api.endpoint.account.response.LedgerInfo;
 import dev.andstuff.kraken.api.endpoint.account.response.OpenOrders;
 import dev.andstuff.kraken.api.endpoint.account.response.OpenPosition;
 import dev.andstuff.kraken.api.endpoint.account.response.Order;
 import dev.andstuff.kraken.api.endpoint.account.response.OrderAmends;
+import dev.andstuff.kraken.api.endpoint.account.response.Report;
+import dev.andstuff.kraken.api.endpoint.account.response.ReportRemoval;
+import dev.andstuff.kraken.api.endpoint.account.response.ReportRequest;
 import dev.andstuff.kraken.api.endpoint.account.response.TradeBalance;
 import dev.andstuff.kraken.api.endpoint.account.response.TradeVolume;
 import dev.andstuff.kraken.api.endpoint.account.response.TradesHistory;
@@ -75,6 +94,9 @@ class KrakenAPIAccountTest {
     @Mock private Map<String, Order> queryOrdersResponse;
     @Mock private Map<String, AccountTrade> queryTradesResponse;
     @Mock private Map<String, OpenPosition> openPositionsResponse;
+    @Mock private Map<String, LedgerEntry> ledgerEntriesResponse;
+    @Mock private List<Report> reportsStatusesResponse;
+    @Mock private List<LedgerEntry> reportDataResponse;
 
     @Test
     void should_route_accountBalance_options_when_called() {
@@ -508,4 +530,158 @@ class KrakenAPIAccountTest {
         verifyNoInteractions(requester);
     }
 
+    @Test
+    void should_route_ledgerInfo_options_when_called() {
+        LedgerInfo ledgerInfoResponse = new LedgerInfo(Map.of(), 0);
+        KrakenAPI unit = new KrakenAPI(credentials, nonceGenerator, requester);
+        LedgerInfoParams params = LedgerInfoParams.builder().assets(List.of("XXBT")).build().withNextResultOffset();
+        when(requester.execute(any(LedgerInfoEndpoint.class), same(credentials), same(nonceGenerator))).thenReturn(ledgerInfoResponse);
+
+        LedgerInfo result = unit.ledgerInfo(params);
+
+        assertThat(result).isSameAs(ledgerInfoResponse);
+        verify(requester).execute(argThat((LedgerInfoEndpoint endpoint) -> endpoint.getPostParams() == params), same(credentials), same(nonceGenerator));
+    }
+
+    @Test
+    void should_reject_ledgerInfo_when_credentials_are_missing() {
+        KrakenAPI unit = new KrakenAPI(null, nonceGenerator, requester);
+        LedgerInfoParams params = LedgerInfoParams.builder().build();
+
+        assertThatThrownBy(() -> unit.ledgerInfo(params)).isInstanceOf(IllegalStateException.class).hasMessageContaining("Ledgers");
+        verifyNoInteractions(requester);
+    }
+
+    @Test
+    void should_route_ledgerEntries_options_when_called() {
+        KrakenAPI unit = new KrakenAPI(credentials, nonceGenerator, requester);
+        LedgerEntriesParams params = LedgerEntriesParams.builder().entryIds(List.of("L4UESK-KG3EQ-UFO4T5")).includeTrades(true).build();
+        when(requester.execute(any(LedgerEntriesEndpoint.class), same(credentials), same(nonceGenerator))).thenReturn(ledgerEntriesResponse);
+
+        Map<String, LedgerEntry> result = unit.ledgerEntries(params);
+
+        assertThat(result).isSameAs(ledgerEntriesResponse);
+        verify(requester).execute(argThat((LedgerEntriesEndpoint endpoint) -> endpoint.getPostParams() == params), same(credentials), same(nonceGenerator));
+    }
+
+    @Test
+    void should_reject_ledgerEntries_when_credentials_are_missing() {
+        KrakenAPI unit = new KrakenAPI(null, nonceGenerator, requester);
+        LedgerEntriesParams params = LedgerEntriesParams.builder().entryIds(List.of("L4UESK-KG3EQ-UFO4T5")).build();
+
+        assertThatThrownBy(() -> unit.ledgerEntries(params)).isInstanceOf(IllegalStateException.class).hasMessageContaining("QueryLedgers");
+        verifyNoInteractions(requester);
+    }
+
+    @Test
+    void should_route_requestReport_options_when_called() {
+        ReportRequest requestReportResponse = new ReportRequest("TCJA");
+        KrakenAPI unit = new KrakenAPI(credentials, nonceGenerator, requester);
+        RequestReportParams params = RequestReportParams.builder().type(ReportType.LEDGERS).description("my_ledgers_1").build();
+        when(requester.execute(any(RequestReportEndpoint.class), same(credentials), same(nonceGenerator))).thenReturn(requestReportResponse);
+
+        ReportRequest result = unit.requestReport(params);
+
+        assertThat(result).isSameAs(requestReportResponse);
+        verify(requester).execute(argThat((RequestReportEndpoint endpoint) -> endpoint.getPostParams() == params), same(credentials), same(nonceGenerator));
+    }
+
+    @Test
+    void should_reject_requestReport_when_credentials_are_missing() {
+        KrakenAPI unit = new KrakenAPI(null, nonceGenerator, requester);
+        RequestReportParams params = RequestReportParams.builder().type(ReportType.LEDGERS).description("my_ledgers_1").build();
+
+        assertThatThrownBy(() -> unit.requestReport(params)).isInstanceOf(IllegalStateException.class).hasMessageContaining("AddExport");
+        verifyNoInteractions(requester);
+    }
+
+    @Test
+    void should_route_reportsStatuses_type_when_called() {
+        KrakenAPI unit = new KrakenAPI(credentials, nonceGenerator, requester);
+        when(requester.execute(any(ReportsStatusesEndpoint.class), same(credentials), same(nonceGenerator))).thenReturn(reportsStatusesResponse);
+
+        List<Report> result = unit.reportsStatuses(ReportType.LEDGERS);
+
+        assertThat(result).isSameAs(reportsStatusesResponse);
+        verify(requester).execute(argThat((ReportsStatusesEndpoint endpoint) -> ((ReportsStatusesParams) endpoint.getPostParams()).getType() == ReportType.LEDGERS),
+                same(credentials), same(nonceGenerator));
+    }
+
+    @Test
+    void should_reject_reportsStatuses_when_credentials_are_missing() {
+        KrakenAPI unit = new KrakenAPI(null, nonceGenerator, requester);
+
+        assertThatThrownBy(() -> unit.reportsStatuses(ReportType.TRADES)).isInstanceOf(IllegalStateException.class).hasMessageContaining("ExportStatus");
+        verifyNoInteractions(requester);
+    }
+
+    @Test
+    void should_route_reportData_identifier_when_called() {
+        KrakenAPI unit = new KrakenAPI(credentials, nonceGenerator, requester);
+        when(requester.execute(any(ReportDataEndpoint.class), same(credentials), same(nonceGenerator))).thenReturn(reportDataResponse);
+
+        List<LedgerEntry> result = unit.reportData("TCJA");
+
+        assertThat(result).isSameAs(reportDataResponse);
+        verify(requester).execute(argThat((ReportDataEndpoint endpoint) -> ((ReportDataParams) endpoint.getPostParams()).getReportId().equals("TCJA")),
+                same(credentials), same(nonceGenerator));
+    }
+
+    @Test
+    void should_reject_reportData_when_credentials_are_missing() {
+        KrakenAPI unit = new KrakenAPI(null, nonceGenerator, requester);
+
+        assertThatThrownBy(() -> unit.reportData("TCJA")).isInstanceOf(IllegalStateException.class).hasMessageContaining("RetrieveExport");
+        verifyNoInteractions(requester);
+    }
+
+    @Test
+    void should_return_deletion_flag_when_deleting_report() {
+        KrakenAPI unit = new KrakenAPI(credentials, nonceGenerator, requester);
+        when(requester.execute(any(RemoveReportEndpoint.class), same(credentials), same(nonceGenerator))).thenReturn(new ReportRemoval(true, false));
+
+        boolean result = unit.deleteReport("TCJA");
+
+        assertThat(result).isTrue();
+        verify(requester).execute(argThat((RemoveReportEndpoint endpoint) -> endpoint.getPostParams() instanceof RemoveReportParams params
+                && params.getReportId().equals("TCJA") && params.getType() == RemovalType.DELETE), same(credentials), same(nonceGenerator));
+    }
+
+    @Test
+    void should_reject_deleteReport_when_credentials_are_missing() {
+        KrakenAPI unit = new KrakenAPI(null, nonceGenerator, requester);
+
+        assertThatThrownBy(() -> unit.deleteReport("TCJA")).isInstanceOf(IllegalStateException.class).hasMessageContaining("RemoveExport");
+        verifyNoInteractions(requester);
+    }
+
+    @Test
+    void should_return_cancellation_flag_when_canceling_report() {
+        KrakenAPI unit = new KrakenAPI(credentials, nonceGenerator, requester);
+        when(requester.execute(any(RemoveReportEndpoint.class), same(credentials), same(nonceGenerator))).thenReturn(new ReportRemoval(false, true));
+
+        boolean result = unit.cancelReport("TCJA");
+
+        assertThat(result).isTrue();
+        verify(requester).execute(argThat((RemoveReportEndpoint endpoint) -> endpoint.getPostParams() instanceof RemoveReportParams params
+                && params.getReportId().equals("TCJA") && params.getType() == RemovalType.CANCEL), same(credentials), same(nonceGenerator));
+    }
+
+    @Test
+    void should_return_false_when_kraken_does_not_confirm_cancellation() {
+        KrakenAPI unit = new KrakenAPI(credentials, nonceGenerator, requester);
+        when(requester.execute(any(RemoveReportEndpoint.class), same(credentials), same(nonceGenerator))).thenReturn(new ReportRemoval(true, false));
+
+        boolean result = unit.cancelReport("TCJA");
+
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    void should_reject_cancelReport_when_credentials_are_missing() {
+        KrakenAPI unit = new KrakenAPI(null, nonceGenerator, requester);
+
+        assertThatThrownBy(() -> unit.cancelReport("TCJA")).isInstanceOf(IllegalStateException.class).hasMessageContaining("RemoveExport");
+        verifyNoInteractions(requester);
+    }
 }
