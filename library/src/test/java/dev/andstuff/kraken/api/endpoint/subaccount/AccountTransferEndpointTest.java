@@ -64,25 +64,33 @@ class AccountTransferEndpointTest {
 
     @Test
     void should_reject_missing_asset_when_building_parameters() {
-        assertThatThrownBy(() -> AccountTransferParams.builder().amount(BigDecimal.ONE).from("ABCD 1234 EFGH 5678").to("IJKL 0987 MNOP 6543").build())
+        AccountTransferParams.AccountTransferParamsBuilder builder = AccountTransferParams.builder().amount(BigDecimal.ONE).from("ABCD 1234 EFGH 5678").to("IJKL 0987 MNOP 6543");
+
+        assertThatThrownBy(builder::build)
                 .isInstanceOf(NullPointerException.class).hasMessageContaining("asset");
     }
 
     @Test
     void should_reject_missing_amount_when_building_parameters() {
-        assertThatThrownBy(() -> AccountTransferParams.builder().asset("XBT").from("ABCD 1234 EFGH 5678").to("IJKL 0987 MNOP 6543").build())
+        AccountTransferParams.AccountTransferParamsBuilder builder = AccountTransferParams.builder().asset("XBT").from("ABCD 1234 EFGH 5678").to("IJKL 0987 MNOP 6543");
+
+        assertThatThrownBy(builder::build)
                 .isInstanceOf(NullPointerException.class).hasMessageContaining("amount");
     }
 
     @Test
     void should_reject_missing_source_when_building_parameters() {
-        assertThatThrownBy(() -> AccountTransferParams.builder().asset("XBT").amount(BigDecimal.ONE).to("IJKL 0987 MNOP 6543").build())
+        AccountTransferParams.AccountTransferParamsBuilder builder = AccountTransferParams.builder().asset("XBT").amount(BigDecimal.ONE).to("IJKL 0987 MNOP 6543");
+
+        assertThatThrownBy(builder::build)
                 .isInstanceOf(NullPointerException.class).hasMessageContaining("from");
     }
 
     @Test
     void should_reject_missing_destination_when_building_parameters() {
-        assertThatThrownBy(() -> AccountTransferParams.builder().asset("XBT").amount(BigDecimal.ONE).from("ABCD 1234 EFGH 5678").build())
+        AccountTransferParams.AccountTransferParamsBuilder builder = AccountTransferParams.builder().asset("XBT").amount(BigDecimal.ONE).from("ABCD 1234 EFGH 5678");
+
+        assertThatThrownBy(builder::build)
                 .isInstanceOf(NullPointerException.class).hasMessageContaining("to");
     }
 

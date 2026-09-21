@@ -47,7 +47,9 @@ class CancelAllOrdersAfterEndpointTest {
 
     @Test
     void should_reject_missing_timeout_when_building_parameters() {
-        assertThatThrownBy(() -> CancelAllOrdersAfterParams.builder().build()).isInstanceOf(NullPointerException.class).hasMessageContaining("timeout");
+        CancelAllOrdersAfterParams.CancelAllOrdersAfterParamsBuilder builder = CancelAllOrdersAfterParams.builder();
+
+        assertThatThrownBy(builder::build).isInstanceOf(NullPointerException.class).hasMessageContaining("timeout");
     }
 
     @Test

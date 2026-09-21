@@ -44,12 +44,16 @@ class CancelWithdrawalEndpointTest {
 
     @Test
     void should_reject_missing_asset_when_building_parameters() {
-        assertThatThrownBy(() -> CancelWithdrawalParams.builder().referenceId("id +/&=").build()).isInstanceOf(NullPointerException.class).hasMessageContaining("asset");
+        CancelWithdrawalParams.CancelWithdrawalParamsBuilder builder = CancelWithdrawalParams.builder().referenceId("id +/&=");
+
+        assertThatThrownBy(builder::build).isInstanceOf(NullPointerException.class).hasMessageContaining("asset");
     }
 
     @Test
     void should_reject_missing_referenceId_when_building_parameters() {
-        assertThatThrownBy(() -> CancelWithdrawalParams.builder().asset("id +/&=").build()).isInstanceOf(NullPointerException.class).hasMessageContaining("referenceId");
+        CancelWithdrawalParams.CancelWithdrawalParamsBuilder builder = CancelWithdrawalParams.builder().asset("id +/&=");
+
+        assertThatThrownBy(builder::build).isInstanceOf(NullPointerException.class).hasMessageContaining("referenceId");
     }
 
     @Test

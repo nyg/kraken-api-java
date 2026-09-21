@@ -52,17 +52,23 @@ class CreateFundingAddressEndpointTest {
 
     @Test
     void should_reject_missing_scope_when_building_parameters() {
-        assertThatThrownBy(() -> CreateFundingAddressParams.builder().address("a").name("n").build()).isInstanceOf(NullPointerException.class).hasMessageContaining("scope");
+        CreateFundingAddressParams.CreateFundingAddressParamsBuilder builder = CreateFundingAddressParams.builder().address("a").name("n");
+
+        assertThatThrownBy(builder::build).isInstanceOf(NullPointerException.class).hasMessageContaining("scope");
     }
 
     @Test
     void should_reject_missing_address_when_building_parameters() {
-        assertThatThrownBy(() -> CreateFundingAddressParams.builder().scope(Scope.method("m")).name("n").build()).isInstanceOf(NullPointerException.class).hasMessageContaining("address");
+        CreateFundingAddressParams.CreateFundingAddressParamsBuilder builder = CreateFundingAddressParams.builder().scope(Scope.method("m")).name("n");
+
+        assertThatThrownBy(builder::build).isInstanceOf(NullPointerException.class).hasMessageContaining("address");
     }
 
     @Test
     void should_reject_missing_name_when_building_parameters() {
-        assertThatThrownBy(() -> CreateFundingAddressParams.builder().scope(Scope.method("m")).address("a").build()).isInstanceOf(NullPointerException.class).hasMessageContaining("name");
+        CreateFundingAddressParams.CreateFundingAddressParamsBuilder builder = CreateFundingAddressParams.builder().scope(Scope.method("m")).address("a");
+
+        assertThatThrownBy(builder::build).isInstanceOf(NullPointerException.class).hasMessageContaining("name");
     }
 
     @Test

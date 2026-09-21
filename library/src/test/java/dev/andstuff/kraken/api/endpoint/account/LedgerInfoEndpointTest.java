@@ -105,7 +105,7 @@ class LedgerInfoEndpointTest {
         assertThat(result.size()).isEqualTo(2);
         assertThat(result.hasNext()).isFalse();
         assertThat(result.asList()).extracting(LedgerEntry::id).containsExactlyInAnyOrder("L4UESK-KG3EQ-UFO4T5", "LMKZCZ-Z3GVL-CXKK4H");
-        assertThat(result.entries().get("L4UESK-KG3EQ-UFO4T5")).isEqualTo(new LedgerEntry(null, "TJKLXF-PGMUI-4NTLXU",
+        assertThat(result.entries()).containsEntry("L4UESK-KG3EQ-UFO4T5", new LedgerEntry(null, "TJKLXF-PGMUI-4NTLXU",
                 Instant.ofEpochSecond(1688464484L, 178_700_000L), LedgerEntry.Type.TRADE, "", "currency", null, "ZGBP", null,
                 new BigDecimal("-24.5000"), new BigDecimal("0.0490"), new BigDecimal("459567.9171")));
         assertThat(result.entries().get("L4UESK-KG3EQ-UFO4T5").netAmount()).isEqualByComparingTo("-24.5490");

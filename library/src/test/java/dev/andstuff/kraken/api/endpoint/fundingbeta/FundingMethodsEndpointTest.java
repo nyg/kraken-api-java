@@ -61,7 +61,9 @@ class FundingMethodsEndpointTest {
 
     @Test
     void should_reject_missing_direction_when_building_parameters() {
-        assertThatThrownBy(() -> FundingMethodsParams.builder().limit(10).build()).isInstanceOf(NullPointerException.class).hasMessageContaining("direction");
+        FundingMethodsParams.FundingMethodsParamsBuilder builder = FundingMethodsParams.builder().limit(10);
+
+        assertThatThrownBy(builder::build).isInstanceOf(NullPointerException.class).hasMessageContaining("direction");
     }
 
     @Test

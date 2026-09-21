@@ -23,7 +23,7 @@ public abstract class JsonPostParams extends PostParams {
     @Override
     protected String encode(Map<String, Object> params) {
         String nonce = (String) params.get("nonce");
-        BigInteger numericNonce = nonce != null && nonce.matches("0|[1-9][0-9]{0,19}") ? new BigInteger(nonce) : null;
+        BigInteger numericNonce = nonce != null && nonce.matches("0|[1-9]\\d{0,19}") ? new BigInteger(nonce) : null;
         if (numericNonce == null || numericNonce.bitLength() > 64) {
             throw new IllegalStateException("%s requires KrakenNonceGenerator to return an unsigned 64-bit integer in canonical decimal form".formatted(getClass().getSimpleName()));
         }

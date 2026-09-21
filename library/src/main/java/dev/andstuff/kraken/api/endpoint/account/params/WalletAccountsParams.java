@@ -16,7 +16,6 @@ public class WalletAccountsParams extends PostParams {
 
     @Override
     protected Map<String, String> params() {
-        Map<String, String> params = new HashMap<>();
-        return params;
+        return new HashMap<>();
     }
 }

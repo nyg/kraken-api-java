@@ -88,7 +88,9 @@ class EditOrderEndpointTest {
 
     @Test
     void should_reject_missing_pair_when_building_parameters() {
-        assertThatThrownBy(() -> EditOrderParams.builder().transactionId("OHYO67-6LP66-HMQ437").build()).isInstanceOf(NullPointerException.class).hasMessageContaining("pair");
+        EditOrderParams.EditOrderParamsBuilder builder = EditOrderParams.builder().transactionId("OHYO67-6LP66-HMQ437");
+
+        assertThatThrownBy(builder::build).isInstanceOf(NullPointerException.class).hasMessageContaining("pair");
     }
 
     @Test

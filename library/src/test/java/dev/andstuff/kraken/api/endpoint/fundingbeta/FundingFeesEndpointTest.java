@@ -51,12 +51,16 @@ class FundingFeesEndpointTest {
 
     @Test
     void should_reject_missing_method_when_building_parameters() {
-        assertThatThrownBy(() -> FundingFeesParams.builder().amount(BigDecimal.ONE).build()).isInstanceOf(NullPointerException.class).hasMessageContaining("methodId");
+        FundingFeesParams.FundingFeesParamsBuilder builder = FundingFeesParams.builder().amount(BigDecimal.ONE);
+
+        assertThatThrownBy(builder::build).isInstanceOf(NullPointerException.class).hasMessageContaining("methodId");
     }
 
     @Test
     void should_reject_missing_amount_when_building_parameters() {
-        assertThatThrownBy(() -> FundingFeesParams.builder().methodId("d4ec4d52-b159-428e-ba64-f45455a978a1").build()).isInstanceOf(NullPointerException.class).hasMessageContaining("amount");
+        FundingFeesParams.FundingFeesParamsBuilder builder = FundingFeesParams.builder().methodId("d4ec4d52-b159-428e-ba64-f45455a978a1");
+
+        assertThatThrownBy(builder::build).isInstanceOf(NullPointerException.class).hasMessageContaining("amount");
     }
 
     @Test

@@ -51,12 +51,16 @@ class DepositAddressesEndpointTest {
 
     @Test
     void should_reject_missing_asset_when_building_parameters() {
-        assertThatThrownBy(() -> DepositAddressesParams.builder().method("id +/&=").build()).isInstanceOf(NullPointerException.class).hasMessageContaining("asset");
+        DepositAddressesParams.DepositAddressesParamsBuilder builder = DepositAddressesParams.builder().method("id +/&=");
+
+        assertThatThrownBy(builder::build).isInstanceOf(NullPointerException.class).hasMessageContaining("asset");
     }
 
     @Test
     void should_reject_missing_method_when_building_parameters() {
-        assertThatThrownBy(() -> DepositAddressesParams.builder().asset("id +/&=").build()).isInstanceOf(NullPointerException.class).hasMessageContaining("method");
+        DepositAddressesParams.DepositAddressesParamsBuilder builder = DepositAddressesParams.builder().asset("id +/&=");
+
+        assertThatThrownBy(builder::build).isInstanceOf(NullPointerException.class).hasMessageContaining("method");
     }
 
     @Test

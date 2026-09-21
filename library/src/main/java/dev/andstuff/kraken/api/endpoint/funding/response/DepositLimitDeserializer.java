@@ -26,7 +26,7 @@ final class DepositLimitDeserializer extends StdDeserializer<DepositLimit> {
             try {
                 return new DepositLimit(new BigDecimal(parser.getText()), false);
             }
-            catch (NumberFormatException e) {
+            catch (NumberFormatException _) {
                 return context.reportInputMismatch(DepositLimit.class, "Expected a decimal deposit limit or false");
             }
         }

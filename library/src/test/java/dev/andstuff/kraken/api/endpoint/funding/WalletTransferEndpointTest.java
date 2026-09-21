@@ -50,22 +50,30 @@ class WalletTransferEndpointTest {
 
     @Test
     void should_reject_missing_asset_when_building_parameters() {
-        assertThatThrownBy(() -> WalletTransferParams.builder().sourceWallet(SourceWallet.SPOT_WALLET).destinationWallet(DestinationWallet.FUTURES_WALLET).amount(new BigDecimal("0.0000000012300")).build()).isInstanceOf(NullPointerException.class).hasMessageContaining("asset");
+        WalletTransferParams.WalletTransferParamsBuilder builder = WalletTransferParams.builder().sourceWallet(SourceWallet.SPOT_WALLET).destinationWallet(DestinationWallet.FUTURES_WALLET).amount(new BigDecimal("0.0000000012300"));
+
+        assertThatThrownBy(builder::build).isInstanceOf(NullPointerException.class).hasMessageContaining("asset");
     }
 
     @Test
     void should_reject_missing_sourceWallet_when_building_parameters() {
-        assertThatThrownBy(() -> WalletTransferParams.builder().asset("id +/&=").destinationWallet(DestinationWallet.FUTURES_WALLET).amount(new BigDecimal("0.0000000012300")).build()).isInstanceOf(NullPointerException.class).hasMessageContaining("sourceWallet");
+        WalletTransferParams.WalletTransferParamsBuilder builder = WalletTransferParams.builder().asset("id +/&=").destinationWallet(DestinationWallet.FUTURES_WALLET).amount(new BigDecimal("0.0000000012300"));
+
+        assertThatThrownBy(builder::build).isInstanceOf(NullPointerException.class).hasMessageContaining("sourceWallet");
     }
 
     @Test
     void should_reject_missing_destinationWallet_when_building_parameters() {
-        assertThatThrownBy(() -> WalletTransferParams.builder().asset("id +/&=").sourceWallet(SourceWallet.SPOT_WALLET).amount(new BigDecimal("0.0000000012300")).build()).isInstanceOf(NullPointerException.class).hasMessageContaining("destinationWallet");
+        WalletTransferParams.WalletTransferParamsBuilder builder = WalletTransferParams.builder().asset("id +/&=").sourceWallet(SourceWallet.SPOT_WALLET).amount(new BigDecimal("0.0000000012300"));
+
+        assertThatThrownBy(builder::build).isInstanceOf(NullPointerException.class).hasMessageContaining("destinationWallet");
     }
 
     @Test
     void should_reject_missing_amount_when_building_parameters() {
-        assertThatThrownBy(() -> WalletTransferParams.builder().asset("id +/&=").sourceWallet(SourceWallet.SPOT_WALLET).destinationWallet(DestinationWallet.FUTURES_WALLET).build()).isInstanceOf(NullPointerException.class).hasMessageContaining("amount");
+        WalletTransferParams.WalletTransferParamsBuilder builder = WalletTransferParams.builder().asset("id +/&=").sourceWallet(SourceWallet.SPOT_WALLET).destinationWallet(DestinationWallet.FUTURES_WALLET);
+
+        assertThatThrownBy(builder::build).isInstanceOf(NullPointerException.class).hasMessageContaining("amount");
     }
 
     @Test

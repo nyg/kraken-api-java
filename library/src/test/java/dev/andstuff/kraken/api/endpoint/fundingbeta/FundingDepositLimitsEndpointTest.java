@@ -41,12 +41,16 @@ class FundingDepositLimitsEndpointTest {
 
     @Test
     void should_reject_missing_asset_class_when_building_parameters() {
-        assertThatThrownBy(() -> FundingLimitsParams.builder().asset("BTC").build()).isInstanceOf(NullPointerException.class).hasMessageContaining("assetClass");
+        FundingLimitsParams.FundingLimitsParamsBuilder builder = FundingLimitsParams.builder().asset("BTC");
+
+        assertThatThrownBy(builder::build).isInstanceOf(NullPointerException.class).hasMessageContaining("assetClass");
     }
 
     @Test
     void should_reject_missing_asset_when_building_parameters() {
-        assertThatThrownBy(() -> FundingLimitsParams.builder().assetClass(AssetClass.CURRENCY).build()).isInstanceOf(NullPointerException.class).hasMessageContaining("asset");
+        FundingLimitsParams.FundingLimitsParamsBuilder builder = FundingLimitsParams.builder().assetClass(AssetClass.CURRENCY);
+
+        assertThatThrownBy(builder::build).isInstanceOf(NullPointerException.class).hasMessageContaining("asset");
     }
 
     @Test
