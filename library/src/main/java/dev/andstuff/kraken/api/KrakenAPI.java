@@ -325,7 +325,7 @@ public class KrakenAPI {
     }
 
     /**
-     * Queries the {@code SystemStatus} endpoint, returning the current status of the Kraken trading system.
+     * Queries the {@code SystemStatus} endpoint, returning the current status of the Kraken trading system, along with scheduled maintenance and unresolved incidents.
      *
      * @return the system status
      * @throws KrakenException if Kraken returns an error
@@ -533,6 +533,16 @@ public class KrakenAPI {
     }
 
     /**
+     * Queries the {@code PostTrade} endpoint, returning the last 1000 trades executed on the spot exchange, all pairs included.
+     *
+     * @return the executed trades
+     * @throws KrakenException if Kraken returns an error
+     */
+    public PostTrade postTrade() {
+        return postTrade(PostTradeParams.builder().build());
+    }
+
+    /**
      * Queries the {@code PostTrade} endpoint, returning the last 1000 trades executed on a currency pair.
      *
      * @param symbol the currency pair, in the {@code BASE/QUOTE} display format, e.g. {@code BTC/USD}
@@ -544,9 +554,9 @@ public class KrakenAPI {
     }
 
     /**
-     * Queries the {@code PostTrade} endpoint, returning the trades executed on a currency pair over the given period. Trades are returned in ascending time order and at most 1000 at a time: {@link PostTrade#lastTimestamp()} gives the timestamp to use as the next {@code fromTimestamp}.
+     * Queries the {@code PostTrade} endpoint, returning the trades matching the given symbol, period and count. Trades are returned in ascending time order and at most 1000 at a time: {@link PostTrade#lastTimestamp()} gives the timestamp to use as the next {@code fromTimestamp}.
      *
-     * @param params the currency pair and the period and count restricting the trades returned
+     * @param params the currency pair, period and count restricting the trades returned
      * @return the executed trades
      * @throws KrakenException if Kraken returns an error
      */

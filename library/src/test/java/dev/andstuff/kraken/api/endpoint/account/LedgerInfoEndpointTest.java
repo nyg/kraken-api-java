@@ -28,6 +28,7 @@ import dev.andstuff.kraken.api.endpoint.KrakenResponse;
 import dev.andstuff.kraken.api.endpoint.account.params.LedgerInfoParams;
 import dev.andstuff.kraken.api.endpoint.account.response.LedgerEntry;
 import dev.andstuff.kraken.api.endpoint.account.response.LedgerInfo;
+import dev.andstuff.kraken.api.endpoint.priv.RebaseMultiplier;
 
 @ExtendWith(MockitoExtension.class)
 class LedgerInfoEndpointTest {
@@ -36,7 +37,7 @@ class LedgerInfoEndpointTest {
     void should_encode_dates_over_ledger_ids_when_both_bounds_are_supplied() {
         LedgerInfoEndpoint unit = new LedgerInfoEndpoint(LedgerInfoParams.builder().assets(List.of("XXBT", "ZUSD")).assetClass("currency")
                 .assetType(LedgerInfoParams.Type.NFT_REBATE).fromDate(Instant.ofEpochSecond(1688444262L)).toDate(Instant.ofEpochSecond(1688464484L))
-                .fromLedgerId("LMKZCZ-Z3GVL-CXKK4H").toLedgerId("L4UESK-KG3EQ-UFO4T5").withoutCount(true).resultOffset(50).build());
+                .fromLedgerId("LMKZCZ-Z3GVL-CXKK4H").toLedgerId("L4UESK-KG3EQ-UFO4T5").withoutCount(true).resultOffset(50).rebaseMultiplier(RebaseMultiplier.BASE).build());
 
         Map<String, String> result = Arrays.stream(unit.encodedParamsWith("123456789").split("&"))
                 .map(value -> value.split("=", 2))
@@ -50,7 +51,8 @@ class LedgerInfoEndpointTest {
                 Map.entry("start", "1688444262"),
                 Map.entry("end", "1688464484"),
                 Map.entry("without_count", "true"),
-                Map.entry("ofs", "50")));
+                Map.entry("ofs", "50"),
+                Map.entry("rebase_multiplier", "base")));
         assertThat(unit.buildURL().getPath()).isEqualTo("/0/private/Ledgers");
         assertThat(unit.getHttpMethod()).isEqualTo("POST");
         assertThat(unit.getContentType()).isEqualTo("application/x-www-form-urlencoded");

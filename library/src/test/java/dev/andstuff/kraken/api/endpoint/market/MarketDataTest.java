@@ -283,7 +283,7 @@ class MarketDataTest {
     @Test
     void should_route_system_status_through_configured_requester_when_querying_status() {
         KrakenAPI unit = new KrakenAPI(null, requester);
-        SystemStatus expected = new SystemStatus(SystemStatus.Description.ONLINE, Instant.parse("2023-07-06T18:52:00Z"));
+        SystemStatus expected = new SystemStatus(SystemStatus.Description.ONLINE, Instant.parse("2023-07-06T18:52:00Z"), List.of(), List.of());
         when(requester.execute(any(SystemStatusEndpoint.class))).thenReturn(expected);
 
         SystemStatus result = unit.systemStatus();

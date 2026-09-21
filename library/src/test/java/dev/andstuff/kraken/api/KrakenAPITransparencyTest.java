@@ -51,6 +51,18 @@ class KrakenAPITransparencyTest {
     }
 
     @Test
+    void should_route_postTrade_of_all_pairs_without_credentials_when_called() {
+        PostTrade postTradeResponse = new PostTrade(null, 0, List.of());
+        KrakenAPI unit = new KrakenAPI(null, requester);
+        when(requester.execute(any(PostTradeEndpoint.class))).thenReturn(postTradeResponse);
+
+        PostTrade result = unit.postTrade();
+
+        assertThat(result).isSameAs(postTradeResponse);
+        verify(requester).execute(argThat((PostTradeEndpoint endpoint) -> endpoint.buildURL().getQuery() == null));
+    }
+
+    @Test
     void should_route_postTrade_options_without_credentials_when_called() {
         PostTrade postTradeResponse = new PostTrade(Instant.parse("2024-05-30T12:34:56.123456789Z"), 0, List.of());
         KrakenAPI unit = new KrakenAPI(null, requester);

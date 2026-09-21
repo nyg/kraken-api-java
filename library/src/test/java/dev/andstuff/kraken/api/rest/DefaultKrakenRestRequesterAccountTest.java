@@ -21,6 +21,8 @@ import javax.net.ssl.HttpsURLConnection;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -123,8 +125,9 @@ class DefaultKrakenRestRequesterAccountTest {
         verify(connection).addRequestProperty("API-Sign", "WRKuiZ89EQ2MHYfSRx7pHztnIMr+ivo8S8E5olq+GcpBVw97M1jKx1ElzpGgC36H/tn8Po28EwNryLvK+rl4ig==");
     }
 
-    @Test
-    void should_parse_csv_ledger_entries_when_export_is_returned_as_zip() throws Exception {
+    @ParameterizedTest
+    @ValueSource(strings = {"application/zip", "application/octet-stream"})
+    void should_parse_csv_ledger_entries_when_export_is_returned_as_archive(String contentType) throws Exception {
         DefaultKrakenRestRequester unit = new DefaultKrakenRestRequester(connectionFactory);
         ReportDataEndpoint endpoint = new ReportDataEndpoint(ReportDataParams.of("TCJA"));
         ByteArrayOutputStream archive = new ByteArrayOutputStream();
@@ -140,7 +143,7 @@ class DefaultKrakenRestRequesterAccountTest {
         when(nonceGenerator.generate()).thenReturn("123");
         when(connectionFactory.open(any(URL.class))).thenReturn(connection);
         when(connection.getOutputStream()).thenReturn(output);
-        when(connection.getHeaderField("Content-Type")).thenReturn("application/zip");
+        when(connection.getHeaderField("Content-Type")).thenReturn(contentType);
         when(connection.getInputStream()).thenReturn(new ByteArrayInputStream(archive.toByteArray()));
 
         List<LedgerEntry> result = unit.execute(endpoint, credentials, nonceGenerator);

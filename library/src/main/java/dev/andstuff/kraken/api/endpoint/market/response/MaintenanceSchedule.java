@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public record MaintenanceSchedule(List<Event> events) {
 
     /**
-     * A scheduled maintenance event returned by the {@code MaintenanceSchedule} endpoint.
+     * A scheduled maintenance event returned by the {@code MaintenanceSchedule} and {@code SystemStatus} endpoints.
      *
      * @param eventId stable event identifier
      * @param title event title
@@ -49,7 +49,7 @@ public record MaintenanceSchedule(List<Event> events) {
     }
 
     /**
-     * A Kraken service affected by a {@code MaintenanceSchedule} event.
+     * A Kraken service affected by a scheduled maintenance event or an incident.
      */
     public enum Service {
         SPOT_WS, SPOT_REST, SPOT_FIX, SPOT_TRADING,

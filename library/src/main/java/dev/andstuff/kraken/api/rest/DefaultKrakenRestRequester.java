@@ -28,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * {@link KrakenRestRequester} implementation using {@link HttpsURLConnection}.
  *
- * <p>JSON responses are deserialized with a Jackson mapper configured to be lenient with unknown properties and enum values, so that new fields returned by Kraken don't break deserialization. Responses of type {@code application/zip}, e.g. report exports, are handed to {@link Endpoint#processZipResponse(java.util.zip.ZipInputStream)}. Funding (Beta) responses are deserialized from the whole body, and their HTTP error statuses are raised as a {@link KrakenException}.
+ * <p>JSON responses are deserialized with a Jackson mapper configured to be lenient with unknown properties and enum values, so that new fields returned by Kraken don't break deserialization. Responses of type {@code application/zip} or {@code application/octet-stream}, e.g. report exports, are handed to {@link Endpoint#processZipResponse(java.util.zip.ZipInputStream)}. Funding (Beta) responses are deserialized from the whole body, and their HTTP error statuses are raised as a {@link KrakenException}.
  */
 @Slf4j
 public class DefaultKrakenRestRequester implements KrakenRestRequester {
@@ -153,7 +153,7 @@ public class DefaultKrakenRestRequester implements KrakenRestRequester {
             KrakenResponse<T> response = OBJECT_MAPPER.readValue(connection.getInputStream(), krakenResponseType);
             return endpoint.unwrapResponse(response);
         }
-        else if ("application/zip".equals(contentType)) {
+        else if ("application/zip".equals(contentType) || "application/octet-stream".equals(contentType)) {
             try (ZipInputStream zipStream = new ZipInputStream(connection.getInputStream())) {
                 return endpoint.processZipResponse(zipStream);
             }
