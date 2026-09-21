@@ -1,0 +1,34 @@
+{
+  "fee": {
+    "asset": {
+      "class": "currency",
+      "name": "USDC"
+    },
+    "amount": "1.00000000"
+  },
+  "gross_amount": {
+    "asset": {
+      "class": "currency",
+      "name": "USDC"
+    },
+    "amount": "5.00000000"
+  },
+  "net_amount": {
+    "asset": {
+      "class": "currency",
+      "name": "USDC"
+    },
+    "amount": "4.00000000"
+  },
+  "fee_details": {
+    "base_fee": {
+      "asset": {
+        "class": "currency",
+        "name": "USDC"
+      },
+      "amount": "1.00000000"
+    },
+    "fee_percentage": "0"
+  },
+  "withdrawal_fee_token": "AAAAAAAAAAHG33Wc1eES6QpeGgMok_gUnlZC7Y5niezI2,MBriLCyg8oqCX7SH1bSqY6SfmC2ZLf_SgTxNZj4Cd1RLPaTyZE..."
+}

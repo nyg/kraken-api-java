@@ -1,0 +1,13 @@
+{
+  "addresses": [
+    {
+      "method_id": "27ede8db-804b-4d91-8e25-46b7b9668730",
+      "shares_addresses_with_method_id": "a001231f-488e-48c0-b36c-6e0d2c1ee247",
+      "address_details": {
+        "crypto": {
+          "address": "0x0d5cff23d40bcc6b98537c7ad5a839a247f546..."
+        }
+      }
+    }
+  ]
+}

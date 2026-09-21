@@ -36,11 +36,23 @@ public class KrakenCredentials {
      * @return the Base64 encoded signature, to be sent in the {@code API-Sign} header
      */
     public String sign(URL url, String nonce, String urlEncodedParams) {
+        return sign(url.getPath(), nonce, urlEncodedParams);
+    }
+
+    /**
+     * Signs a request with the given signed path: the message is the signed path followed by the SHA-256 digest of the nonce and the request body, and it is signed with HMAC-SHA512 using the Base64 decoded secret. Funding (Beta) endpoints sign the URL path followed by its query string, e.g. {@code /funding/v1/fees/{method_id}?amount=5}.
+     *
+     * @param signedPath the path Kraken expects to be signed
+     * @param nonce the nonce of the request
+     * @param body the request body, empty for requests without one
+     * @return the Base64 encoded signature, to be sent in the {@code API-Sign} header
+     */
+    public String sign(String signedPath, String nonce, String body) {
 
         byte[] hmacKey = Base64.getDecoder().decode(secret);
 
-        byte[] sha256 = sha256(nonce + urlEncodedParams);
-        byte[] hmacMessage = concat(url.getPath().getBytes(StandardCharsets.UTF_8), sha256);
+        byte[] sha256 = sha256(nonce + body);
+        byte[] hmacMessage = concat(signedPath.getBytes(StandardCharsets.UTF_8), sha256);
 
         byte[] hmac = hmacSha512(hmacKey, hmacMessage);
         return Base64.getEncoder().encodeToString(hmac);

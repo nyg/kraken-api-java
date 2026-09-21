@@ -108,6 +108,51 @@ import dev.andstuff.kraken.api.endpoint.funding.response.WithdrawalAddress;
 import dev.andstuff.kraken.api.endpoint.funding.response.WithdrawalInfo;
 import dev.andstuff.kraken.api.endpoint.funding.response.WithdrawalMethod;
 import dev.andstuff.kraken.api.endpoint.funding.response.WithdrawalStatus;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.ClaimFundingDepositAddressEndpoint;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.CreateFundingAddressEndpoint;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.CreateFundingWithdrawalEndpoint;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.DeleteFundingAddressEndpoint;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.FundingAddressesEndpoint;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.FundingAssetsEndpoint;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.FundingBetaEndpoint;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.FundingDepositAddressesEndpoint;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.FundingDepositLimitsEndpoint;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.FundingDepositsEndpoint;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.FundingFeesEndpoint;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.FundingMethodsEndpoint;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.FundingNetworksEndpoint;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.FundingWithdrawalLimitsEndpoint;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.FundingWithdrawalsEndpoint;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.UpdateFundingAddressEndpoint;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.params.ClaimFundingDepositAddressParams;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.params.CreateFundingAddressParams;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.params.CreateFundingWithdrawalParams;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.params.DeleteFundingAddressParams;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.params.Direction;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.params.FundingAddressesParams;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.params.FundingAssetsParams;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.params.FundingDepositAddressesParams;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.params.FundingDepositsParams;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.params.FundingFeesParams;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.params.FundingLimitsParams;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.params.FundingMethodsParams;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.params.FundingNetworksParams;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.params.FundingWithdrawalsParams;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.params.UpdateFundingAddressParams;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.response.ClaimedFundingDepositAddress;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.response.FundingAddressCreated;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.response.FundingAddressUpdated;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.response.FundingAddresses;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.response.FundingAssets;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.response.FundingDepositAddresses;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.response.FundingDepositLimits;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.response.FundingDeposits;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.response.FundingFees;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.response.FundingMethods;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.response.FundingNetworks;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.response.FundingWithdrawalCreated;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.response.FundingWithdrawalLimits;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.response.FundingWithdrawals;
 import dev.andstuff.kraken.api.endpoint.market.AssetInfoEndpoint;
 import dev.andstuff.kraken.api.endpoint.market.AssetPairEndpoint;
 import dev.andstuff.kraken.api.endpoint.market.GroupedOrderBookEndpoint;
@@ -191,7 +236,7 @@ import lombok.RequiredArgsConstructor;
  *
  * <p>Endpoints can be queried in four ways, from the most to the least typed:
  * <ol>
- *     <li>through {@link #query(PublicEndpoint)} or {@link #query(PrivateEndpoint)}, taking an endpoint written outside the library and returning the type that endpoint declares;</li>
+ *     <li>through {@link #query(PublicEndpoint)}, {@link #query(PrivateEndpoint)} or {@link #query(FundingBetaEndpoint)}, taking an endpoint written outside the library and returning the type that endpoint declares;</li>
  *     <li>through a typed method, for the endpoints implemented by the library, e.g. {@link #assetInfo(List)};</li>
  *     <li>through a generic {@code query} method, taking a {@link Public} or {@link Private} enum value and returning a {@link JsonNode};</li>
  *     <li>through a raw {@code queryPublic} or {@code queryPrivate} method, taking the endpoint path as a string, for endpoints Kraken added but the library doesn't know about yet.</li>
@@ -1186,6 +1231,279 @@ public class KrakenAPI {
     }
 
     /**
+     * Queries the Funding (Beta) {@code GET /funding/v1/fees/{method_id}} endpoint, calculating the fee of a deposit or withdrawal amount. For withdrawals, the returned {@link FundingFees#withdrawalFeeToken()} pins the fee rate for 5 minutes. Requires the Funds permissions - Query API key permission.
+     *
+     * @param params the funding method, the amount and the fee options
+     * @return the fee, gross and net amounts, and the withdrawal fee token
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public FundingFees fundingFees(FundingFeesParams params) {
+        return query(new FundingFeesEndpoint(params));
+    }
+
+    /**
+     * Queries the Funding (Beta) {@code GET /funding/v1/methods/{direction}} endpoint for the first page of deposit or withdrawal methods. Requires the Funds permissions - Query API key permission.
+     *
+     * @param direction whether deposit or withdrawal methods are listed
+     * @return the funding methods and the cursor of the next page
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public FundingMethods fundingMethods(Direction direction) {
+        return query(new FundingMethodsEndpoint(direction));
+    }
+
+    /**
+     * Queries the Funding (Beta) {@code GET /funding/v1/methods/{direction}} endpoint. Requires the Funds permissions - Query API key permission.
+     *
+     * @param params the direction, the asset filter and the pagination parameters
+     * @return the funding methods and the cursor of the next page
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public FundingMethods fundingMethods(FundingMethodsParams params) {
+        return query(new FundingMethodsEndpoint(params));
+    }
+
+    /**
+     * Queries the Funding (Beta) {@code GET /funding/v1/assets/{direction}} endpoint for the assets available for deposit or withdrawal. Requires the Funds permissions - Query API key permission.
+     *
+     * @param direction whether assets available for deposit or for withdrawal are listed
+     * @return the assets, by asset class
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public FundingAssets fundingAssets(Direction direction) {
+        return query(new FundingAssetsEndpoint(direction));
+    }
+
+    /**
+     * Queries the Funding (Beta) {@code GET /funding/v1/assets/{direction}} endpoint. Requires the Funds permissions - Query API key permission.
+     *
+     * @param params the direction and the asset class filter
+     * @return the assets, by asset class
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public FundingAssets fundingAssets(FundingAssetsParams params) {
+        return query(new FundingAssetsEndpoint(params));
+    }
+
+    /**
+     * Queries the Funding (Beta) {@code GET /funding/v1/networks} endpoint for the networks and the network groups sharing an address format. Requires the Funds permissions - Query API key permission.
+     *
+     * @return the networks and network groups
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public FundingNetworks fundingNetworks() {
+        return query(new FundingNetworksEndpoint());
+    }
+
+    /**
+     * Queries the Funding (Beta) {@code GET /funding/v1/networks} endpoint. Requires the Funds permissions - Query API key permission.
+     *
+     * @param params the request options
+     * @return the networks and network groups
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public FundingNetworks fundingNetworks(FundingNetworksParams params) {
+        return query(new FundingNetworksEndpoint(params));
+    }
+
+    /**
+     * Queries the Funding (Beta) {@code GET /funding/v1/limits/deposit/{asset_class}/{asset}} endpoint for the deposit limits of an asset. Requires the Funds permissions - Query API key permission.
+     *
+     * @param params the asset and the asset limit amounts are expressed in
+     * @return the limits of each deposit method of the asset
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public FundingDepositLimits fundingDepositLimits(FundingLimitsParams params) {
+        return query(new FundingDepositLimitsEndpoint(params));
+    }
+
+    /**
+     * Queries the Funding (Beta) {@code GET /funding/v1/limits/withdrawal/{asset_class}/{asset}} endpoint for the withdrawal limits of an asset. Requires the Funds permissions - Query API key permission.
+     *
+     * @param params the asset and the asset limit amounts are expressed in
+     * @return the available balance and the limits of each withdrawal method of the asset
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public FundingWithdrawalLimits fundingWithdrawalLimits(FundingLimitsParams params) {
+        return query(new FundingWithdrawalLimitsEndpoint(params));
+    }
+
+    /**
+     * Claims a deposit address using the Funding (Beta) {@code PUT /funding/v1/deposit/address} endpoint. Methods sharing addresses with another method on the same network return the shared address. Requires the Funds permissions - Deposit API key permission.
+     *
+     * @param params the deposit method
+     * @return the claimed address
+     * @throws KrakenException if Kraken rejects the request, e.g. with {@code TooManyDepositAddresses}
+     * @throws IllegalStateException if credentials are missing
+     */
+    public ClaimedFundingDepositAddress claimFundingDepositAddress(ClaimFundingDepositAddressParams params) {
+        return query(new ClaimFundingDepositAddressEndpoint(params));
+    }
+
+    /**
+     * Queries the Funding (Beta) {@code GET /funding/v2/deposit/addresses} endpoint for the first page of claimed deposit addresses. Requires the Funds permissions - Query API key permission.
+     *
+     * @return the claimed deposit addresses and the cursor of the next page
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public FundingDepositAddresses fundingDepositAddresses() {
+        return query(new FundingDepositAddressesEndpoint());
+    }
+
+    /**
+     * Queries the Funding (Beta) {@code GET /funding/v2/deposit/addresses} endpoint. Requires the Funds permissions - Query API key permission.
+     *
+     * @param params the method, network and asset filters and the pagination parameters
+     * @return the claimed deposit addresses and the cursor of the next page
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     * @throws IllegalArgumentException if the scope is a network group
+     */
+    public FundingDepositAddresses fundingDepositAddresses(FundingDepositAddressesParams params) {
+        return query(new FundingDepositAddressesEndpoint(params));
+    }
+
+    /**
+     * Queries the Funding (Beta) {@code GET /funding/v1/deposits} endpoint for the first page of deposits, newest first. Requires the Funds permissions - Query API key permission.
+     *
+     * @return the deposits and the cursor of the next page
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public FundingDeposits fundingDeposits() {
+        return query(new FundingDepositsEndpoint());
+    }
+
+    /**
+     * Queries the Funding (Beta) {@code GET /funding/v1/deposits} endpoint. Requires the Funds permissions - Query API key permission.
+     *
+     * @param params the asset, scope and time filters and the pagination parameters
+     * @return the deposits and the cursor of the next page
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public FundingDeposits fundingDeposits(FundingDepositsParams params) {
+        return query(new FundingDepositsEndpoint(params));
+    }
+
+    /**
+     * Queries the Funding (Beta) {@code GET /funding/v1/addresses} endpoint for the first page of saved withdrawal addresses. Requires the Funds permissions - Query API key permission.
+     *
+     * @return the withdrawal addresses and the cursor of the next page
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public FundingAddresses fundingAddresses() {
+        return query(new FundingAddressesEndpoint());
+    }
+
+    /**
+     * Queries the Funding (Beta) {@code GET /funding/v1/addresses} endpoint. Requires the Funds permissions - Query API key permission.
+     *
+     * @param params the scope filter and the pagination parameters
+     * @return the withdrawal addresses and the cursor of the next page
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public FundingAddresses fundingAddresses(FundingAddressesParams params) {
+        return query(new FundingAddressesEndpoint(params));
+    }
+
+    /**
+     * Saves a crypto withdrawal address using the Funding (Beta) {@code POST /funding/v1/addresses} endpoint. Kraken verifies addresses created this way without email confirmation. Requires the Funds permissions - Add withdrawal addresses API key permission.
+     *
+     * @param params the scope, address, name and description
+     * @return the identifier of the address and whether it is verified
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public FundingAddressCreated createFundingAddress(CreateFundingAddressParams params) {
+        return query(new CreateFundingAddressEndpoint(params));
+    }
+
+    /**
+     * Renames or describes a saved withdrawal address using the Funding (Beta) {@code PUT /funding/v1/addresses/{id}} endpoint. Requires the Funds permissions - Add withdrawal addresses API key permission.
+     *
+     * @param params the address and its new name and description
+     * @return whether the address is verified
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public FundingAddressUpdated updateFundingAddress(UpdateFundingAddressParams params) {
+        return query(new UpdateFundingAddressEndpoint(params));
+    }
+
+    /**
+     * Deletes a saved withdrawal address using the Funding (Beta) {@code DELETE /funding/v1/addresses/{id}} endpoint. Requires the Funds permissions - Add withdrawal addresses API key permission.
+     *
+     * @param addressId the identifier of the address to delete
+     * @return whether the address was deleted
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public boolean deleteFundingAddress(String addressId) {
+        return query(new DeleteFundingAddressEndpoint(addressId)).deleted();
+    }
+
+    /**
+     * Deletes a saved withdrawal address using the Funding (Beta) {@code DELETE /funding/v1/addresses/{id}} endpoint. Requires the Funds permissions - Add withdrawal addresses API key permission.
+     *
+     * @param params the address to delete and the account it belongs to
+     * @return whether the address was deleted
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public boolean deleteFundingAddress(DeleteFundingAddressParams params) {
+        return query(new DeleteFundingAddressEndpoint(params)).deleted();
+    }
+
+    /**
+     * Queries the Funding (Beta) {@code GET /funding/v1/withdrawals} endpoint for the first page of withdrawals, newest first. Requires the Funds permissions - Query API key permission.
+     *
+     * @return the withdrawals and the cursor of the next page
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public FundingWithdrawals fundingWithdrawals() {
+        return query(new FundingWithdrawalsEndpoint());
+    }
+
+    /**
+     * Queries the Funding (Beta) {@code GET /funding/v1/withdrawals} endpoint. Requires the Funds permissions - Query API key permission.
+     *
+     * @param params the asset, scope, status and time filters and the pagination parameters
+     * @return the withdrawals and the cursor of the next page
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public FundingWithdrawals fundingWithdrawals(FundingWithdrawalsParams params) {
+        return query(new FundingWithdrawalsEndpoint(params));
+    }
+
+    /**
+     * Withdraws to a saved address using the Funding (Beta) {@code POST /funding/v1/withdrawals} endpoint. Pass a fee token from {@link #fundingFees(FundingFeesParams)} to pin the quoted fee rate. Requires the Funds permissions - Withdraw API key permission.
+     *
+     * @param params the scope, address, amount and fee options
+     * @return the identifier and the amounts of the withdrawal
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     * @throws IllegalArgumentException if the scope is a network group or the fee options are inconsistent
+     */
+    public FundingWithdrawalCreated createFundingWithdrawal(CreateFundingWithdrawalParams params) {
+        return query(new CreateFundingWithdrawalEndpoint(params));
+    }
+
+    /**
      * Queries the private {@code CreateSubaccount} endpoint, creating a trading subaccount. It must be called with an API key of the master account, having the withdraw funds permission.
      *
      * @param params the username and email address of the subaccount
@@ -1319,6 +1637,23 @@ public class KrakenAPI {
     public <T> T query(PrivateEndpoint<T> endpoint) {
         if (credentials == null) {
             throw new IllegalStateException("Private endpoint %s requires credentials, build KrakenAPI with a KrakenCredentials instance".formatted(endpoint.getPath()));
+        }
+
+        return restRequester.execute(endpoint, credentials, nonceGenerator);
+    }
+
+    /**
+     * Queries a Funding (Beta) endpoint the library doesn't implement, described by a {@link FundingBetaEndpoint} written outside the library. The request is signed with the credentials of this instance, the nonce being sent in the {@code API-Nonce} header.
+     *
+     * @param <T> the type the response is deserialized into
+     * @param endpoint the Funding (Beta) endpoint to query
+     * @return the deserialized response body
+     * @throws IllegalStateException if this instance was built without credentials
+     * @throws KrakenException if Kraken answers with an HTTP error status
+     */
+    public <T> T query(FundingBetaEndpoint<T> endpoint) {
+        if (credentials == null) {
+            throw new IllegalStateException("Funding endpoint %s requires credentials, build KrakenAPI with a KrakenCredentials instance".formatted(endpoint.getPath()));
         }
 
         return restRequester.execute(endpoint, credentials, nonceGenerator);

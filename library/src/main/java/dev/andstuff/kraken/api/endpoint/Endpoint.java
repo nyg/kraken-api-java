@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * A single call to the Kraken REST API: its HTTP method, path, parameters and response type.
  *
- * <p>Endpoints are not queried directly but handed to a {@link dev.andstuff.kraken.api.rest.KrakenRestRequester KrakenRestRequester}. Concrete endpoints extend either {@link dev.andstuff.kraken.api.endpoint.pub.PublicEndpoint PublicEndpoint} or {@link dev.andstuff.kraken.api.endpoint.priv.PrivateEndpoint PrivateEndpoint}.
+ * <p>Endpoints are not queried directly but handed to a {@link dev.andstuff.kraken.api.rest.KrakenRestRequester KrakenRestRequester}. Concrete endpoints extend {@link dev.andstuff.kraken.api.endpoint.pub.PublicEndpoint PublicEndpoint}, {@link dev.andstuff.kraken.api.endpoint.priv.PrivateEndpoint PrivateEndpoint} or {@link dev.andstuff.kraken.api.endpoint.fundingbeta.FundingBetaEndpoint FundingBetaEndpoint}.
  *
  * @param <T> the type the response is deserialized into
  */
@@ -27,7 +27,7 @@ public abstract class Endpoint<T> {
     private final String httpMethod;
 
     /**
-     * The path of the endpoint, relative to {@code /0/public} or {@code /0/private}, e.g. {@code Assets}.
+     * The path of the endpoint, relative to {@code /0/public}, {@code /0/private} or {@code /funding}, e.g. {@code Assets} or {@code v1/networks}.
      */
     @Getter
     protected final String path;

@@ -1,0 +1,30 @@
+{
+  "currency": [
+    {
+      "name": "USDC"
+    },
+    {
+      "name": "USDT"
+    },
+    {
+      "name": "BTC"
+    },
+    {
+      "name": "ETH"
+    },
+    {
+      "name": "SOL"
+    }
+  ],
+  "tokenized_asset": [
+    {
+      "name": "TONXx"
+    },
+    {
+      "name": "NVDAx"
+    },
+    {
+      "name": "AAPLx"
+    }
+  ]
+}

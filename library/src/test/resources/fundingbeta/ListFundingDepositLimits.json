@@ -1,0 +1,19 @@
+{
+  "deposit_limits": [
+    {
+      "method_id": "742656ee-ecc8-4287-a301-5a472ca16c24",
+      "maximum_amount": {
+        "asset": {
+          "class": "currency",
+          "name": "USDC"
+        },
+        "amount": "100032.01024328"
+      },
+      "limits": []
+    },
+    {
+      "method_id": "98de2213-0e3c-422c-9b08-81078557ad3a",
+      "limits": []
+    }
+  ]
+}

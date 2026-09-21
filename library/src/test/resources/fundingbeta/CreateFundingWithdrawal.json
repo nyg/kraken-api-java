@@ -1,0 +1,30 @@
+{
+  "withdrawal_id": "FTVZiTI-e02T84mm87JmibnObWNdnW",
+  "net_amount": {
+    "asset_amount": {
+      "asset": {
+        "class": "currency",
+        "name": "USDC"
+      },
+      "amount": "4.00000000"
+    }
+  },
+  "gross_amount": {
+    "asset_amount": {
+      "asset": {
+        "class": "currency",
+        "name": "USDC"
+      },
+      "amount": "5.00000000"
+    }
+  },
+  "fee": {
+    "asset_amount": {
+      "asset": {
+        "class": "currency",
+        "name": "USDC"
+      },
+      "amount": "1.00000000"
+    }
+  }
+}

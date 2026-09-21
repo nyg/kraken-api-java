@@ -1,0 +1,99 @@
+{
+  "available_balance": {
+    "asset": {
+      "class": "currency",
+      "name": "USDC"
+    },
+    "amount": "689005.55897887"
+  },
+  "withdrawal_limits": [
+    {
+      "method_id": "ec344850-a2bf-4fd8-b5c4-eb902a61cd03",
+      "maximum_amount": {
+        "asset": {
+          "class": "currency",
+          "name": "USDC"
+        },
+        "amount": "500155.05091629"
+      },
+      "maximum_reason": "limits",
+      "limits": [
+        {
+          "time_window": "86400",
+          "limit": {
+            "remaining": {
+              "policy_asset_amount": {
+                "asset": {
+                  "class": "currency",
+                  "name": "USD"
+                },
+                "amount": "499995.0013"
+              },
+              "usd_amount": {
+                "asset": {
+                  "class": "currency",
+                  "name": "USD"
+                },
+                "amount": "499995.0013"
+              },
+              "requested_asset_amount": {
+                "asset": {
+                  "class": "currency",
+                  "name": "USDC"
+                },
+                "amount": "500155.05091629"
+              }
+            },
+            "maximum": {
+              "policy_asset_amount": {
+                "asset": {
+                  "class": "currency",
+                  "name": "USD"
+                },
+                "amount": "500000.0000"
+              },
+              "usd_amount": {
+                "asset": {
+                  "class": "currency",
+                  "name": "USD"
+                },
+                "amount": "500000.0000"
+              },
+              "requested_asset_amount": {
+                "asset": {
+                  "class": "currency",
+                  "name": "USDC"
+                },
+                "amount": "500160.05121639"
+              }
+            },
+            "used": {
+              "policy_asset_amount": {
+                "asset": {
+                  "class": "currency",
+                  "name": "USD"
+                },
+                "amount": "4.9987"
+              },
+              "usd_amount": {
+                "asset": {
+                  "class": "currency",
+                  "name": "USD"
+                },
+                "amount": "4.9987"
+              },
+              "requested_asset_amount": {
+                "asset": {
+                  "class": "currency",
+                  "name": "USDC"
+                },
+                "amount": "5.00030010"
+              }
+            },
+            "limit_type": "equiv_amount_usd"
+          }
+        }
+      ]
+    }
+  ]
+}
