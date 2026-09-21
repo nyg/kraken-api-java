@@ -1,0 +1,47 @@
+{
+  "deposits": [
+    {
+      "deposit_id": "FTcQ4qW-fWGQbQwUfqdnZo4dsMn1ao",
+      "method_id": "3e7f8072-cc6d-4394-982a-5f4ca6ab27dd",
+      "network_id": "b336ce74-8d60-42b8-8714-b1095e06b711",
+      "status": "success",
+      "amount": {
+        "asset": {
+          "class": "currency",
+          "name": "USDC"
+        },
+        "amount": "20.00000000"
+      },
+      "fee": {
+        "asset": {
+          "class": "currency",
+          "name": "USDC"
+        },
+        "amount": "0.00000000"
+      },
+      "create_time": "2026-07-01T08:31:33Z"
+    },
+    {
+      "deposit_id": "FTAsxe1-PHt8Ni7NodvtOEw8FBvLAJ",
+      "method_id": "a897bb0b-e7bc-4eff-969f-433bc811e4ad",
+      "network_id": "d9d375da-44b7-4be1-8a00-8b281acfe366",
+      "status": "success",
+      "amount": {
+        "asset": {
+          "class": "currency",
+          "name": "LINK"
+        },
+        "amount": "5555.0000000000"
+      },
+      "fee": {
+        "asset": {
+          "class": "currency",
+          "name": "LINK"
+        },
+        "amount": "0.0000000000"
+      },
+      "create_time": "2026-06-23T08:41:17Z"
+    }
+  ],
+  "next_cursor": "gqNrZXm-RlREc1IxRC1oOTd3c1Y4RFJKUWpPQ0ZTTjVic0NxpnBhcmFtc4qudXNlcl9zZWxlY3Rpb27ArGFzc2V0X2ZpbHRlcsClc2NvcGXArXN0YXR1c19maWx0ZXLArGZsYWdzX2ZpbHRlcsCzZXF1aXZfYW1vdW50X2ZpbHRlcsCqc3RhcnRfdGltZcCoZW5kX3RpbWXAqG9yZGVyaW5nqmRlc2NlbmRpbmexcmViYXNlX211bHRpcGxpZXLA"
+}

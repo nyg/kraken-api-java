@@ -10,6 +10,11 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import dev.andstuff.kraken.api.KrakenAPI;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.params.Asset;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.params.AssetClass;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.params.Direction;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.params.FundingMethodsParams;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.response.FundingMethods;
 import dev.andstuff.kraken.api.endpoint.market.params.AssetPairParams;
 import dev.andstuff.kraken.api.endpoint.market.response.AssetInfo;
 import dev.andstuff.kraken.api.endpoint.market.response.AssetPairs;
@@ -88,5 +93,11 @@ public class SimpleExamples {
                 .validate(true)
                 .build());
         log.info("{}", typedOrder);
+
+        FundingMethods withdrawalMethods = api.fundingMethods(FundingMethodsParams.builder()
+                .direction(Direction.WITHDRAW)
+                .asset(new Asset(AssetClass.CURRENCY, "USDC"))
+                .build());
+        log.info("{}", withdrawalMethods);
     }
 }

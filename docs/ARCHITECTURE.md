@@ -5,7 +5,7 @@
 The library is a Java client for the [Kraken REST API](https://docs.kraken.com/rest/). It is organized around four core concepts:
 
 - **`KrakenAPI`** — The main entry point. A facade that exposes typed methods for implemented endpoints and generic methods for any endpoint.
-- **`Endpoint<T>`** — Represents a single API call. Knows its HTTP method, URL path, parameters, and response type. Splits into `PublicEndpoint<T>` (GET) and `PrivateEndpoint<T>` (POST with HMAC signing).
+- **`Endpoint<T>`** — Represents a single API call. Knows its HTTP method, URL path, parameters, and response type. Splits into `PublicEndpoint<T>` (GET), `PrivateEndpoint<T>` (POST with HMAC signing) and `FundingBetaEndpoint<T>` (any HTTP method on `/funding`, with the nonce in a header).
 - **`KrakenRestRequester`** — Interface that performs the actual HTTP request and response parsing. `DefaultKrakenRestRequester` is the built-in implementation using `HttpsURLConnection`.
 - **Params / Response types** — Each endpoint has dedicated parameter objects (`QueryParams` for public, `PostParams` for private) and response records deserialized via Jackson.
 
@@ -84,6 +84,48 @@ sequenceDiagram
     KrakenAPI-->>User: LedgerInfo
 ```
 
+### Funding (Beta) Endpoint
+
+Funding (Beta) endpoints live under `/funding/v1` and `/funding/v2` and follow a different protocol: path parameters, query parameters in bracket notation for nested objects, `GET`, `POST`, `PUT` and `DELETE` requests, an optional JSON body, the nonce in the `API-Nonce` header, and responses that are not wrapped in the `{error, result}` envelope.
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant KrakenAPI
+    participant FundingBetaEndpoint
+    participant FundingBetaParams
+    participant NonceGen as KrakenNonceGenerator
+    participant Credentials as KrakenCredentials
+    participant RestRequester as DefaultKrakenRestRequester
+    participant Kraken as Kraken API
+
+    User->>KrakenAPI: fundingFees(params)
+    KrakenAPI->>FundingBetaEndpoint: new FundingFeesEndpoint(params)
+    KrakenAPI->>RestRequester: execute(endpoint, credentials, nonceGenerator)
+
+    RestRequester->>NonceGen: generate()
+    NonceGen-->>RestRequester: "1712750400000"
+
+    RestRequester->>FundingBetaEndpoint: encodedBody()
+    FundingBetaEndpoint->>FundingBetaParams: encodedBody()
+    FundingBetaParams-->>RestRequester: "" (GET) or a JSON object
+
+    RestRequester->>FundingBetaEndpoint: buildURL()
+    FundingBetaEndpoint->>FundingBetaParams: toMap()
+    FundingBetaEndpoint-->>RestRequester: https://api.kraken.com/funding/v1/fees/{method_id}?amount=5
+
+    RestRequester->>Credentials: sign(path + "?" + query, nonce, body)
+    Note over Credentials: SHA-256(nonce + body)<br/>HMAC-SHA512(base64(secret), signed path + sha256)
+    Credentials-->>RestRequester: Base64 signature
+
+    RestRequester->>Kraken: GET with API-Key + API-Sign + API-Nonce headers
+    Kraken-->>RestRequester: {"fee": {…}, "withdrawal_fee_token": "…"}
+
+    RestRequester->>RestRequester: deserialize into FundingFees, or throw KrakenException on an HTTP error status
+    RestRequester-->>KrakenAPI: FundingFees
+    KrakenAPI-->>User: FundingFees
+```
+
 ## Component Diagram
 
 ```mermaid
@@ -98,6 +140,7 @@ classDiagram
         +ledgerInfo(params) LedgerInfo
         +query(PublicEndpoint~T~) T
         +query(PrivateEndpoint~T~) T
+        +query(FundingBetaEndpoint~T~) T
         +query(endpoint) JsonNode
         +queryPublic(path) JsonNode
         +queryPrivate(path) JsonNode
@@ -123,10 +166,17 @@ classDiagram
         +buildURL() URL
     }
 
+    class FundingBetaEndpoint~T~ {
+        -FundingBetaParams params
+        +encodedBody() String
+        +buildURL() URL
+    }
+
     class KrakenRestRequester {
         <<interface>>
         +execute(PublicEndpoint~T~) T
         +execute(PrivateEndpoint~T~, credentials, nonceGenerator) T
+        +execute(FundingBetaEndpoint~T~, credentials, nonceGenerator) T
     }
 
     class DefaultKrakenRestRequester {
@@ -145,6 +195,7 @@ classDiagram
 
     class KrakenCredentials {
         +sign(url, nonce, params) String
+        +sign(signedPath, nonce, body) String
     }
 
     class KrakenNonceGenerator {
@@ -154,6 +205,7 @@ classDiagram
 
     Endpoint <|-- PublicEndpoint
     Endpoint <|-- PrivateEndpoint
+    Endpoint <|-- FundingBetaEndpoint
     KrakenRestRequester <|.. DefaultKrakenRestRequester
     KrakenAPI --> KrakenRestRequester
     KrakenAPI --> KrakenCredentials
@@ -168,7 +220,7 @@ classDiagram
 
 | Tier | Methods | Return type | When to use |
 |------|---------|-------------|-------------|
-| **Custom endpoint** | `query(myEndpoint)` | Whatever the endpoint declares | You wrote your own `PublicEndpoint`/`PrivateEndpoint` for an endpoint the library doesn't implement |
+| **Custom endpoint** | `query(myEndpoint)` | Whatever the endpoint declares | You wrote your own `PublicEndpoint`/`PrivateEndpoint`/`FundingBetaEndpoint` for an endpoint the library doesn't implement |
 | **Typed** | `assetInfo()`, `ledgerInfo()`, etc. | Domain records | Endpoint has a dedicated implementation |
 | **Enum-based** | `query(Public.TICKER, params)` | `JsonNode` | Endpoint is in the `Public`/`Private` enum but not yet typed |
 | **Raw path** | `queryPublic("Trades", params)` | `JsonNode` | Endpoint isn't in the enum yet (e.g., newly added by Kraken) |
@@ -178,8 +230,8 @@ classDiagram
 To add a new typed endpoint:
 
 1. Create a response record in the appropriate `response/` package
-2. Create a params class implementing `QueryParams` (public) or extending `PostParams` (private); extend `JsonPostParams` instead when the body contains arrays or nested objects, and override `getContentType()` on the endpoint to return `application/json`
-3. Create an endpoint class extending `PublicEndpoint<T>` or `PrivateEndpoint<T>`
+2. Create a params class implementing `QueryParams` (public) or extending `PostParams` (private); extend `JsonPostParams` instead when the body contains arrays or nested objects, and override `getContentType()` on the endpoint to return `application/json`. Funding (Beta) params extend `FundingBetaParams`, returning query parameters from `toMap()` and a JSON body from `body()`
+3. Create an endpoint class extending `PublicEndpoint<T>`, `PrivateEndpoint<T>` or `FundingBetaEndpoint<T>`
 4. Add a convenience method to `KrakenAPI`
 
 Steps 1 to 3 work just as well from outside the library, for an endpoint you need before it is implemented here. Step 4 is then replaced by handing the endpoint to `KrakenAPI.query(...)`, which runs it through the configured `KrakenRestRequester` and signs private requests with the credentials and nonce generator the instance was built with:

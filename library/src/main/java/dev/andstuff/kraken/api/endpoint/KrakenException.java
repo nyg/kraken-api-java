@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.ToString;
 
 /**
- * Unchecked exception thrown when Kraken answers a request with a non-empty {@code error} field, e.g. {@code EGeneral:Permission denied}.
+ * Unchecked exception thrown when Kraken answers a request with a non-empty {@code error} field, e.g. {@code EGeneral:Permission denied}, or a Funding (Beta) request with an HTTP error status, in which case the only error is the status code followed by the response body.
  */
 @Getter
 @ToString

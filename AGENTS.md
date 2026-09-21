@@ -23,9 +23,11 @@ Every endpoint extends `Endpoint<T>`, either `PublicEndpoint<T>` (GET on `/0/pub
 
 `funding/` contains the private Funding (Legacy) endpoints for deposits, withdrawals and wallet transfers, using the same endpoint, parameter and response layout. `trading/` contains the private Trading endpoints for placing, amending, editing and cancelling orders, the dead man's switch and WebSocket tokens.
 
+`fundingbeta/` contains the Funding (Beta) endpoints, which extend `FundingBetaEndpoint<T>` instead: any HTTP method on `/funding/{path}`, e.g. `GET /funding/v1/methods/withdraw` or `DELETE /funding/v1/addresses/{id}`, with path parameters encoded by the endpoint, query parameters and an optional JSON body from `FundingBetaParams`, and nested query objects in bracket notation, e.g. `asset[class]=currency`. The nonce goes in the `API-Nonce` header, the signed path includes the query string, and responses are not wrapped in the `{error, result}` envelope: HTTP error statuses become a `KrakenException`. Shared value types such as `Asset`, `AssetAmount` and `Scope` live in `fundingbeta/params/` and are used by both parameters and responses.
+
 Parameters are form-encoded by default. Parameters with arrays or nested objects extend `JsonPostParams`, which sends a JSON body with a numeric nonce, and their endpoint overrides `getContentType()` to return `application/json`, e.g. `TradeVolume`, `AddOrderBatch` and `CancelOrderBatch`.
 
-`KrakenRestRequester` performs the HTTP calls and can be swapped for another HTTP client. Responses are unwrapped from the Kraken `{error, result}` envelope by `KrakenResponse<T>`; ZIP responses (report exports) go through `Endpoint.processZipResponse()`.
+`KrakenRestRequester` performs the HTTP calls and can be swapped for another HTTP client; its Funding (Beta) `execute` method is a default method throwing `UnsupportedOperationException`, so requesters written before it keep compiling. Responses are unwrapped from the Kraken `{error, result}` envelope by `KrakenResponse<T>`; ZIP responses (report exports) go through `Endpoint.processZipResponse()`.
 
 ## Conventions
 

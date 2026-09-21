@@ -1,0 +1,36 @@
+{
+  "methods": [
+    {
+      "asset": {
+        "class": "currency",
+        "name": "USDC"
+      },
+      "method_id": "27ede8db-804b-4d91-8e25-46b7b9668730",
+      "method_name": "Standard",
+      "minimum_amount": "2",
+      "fees": {
+        "base": {
+          "asset": {
+            "class": "currency",
+            "name": "USDC"
+          },
+          "amount": "0.00000000"
+        },
+        "included": true
+      },
+      "network": {
+        "network_id": "d9d375da-44b7-4be1-8a00-8b281acfe366",
+        "network_name": "Ethereum",
+        "contract_address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "on_chain_asset_symbol": "USDC"
+      },
+      "deposit": {
+        "address_generation": {
+          "status": "limited",
+          "limit": 5
+        },
+        "shares_addresses_with_method_id": "a001231f-488e-48c0-b36c-6e0d2c1ee247"
+      }
+    }
+  ]
+}

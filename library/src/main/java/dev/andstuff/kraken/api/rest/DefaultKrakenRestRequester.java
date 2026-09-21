@@ -1,8 +1,11 @@
 package dev.andstuff.kraken.api.rest;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.zip.ZipInputStream;
 import javax.net.ssl.HttpsURLConnection;
 
@@ -15,7 +18,9 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import dev.andstuff.kraken.api.endpoint.Endpoint;
+import dev.andstuff.kraken.api.endpoint.KrakenException;
 import dev.andstuff.kraken.api.endpoint.KrakenResponse;
+import dev.andstuff.kraken.api.endpoint.fundingbeta.FundingBetaEndpoint;
 import dev.andstuff.kraken.api.endpoint.priv.PrivateEndpoint;
 import dev.andstuff.kraken.api.endpoint.pub.PublicEndpoint;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * {@link KrakenRestRequester} implementation using {@link HttpsURLConnection}.
  *
- * <p>JSON responses are deserialized with a Jackson mapper configured to be lenient with unknown properties and enum values, so that new fields returned by Kraken don't break deserialization. Responses of type {@code application/zip}, e.g. report exports, are handed to {@link Endpoint#processZipResponse(java.util.zip.ZipInputStream)}.
+ * <p>JSON responses are deserialized with a Jackson mapper configured to be lenient with unknown properties and enum values, so that new fields returned by Kraken don't break deserialization. Responses of type {@code application/zip}, e.g. report exports, are handed to {@link Endpoint#processZipResponse(java.util.zip.ZipInputStream)}. Funding (Beta) responses are deserialized from the whole body, and their HTTP error statuses are raised as a {@link KrakenException}.
  */
 @Slf4j
 public class DefaultKrakenRestRequester implements KrakenRestRequester {
@@ -100,6 +105,40 @@ public class DefaultKrakenRestRequester implements KrakenRestRequester {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @throws IllegalStateException if the request fails or the response has an unsupported content type
+     */
+    @Override
+    public <T> T execute(FundingBetaEndpoint<T> endpoint, KrakenCredentials credentials, KrakenNonceGenerator nonceGenerator) {
+        String nonce = nonceGenerator.generate();
+        String body = endpoint.encodedBody();
+
+        try {
+            HttpsURLConnection connection = createHttpsConnection(endpoint);
+            URL url = connection.getURL();
+            log.info("Fetching funding endpoint: {}", url);
+            connection.addRequestProperty("API-Key", credentials.getKey());
+            connection.addRequestProperty("API-Sign", credentials.sign(url.getFile(), nonce, body));
+            connection.addRequestProperty("API-Nonce", nonce);
+
+            if (!body.isEmpty()) {
+                connection.addRequestProperty("Content-Type", endpoint.getContentType());
+                connection.setDoOutput(true);
+
+                try (OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream(), StandardCharsets.UTF_8)) {
+                    out.write(body);
+                }
+            }
+
+            return parseFundingResponse(connection, endpoint);
+        }
+        catch (IOException e) {
+            throw new IllegalStateException("Error while making request to Kraken API", e);
+        }
+    }
+
     private <T> HttpsURLConnection createHttpsConnection(Endpoint<T> endpoint) throws IOException {
         HttpsURLConnection connection = connectionFactory.open(endpoint.buildURL());
         connection.setRequestMethod(endpoint.getHttpMethod());
@@ -121,6 +160,26 @@ public class DefaultKrakenRestRequester implements KrakenRestRequester {
         }
         else {
             throw new IllegalStateException("Unsupported HTTP Content-Type");
+        }
+    }
+
+    private static <T> T parseFundingResponse(HttpsURLConnection connection, FundingBetaEndpoint<T> endpoint) throws IOException {
+        int status = connection.getResponseCode();
+        if (status >= 400) {
+            throw new KrakenException(List.of("HTTP %d %s".formatted(status, readErrorBody(connection)).strip()));
+        }
+
+        String contentType = connection.getHeaderField("Content-Type");
+        if (contentType == null || !contentType.startsWith("application/json")) {
+            throw new IllegalStateException("Unsupported HTTP Content-Type");
+        }
+
+        return OBJECT_MAPPER.readValue(connection.getInputStream(), endpoint.getResponseType());
+    }
+
+    private static String readErrorBody(HttpsURLConnection connection) throws IOException {
+        try (InputStream errorStream = connection.getErrorStream()) {
+            return errorStream == null ? "" : new String(errorStream.readAllBytes(), StandardCharsets.UTF_8);
         }
     }
 }

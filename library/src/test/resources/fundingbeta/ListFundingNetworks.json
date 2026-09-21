@@ -1,0 +1,27 @@
+{
+  "network_groups": [
+    {
+      "network_group_id": "f95acdb7-48fb-4441-b5b4-843d3bf60e61",
+      "name": "EVM",
+      "network_ids": [
+        "2c6eeff9-bd5f-4c09-982d-a5855fa9f0dd",
+        "bc7562cf-1e51-4308-b52b-d062aaa6aa3b",
+        "473365c2-4c95-4bd9-b5c8-974fb91c7d6b"
+      ]
+    }
+  ],
+  "networks": [
+    {
+      "network_id": "2c6eeff9-bd5f-4c09-982d-a5855fa9f0dd",
+      "name": "Arbitrum Nova"
+    },
+    {
+      "network_id": "bc7562cf-1e51-4308-b52b-d062aaa6aa3b",
+      "name": "Arbitrum One"
+    },
+    {
+      "network_id": "473365c2-4c95-4bd9-b5c8-974fb91c7d6b",
+      "name": "Avalanche C Chain"
+    }
+  ]
+}

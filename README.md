@@ -224,7 +224,7 @@ KrakenAPI api = new KrakenAPI();
 Map<String, OrderBook> books = api.query(new MyOrderBookEndpoint("XBTUSD"));
 ```
 
-The endpoint is run through the same `KrakenRestRequester` as the built-in ones, and a `PrivateEndpoint` is signed with the credentials and nonce generator the `KrakenAPI` instance was built with. Querying one on an instance built without credentials throws an `IllegalStateException`.
+The endpoint is run through the same `KrakenRestRequester` as the built-in ones, and a `PrivateEndpoint` is signed with the credentials and nonce generator the `KrakenAPI` instance was built with. Querying one on an instance built without credentials throws an `IllegalStateException`. Funding (Beta) endpoints extend `FundingBetaEndpoint<T>` instead, taking the HTTP method and the path under `/funding`, e.g. `new FundingBetaEndpoint<>("GET", "v1/networks", new TypeReference<JsonNode>() {})`.
 
 Pull requests adding such an endpoint to the library are welcome, see the [architecture documentation](docs/ARCHITECTURE.md).
 
@@ -246,6 +246,49 @@ Status methods return the same response record for paginated objects and unpagin
 
 `withdraw` submits a withdrawal to a saved key, `cancelWithdrawal` requests cancellation, and `walletTransfer` moves assets from the Spot Wallet to the Futures Wallet. Withdrawal parameters support address confirmation and `maxFee`. A false cancellation result means Kraken did not accept the cancellation. Deposit address parameters support generating a new address and specifying the amount for Lightning invoices; responses preserve destination tags and memos.
 
+### Funding (Beta)
+
+All 15 [Funding (Beta)](https://docs.kraken.com/api-reference/funding-beta/list-funding-methods) operations have typed methods. They use stable method, network and address identifiers, withdrawal addresses saved for a method, a network or a network group, and fee quotes that pin the fee rate of a withdrawal.
+
+| Operation | Typed method | Response |
+|---|---|---|
+| `GET /funding/v1/methods/{direction}` | `fundingMethods(direction)` / `fundingMethods(params)` | `FundingMethods` |
+| `GET /funding/v1/assets/{direction}` | `fundingAssets(direction)` / `fundingAssets(params)` | `FundingAssets` |
+| `GET /funding/v1/networks` | `fundingNetworks()` / `fundingNetworks(params)` | `FundingNetworks` |
+| `GET /funding/v1/fees/{method_id}` | `fundingFees(params)` | `FundingFees` |
+| `GET /funding/v1/limits/deposit/{asset_class}/{asset}` | `fundingDepositLimits(params)` | `FundingDepositLimits` |
+| `GET /funding/v1/limits/withdrawal/{asset_class}/{asset}` | `fundingWithdrawalLimits(params)` | `FundingWithdrawalLimits` |
+| `PUT /funding/v1/deposit/address` | `claimFundingDepositAddress(params)` | `ClaimedFundingDepositAddress` |
+| `GET /funding/v2/deposit/addresses` | `fundingDepositAddresses()` / `fundingDepositAddresses(params)` | `FundingDepositAddresses` |
+| `GET /funding/v1/deposits` | `fundingDeposits()` / `fundingDeposits(params)` | `FundingDeposits` |
+| `GET /funding/v1/addresses` | `fundingAddresses()` / `fundingAddresses(params)` | `FundingAddresses` |
+| `POST /funding/v1/addresses` | `createFundingAddress(params)` | `FundingAddressCreated` |
+| `PUT /funding/v1/addresses/{id}` | `updateFundingAddress(params)` | `FundingAddressUpdated` |
+| `DELETE /funding/v1/addresses/{id}` | `deleteFundingAddress(id)` / `deleteFundingAddress(params)` | `boolean` |
+| `GET /funding/v1/withdrawals` | `fundingWithdrawals()` / `fundingWithdrawals(params)` | `FundingWithdrawals` |
+| `POST /funding/v1/withdrawals` | `createFundingWithdrawal(params)` | `FundingWithdrawalCreated` |
+
+```java
+FundingMethods methods = api.fundingMethods(FundingMethodsParams.builder()
+        .direction(Direction.WITHDRAW).asset(new Asset(AssetClass.CURRENCY, "USDC")).build());
+String methodId = methods.methods().getFirst().methodId();
+
+FundingAddressCreated address = api.createFundingAddress(CreateFundingAddressParams.builder()
+        .scope(Scope.network(methods.methods().getFirst().network().networkId()))
+        .address("0xBef7B36845cA31045E86D0B46DBCac4e6752").name("Hardware wallet").build());
+
+FundingFees quote = api.fundingFees(FundingFeesParams.builder()
+        .methodId(methodId).amount(new BigDecimal("5")).feeIncluded(true).build());
+FundingWithdrawalCreated withdrawal = api.createFundingWithdrawal(CreateFundingWithdrawalParams.builder()
+        .scope(Scope.method(methodId)).addressId(address.addressId())
+        .amount(new AssetAmount(new Asset(AssetClass.CURRENCY, "USDC"), new BigDecimal("5")))
+        .withdrawalFeeToken(quote.withdrawalFeeToken()).feeIncluded(true).build());
+```
+
+Pass a `withdrawalFeeToken` to pin the quoted fee rate for 5 minutes, or a `maxFee` to cap the current fee; `feeIncluded` must then be set and match the quote. List operations return a `nextCursor()`, null on the last page, to pass back as `cursor` without the other filters. Amounts use `BigDecimal`, times use `Instant`, and limit time windows use `Duration`; a limit value is a `count()` for attempt and success limits and `amounts()` otherwise. Every parameter builder accepts an `accountId`.
+
+These endpoints live under `/funding` instead of `/0/private`: the nonce is sent in the `API-Nonce` header, the signed path includes the query string, nested query objects use bracket notation, e.g. `asset[class]=currency`, and bodies are JSON. Kraken answers errors with an HTTP error status, thrown as a `KrakenException` whose only error is the status code followed by the response body. The deposit `status` filter is not supported yet, as the specification doesn't define how its list and range forms are encoded.
+
 ### Custom REST requester
 
 The current implementation of the library uses the JDK's HttpsURLConnection to make HTTP request. If that doesn't suit your needs and wish to use something else (e.g. Spring RestTemplate, Apache HttpComponents, OkHttp), you can implement the KrakenRestRequester interface and pass it to the KrakenAPI constructor:
@@ -254,12 +297,13 @@ The current implementation of the library uses the JDK's HttpsURLConnection to m
 public class MyRestTemplateRestRequester implements KrakenRestRequester {
     public <T> T execute(PublicEndpoint<T> endpoint) { /* your implementation */ }
     public <T> T execute(PrivateEndpoint<T> endpoint, KrakenCredentials credentials, KrakenNonceGenerator nonceGenerator) { /* your implementation */ }
+    public <T> T execute(FundingBetaEndpoint<T> endpoint, KrakenCredentials credentials, KrakenNonceGenerator nonceGenerator) { /* optional */ }
 }
 
 KrakenAPI api = new KrakenAPI(new KrakenCredentials(key, secret), new MyRestTemplateRestRequester());
 ```
 
-See `DefaultKrakenRestRequester` for the default implementation.
+The Funding (Beta) `execute` method has a default implementation throwing an `UnsupportedOperationException`, so existing requesters keep compiling; implement it to query Funding (Beta) endpoints: send `endpoint.encodedBody()` unchanged, sign it with `credentials.sign(url.getFile(), nonce, body)`, send the nonce in the `API-Nonce` header, and deserialize the whole response body into `endpoint.getResponseType()`. See `DefaultKrakenRestRequester` for the default implementation.
 
 ### Custom nonce generator
 
