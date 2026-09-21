@@ -26,7 +26,7 @@ import dev.andstuff.kraken.api.endpoint.account.params.ReportFormat;
 public record Report(String id,
                      @JsonProperty("descr") String description,
                      ReportFormat format,
-                     String subType,
+                     @JsonProperty("subtype") String subType,
                      Status status,
                      String fields,
                      @JsonProperty("createdtm") Instant requestDate,
@@ -36,7 +36,10 @@ public record Report(String id,
                      @JsonProperty("dataendtm") Instant reportToDate,
                      String asset) {
 
-    enum Status {
+    /**
+     * The generation status of a report.
+     */
+    public enum Status {
         QUEUED,
         PROCESSING,
         PROCESSED,

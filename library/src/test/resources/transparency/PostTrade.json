@@ -1,0 +1,24 @@
+{
+  "error": [],
+  "result": {
+    "last_ts": "2024-05-30T12:34:56.123456789Z",
+    "count": 1,
+    "trades": [
+      {
+        "trade_id": "TGBB7L-HT5LX-J3BZ4A",
+        "price": "102002.1",
+        "quantity": "1.24",
+        "symbol": "BTC/USD",
+        "description": "Bitcoin / US Dollars",
+        "base_asset": "BTC",
+        "base_notation": "UNIT",
+        "quote_asset": "USD",
+        "quote_notation": "MONE",
+        "trade_venue": "PGSL",
+        "trade_ts": "2024-05-30T12:34:56.123456789Z",
+        "publication_venue": "PGSL",
+        "publication_ts": "2024-05-30T12:34:56.123456789Z"
+      }
+    ]
+  }
+}

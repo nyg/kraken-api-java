@@ -1,0 +1,32 @@
+{
+  "error": [],
+  "result": {
+    "status": "cancel_only",
+    "timestamp": "2026-05-08T14:28:00Z",
+    "upcoming_maintenance": [],
+    "emergency": [
+      {
+        "event_id": 4821,
+        "title": "Elevated API error rates",
+        "incident_status": "identified",
+        "impact": "critical",
+        "affected_services": [
+          "spot_ws",
+          "spot_rest",
+          "spot_fix"
+        ],
+        "started_at_utc": "2026-05-08T14:23:11Z",
+        "next_steps": [
+          {
+            "applies_to": [
+              "spot_trading"
+            ],
+            "type": "expected_restart",
+            "expected_at_utc": "2026-05-08T14:30:00Z"
+          }
+        ],
+        "source_url": "https://stspg.io/c378t4f7rh0n"
+      }
+    ]
+  }
+}

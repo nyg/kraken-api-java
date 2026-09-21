@@ -1,0 +1,37 @@
+{
+  "error": [],
+  "result": {
+    "symbol": "BTC/USD",
+    "description": "Bitcoin / US Dollars",
+    "base_asset": "BTC",
+    "base_dti_code": "4H95J0R2X",
+    "base_dti_short_name": "BTC",
+    "quote_dti_code": "",
+    "quote_dti_short_name": "",
+    "base_notation": "UNIT",
+    "quote_asset": "USD",
+    "quote_notation": "MONE",
+    "venue": "PGSL",
+    "system": "CLOB",
+    "bids": [
+      {
+        "side": "BUY",
+        "price": "102002.1",
+        "qty": "1.24",
+        "count": 3,
+        "submission_ts": "2024-05-30T12:34:56.123456Z",
+        "publication_ts": "2024-05-30T12:34:56.123456Z"
+      }
+    ],
+    "asks": [
+      {
+        "side": "SELL",
+        "price": "102002.2",
+        "qty": "0.5",
+        "count": 1,
+        "submission_ts": "2024-05-30T12:34:55.654321Z",
+        "publication_ts": "2024-05-30T12:34:56.123456Z"
+      }
+    ]
+  }
+}

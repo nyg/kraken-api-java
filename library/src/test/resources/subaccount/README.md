@@ -1,0 +1,1 @@
+Fixtures are response examples from [Kraken’s Spot REST OpenAPI specification](https://docs.kraken.com/openapi/spot-rest.yaml), version `1.1.0`, retrieved on 2026-09-21. Supplemental inline cases cover pending transfers and unknown transfer statuses. All tests run locally without API keys or network calls, and create no subaccounts and transfer no funds.

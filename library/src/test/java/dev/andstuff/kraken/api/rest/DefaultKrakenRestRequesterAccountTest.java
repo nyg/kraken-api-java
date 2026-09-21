@@ -11,9 +11,12 @@ import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import javax.net.ssl.HttpsURLConnection;
 
 import org.junit.jupiter.api.Test;
@@ -24,10 +27,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import dev.andstuff.kraken.api.endpoint.KrakenException;
 import dev.andstuff.kraken.api.endpoint.account.AccountBalanceEndpoint;
 import dev.andstuff.kraken.api.endpoint.account.CreditLinesEndpoint;
+import dev.andstuff.kraken.api.endpoint.account.ReportDataEndpoint;
 import dev.andstuff.kraken.api.endpoint.account.TradeVolumeEndpoint;
 import dev.andstuff.kraken.api.endpoint.account.params.AccountBalanceParams;
+import dev.andstuff.kraken.api.endpoint.account.params.ReportDataParams;
 import dev.andstuff.kraken.api.endpoint.account.params.TradeVolumeParams;
 import dev.andstuff.kraken.api.endpoint.account.response.CreditLines;
+import dev.andstuff.kraken.api.endpoint.account.response.LedgerEntry;
 import dev.andstuff.kraken.api.endpoint.account.response.TradeVolume;
 
 @ExtendWith(MockitoExtension.class)
@@ -115,5 +121,38 @@ class DefaultKrakenRestRequesterAccountTest {
         assertThat(url.getQuery()).isEqualTo("account_id=wallet+%2B%2F%26%3D");
         assertThat(output.toString(StandardCharsets.UTF_8)).isEqualTo("nonce=123");
         verify(connection).addRequestProperty("API-Sign", "WRKuiZ89EQ2MHYfSRx7pHztnIMr+ivo8S8E5olq+GcpBVw97M1jKx1ElzpGgC36H/tn8Po28EwNryLvK+rl4ig==");
+    }
+
+    @Test
+    void should_parse_csv_ledger_entries_when_export_is_returned_as_zip() throws Exception {
+        DefaultKrakenRestRequester unit = new DefaultKrakenRestRequester(connectionFactory);
+        ReportDataEndpoint endpoint = new ReportDataEndpoint(ReportDataParams.of("TCJA"));
+        ByteArrayOutputStream archive = new ByteArrayOutputStream();
+        try (ZipOutputStream zip = new ZipOutputStream(archive)) {
+            zip.putNextEntry(new ZipEntry("ledgers.csv"));
+            zip.write("""
+                    "txid","refid","time","type","subtype","aclass","subclass","asset","wallet","amount","fee","balance"
+                    "L4UESK-KG3EQ-UFO4T5","TJKLXF-PGMUI-4NTLXU","2023-07-04 09:54:44","trade","","currency","fiat","ZGBP","spot / main",-24.5000,0.0490,459567.9171
+                    """.getBytes(StandardCharsets.UTF_8));
+            zip.closeEntry();
+        }
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        when(nonceGenerator.generate()).thenReturn("123");
+        when(connectionFactory.open(any(URL.class))).thenReturn(connection);
+        when(connection.getOutputStream()).thenReturn(output);
+        when(connection.getHeaderField("Content-Type")).thenReturn("application/zip");
+        when(connection.getInputStream()).thenReturn(new ByteArrayInputStream(archive.toByteArray()));
+
+        List<LedgerEntry> result = unit.execute(endpoint, credentials, nonceGenerator);
+
+        assertThat(result).singleElement().satisfies(entry -> {
+            assertThat(entry.id()).isEqualTo("L4UESK-KG3EQ-UFO4T5");
+            assertThat(entry.time()).isEqualTo(Instant.parse("2023-07-04T09:54:44Z"));
+            assertThat(entry.type()).isEqualTo(LedgerEntry.Type.TRADE);
+            assertThat(entry.balance()).isEqualByComparingTo("459567.9171");
+        });
+        assertThat(output.toString(StandardCharsets.UTF_8)).isEqualTo("id=TCJA&nonce=123");
+        verify(connection).setRequestMethod("POST");
+        verify(connection).addRequestProperty("Content-Type", "application/x-www-form-urlencoded");
     }
 }

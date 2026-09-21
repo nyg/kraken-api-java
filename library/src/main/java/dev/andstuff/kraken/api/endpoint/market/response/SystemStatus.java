@@ -13,7 +13,10 @@ import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 public record SystemStatus(Description status,
                            Instant timestamp) {
 
-    enum Description {
+    /**
+     * The trading mode of the Kraken trading system.
+     */
+    public enum Description {
         ONLINE,
         MAINTENANCE,
         CANCEL_ONLY,
