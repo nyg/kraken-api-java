@@ -8,6 +8,7 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 
 import dev.andstuff.kraken.api.endpoint.priv.PostParams;
+import dev.andstuff.kraken.api.endpoint.priv.RebaseMultiplier;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.With;
@@ -27,6 +28,7 @@ public class LedgerInfoParams extends PostParams {
     private final String fromLedgerId;
     private final String toLedgerId;
     private final boolean withoutCount;
+    private final RebaseMultiplier rebaseMultiplier;
 
     @With
     @Builder.Default
@@ -55,6 +57,7 @@ public class LedgerInfoParams extends PostParams {
 
         putIfNonNull(params, "without_count", withoutCount);
         putIfNonNull(params, "ofs", resultOffset);
+        putIfNonNull(params, "rebase_multiplier", rebaseMultiplier, RebaseMultiplier::getValue);
         return params;
     }
 

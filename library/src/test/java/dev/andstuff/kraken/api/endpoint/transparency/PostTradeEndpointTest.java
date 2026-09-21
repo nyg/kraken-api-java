@@ -1,7 +1,6 @@
 package dev.andstuff.kraken.api.endpoint.transparency;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -60,8 +59,22 @@ class PostTradeEndpointTest {
     }
 
     @Test
-    void should_reject_missing_symbol_when_building_parameters() {
-        assertThatThrownBy(() -> PostTradeParams.builder().count(10).build()).isInstanceOf(NullPointerException.class).hasMessageContaining("symbol");
+    void should_omit_symbol_when_requesting_trades_of_all_pairs() {
+        PostTradeEndpoint unit = new PostTradeEndpoint(PostTradeParams.builder().count(10).build());
+
+        URL result = unit.buildURL();
+
+        assertThat(result).hasPath("/0/public/PostTrade").hasNoParameter("symbol");
+        assertThat(result.getQuery()).isEqualTo("count=10");
+    }
+
+    @Test
+    void should_send_no_parameter_when_no_option_is_set() {
+        PostTradeEndpoint unit = new PostTradeEndpoint(PostTradeParams.builder().build());
+
+        URL result = unit.buildURL();
+
+        assertThat(result).hasPath("/0/public/PostTrade").hasNoParameters();
     }
 
     @Test

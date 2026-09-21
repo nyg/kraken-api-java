@@ -25,6 +25,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import dev.andstuff.kraken.api.endpoint.KrakenResponse;
 import dev.andstuff.kraken.api.endpoint.account.params.LedgerEntriesParams;
 import dev.andstuff.kraken.api.endpoint.account.response.LedgerEntry;
+import dev.andstuff.kraken.api.endpoint.priv.RebaseMultiplier;
 
 @ExtendWith(MockitoExtension.class)
 class LedgerEntriesEndpointTest {
@@ -32,7 +33,7 @@ class LedgerEntriesEndpointTest {
     @Test
     void should_encode_all_options_when_supplied() {
         LedgerEntriesEndpoint unit = new LedgerEntriesEndpoint(LedgerEntriesParams.builder()
-                .entryIds(List.of("L4UESK-KG3EQ-UFO4T5", "LMKZCZ-Z3GVL-CXKK4H")).includeTrades(true).build());
+                .entryIds(List.of("L4UESK-KG3EQ-UFO4T5", "LMKZCZ-Z3GVL-CXKK4H")).includeTrades(true).rebaseMultiplier(RebaseMultiplier.REBASED).build());
 
         Map<String, String> result = Arrays.stream(unit.encodedParamsWith("123456789").split("&"))
                 .map(value -> value.split("=", 2))
@@ -41,7 +42,8 @@ class LedgerEntriesEndpointTest {
         assertThat(result).containsExactlyInAnyOrderEntriesOf(Map.ofEntries(
                 Map.entry("nonce", "123456789"),
                 Map.entry("id", "L4UESK-KG3EQ-UFO4T5,LMKZCZ-Z3GVL-CXKK4H"),
-                Map.entry("trades", "true")));
+                Map.entry("trades", "true"),
+                Map.entry("rebase_multiplier", "rebased")));
         assertThat(unit.buildURL().getPath()).isEqualTo("/0/private/QueryLedgers");
         assertThat(unit.getHttpMethod()).isEqualTo("POST");
         assertThat(unit.getContentType()).isEqualTo("application/x-www-form-urlencoded");
@@ -53,7 +55,7 @@ class LedgerEntriesEndpointTest {
 
         String result = unit.encodedParamsWith("123");
 
-        assertThat(result).contains("trades=false").contains("id=L4UESK-KG3EQ-UFO4T5").endsWith("nonce=123");
+        assertThat(result).contains("trades=false").contains("id=L4UESK-KG3EQ-UFO4T5").doesNotContain("rebase_multiplier").endsWith("nonce=123");
     }
 
     @Test
