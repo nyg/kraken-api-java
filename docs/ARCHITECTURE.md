@@ -178,7 +178,7 @@ classDiagram
 To add a new typed endpoint:
 
 1. Create a response record in the appropriate `response/` package
-2. Create a params class implementing `QueryParams` (public) or extending `PostParams` (private)
+2. Create a params class implementing `QueryParams` (public) or extending `PostParams` (private); extend `JsonPostParams` instead when the body contains arrays or nested objects, and override `getContentType()` on the endpoint to return `application/json`
 3. Create an endpoint class extending `PublicEndpoint<T>` or `PrivateEndpoint<T>`
 4. Add a convenience method to `KrakenAPI`
 

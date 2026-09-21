@@ -179,7 +179,33 @@ TradeVolume fees = api.tradeVolume(TradeVolumeParams.builder()
 
 `TradeVolumeParams` encodes requests as JSON to support class-qualified pairs. Custom REST requesters should send `endpoint.encodedParamsWith(nonce)` unchanged with `endpoint.getContentType()` and use `endpoint.unwrapResponse(response)` to handle endpoint-specific nullable results.
 
-Custom `KrakenNonceGenerator` implementations must produce increasing unsigned 64-bit integers as canonical decimal strings. `TradeVolume` encodes the nonce as a JSON number and rejects malformed, out-of-range or noncanonical values with an `IllegalStateException` that names the generator contract. Canonical formatting keeps the nonce used for signing identical to the number in the JSON body.
+Custom `KrakenNonceGenerator` implementations must produce increasing unsigned 64-bit integers as canonical decimal strings. `TradeVolume`, `AddOrderBatch` and `CancelOrderBatch` encode the nonce as a JSON number and reject malformed, out-of-range or noncanonical values with an `IllegalStateException` that names the parameter type and the generator contract. Canonical formatting keeps the nonce used for signing identical to the number in the JSON body.
+
+### Trading
+
+All nine Trading operations have typed methods: `addOrder`, `addOrderBatch`, `amendOrder`, `editOrder`, `cancelOrder`, `cancelOrderBatch`, `cancelAllOrders`, `cancelAllOrdersAfter`, and `webSocketsToken`. They require an API key with the order permissions Kraken documents for each operation; `webSocketsToken` requires the WebSocket interface permission.
+
+```java
+OrderAdded order = api.addOrder(AddOrderParams.builder()
+        .pair("XBTUSD").side(OrderSide.BUY).orderType(OrderType.LIMIT)
+        .volume(new BigDecimal("1.25")).price(new BigDecimal("27500"))
+        .orderFlags(EnumSet.of(OrderFlag.POST))
+        .close(new ConditionalClose(OrderType.STOP_LOSS, "25000"))
+        .validate(true).build());
+
+OrderAmended amend = api.amendOrder(AmendOrderParams.builder()
+        .clientOrderId("my-order-1").limitPrice("+50").build());
+OrderBatchAdded batch = api.addOrderBatch(AddOrderBatchParams.builder().pair("BTC/USD").orders(List.of(
+        BatchOrder.builder().side(OrderSide.BUY).orderType(OrderType.LIMIT).volume(new BigDecimal("0.1")).price("40000").build(),
+        BatchOrder.builder().side(OrderSide.SELL).orderType(OrderType.LIMIT).volume(new BigDecimal("0.1")).price("42000").build())).build());
+OrderCancellation cancelled = api.cancelOrderBatch(CancelOrderBatchParams.builder()
+        .transactionIds(List.of("OHYO67-6LP66-HMQ437")).userReferences(List.of(42)).build());
+DeadMansSwitch timer = api.cancelAllOrdersAfter(CancelAllOrdersAfterParams.builder().timeout(Duration.ofSeconds(60)).build());
+```
+
+Prices accept a `BigDecimal` or a string, so relative prices such as `+1.5%` or `#10` are sent as Kraken documents them. With `validate(true)`, Kraken checks the order without submitting it and returns a description without transaction IDs. `amendOrder` changes an order in place, keeping its identifiers and, where possible, its queue priority; `editOrder` cancels the order and replaces it with a new one. `AmendOrderParams`, `EditOrderParams` and `CancelOrderParams` need exactly one order identifier and throw an `IllegalArgumentException` otherwise. In a batch, an order failing pre-match checks carries an `error()` while the other orders are still placed.
+
+`cancelAllOrdersAfter` sets Kraken's dead man's switch: Kraken recommends calling it every 15 to 30 seconds with a 60-second timeout. `Duration.ZERO` disables the timer, and `triggerTime()` is then null. `AddOrderBatch` and `CancelOrderBatch` send JSON bodies; the other Trading operations use form encoding.
 
 ### Custom endpoints
 

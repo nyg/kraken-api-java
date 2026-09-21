@@ -2,6 +2,8 @@ package dev.andstuff.kraken.example;
 
 import static dev.andstuff.kraken.example.helper.CredentialsHelper.readFromFile;
 
+import java.math.BigDecimal;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +15,12 @@ import dev.andstuff.kraken.api.endpoint.market.response.AssetInfo;
 import dev.andstuff.kraken.api.endpoint.market.response.AssetPairs;
 import dev.andstuff.kraken.api.endpoint.market.response.ServerTime;
 import dev.andstuff.kraken.api.endpoint.market.response.SystemStatus;
+import dev.andstuff.kraken.api.endpoint.trading.params.AddOrderParams;
+import dev.andstuff.kraken.api.endpoint.trading.params.ConditionalClose;
+import dev.andstuff.kraken.api.endpoint.trading.params.OrderFlag;
+import dev.andstuff.kraken.api.endpoint.trading.params.OrderSide;
+import dev.andstuff.kraken.api.endpoint.trading.params.OrderType;
+import dev.andstuff.kraken.api.endpoint.trading.response.OrderAdded;
 import dev.andstuff.kraken.api.rest.KrakenCredentials;
 import lombok.extern.slf4j.Slf4j;
 
@@ -68,5 +76,17 @@ public class SimpleExamples {
                 "close[price]", "500",
                 "validate", "true")); // does not submit the order when set to true
         log.info("{}", order);
+
+        OrderAdded typedOrder = api.addOrder(AddOrderParams.builder()
+                .orderType(OrderType.LIMIT)
+                .side(OrderSide.SELL)
+                .volume(BigDecimal.ONE)
+                .pair("XLTCZUSD")
+                .price("1000")
+                .orderFlags(EnumSet.of(OrderFlag.POST, OrderFlag.FCIQ))
+                .close(new ConditionalClose(OrderType.LIMIT, "500"))
+                .validate(true)
+                .build());
+        log.info("{}", typedOrder);
     }
 }
