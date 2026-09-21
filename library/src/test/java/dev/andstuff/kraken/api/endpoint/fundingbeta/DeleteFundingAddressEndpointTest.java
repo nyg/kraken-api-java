@@ -44,7 +44,9 @@ class DeleteFundingAddressEndpointTest {
 
     @Test
     void should_reject_missing_address_when_building_parameters() {
-        assertThatThrownBy(() -> DeleteFundingAddressParams.builder().accountId("AA12").build()).isInstanceOf(NullPointerException.class).hasMessageContaining("addressId");
+        DeleteFundingAddressParams.DeleteFundingAddressParamsBuilder builder = DeleteFundingAddressParams.builder().accountId("AA12");
+
+        assertThatThrownBy(builder::build).isInstanceOf(NullPointerException.class).hasMessageContaining("addressId");
     }
 
     @Test

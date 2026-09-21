@@ -49,7 +49,9 @@ class DepositMethodsEndpointTest {
 
     @Test
     void should_reject_missing_asset_when_building_parameters() {
-        assertThatThrownBy(() -> DepositMethodsParams.builder().build()).isInstanceOf(NullPointerException.class).hasMessageContaining("asset");
+        DepositMethodsParams.DepositMethodsParamsBuilder builder = DepositMethodsParams.builder();
+
+        assertThatThrownBy(builder::build).isInstanceOf(NullPointerException.class).hasMessageContaining("asset");
     }
 
     @Test

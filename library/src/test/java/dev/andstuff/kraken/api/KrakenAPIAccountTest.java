@@ -125,7 +125,7 @@ class KrakenAPIAccountTest {
     void should_reject_accountBalance_when_credentials_are_missing() {
         KrakenAPI unit = new KrakenAPI(null, nonceGenerator, requester);
 
-        assertThatThrownBy(() -> unit.accountBalance()).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(unit::accountBalance).isInstanceOf(IllegalStateException.class);
         verifyNoInteractions(requester);
     }
 
@@ -156,7 +156,7 @@ class KrakenAPIAccountTest {
     void should_reject_extendedBalance_when_credentials_are_missing() {
         KrakenAPI unit = new KrakenAPI(null, nonceGenerator, requester);
 
-        assertThatThrownBy(() -> unit.extendedBalance()).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(unit::extendedBalance).isInstanceOf(IllegalStateException.class);
         verifyNoInteractions(requester);
     }
 
@@ -189,7 +189,7 @@ class KrakenAPIAccountTest {
     void should_reject_creditLines_when_credentials_are_missing() {
         KrakenAPI unit = new KrakenAPI(null, nonceGenerator, requester);
 
-        assertThatThrownBy(() -> unit.creditLines()).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(unit::creditLines).isInstanceOf(IllegalStateException.class);
         verifyNoInteractions(requester);
     }
 
@@ -222,7 +222,7 @@ class KrakenAPIAccountTest {
     void should_reject_tradeBalance_when_credentials_are_missing() {
         KrakenAPI unit = new KrakenAPI(null, nonceGenerator, requester);
 
-        assertThatThrownBy(() -> unit.tradeBalance()).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(unit::tradeBalance).isInstanceOf(IllegalStateException.class);
         verifyNoInteractions(requester);
     }
 
@@ -255,7 +255,7 @@ class KrakenAPIAccountTest {
     void should_reject_openOrders_when_credentials_are_missing() {
         KrakenAPI unit = new KrakenAPI(null, nonceGenerator, requester);
 
-        assertThatThrownBy(() -> unit.openOrders()).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(unit::openOrders).isInstanceOf(IllegalStateException.class);
         verifyNoInteractions(requester);
     }
 
@@ -288,7 +288,7 @@ class KrakenAPIAccountTest {
     void should_reject_closedOrders_when_credentials_are_missing() {
         KrakenAPI unit = new KrakenAPI(null, nonceGenerator, requester);
 
-        assertThatThrownBy(() -> unit.closedOrders()).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(unit::closedOrders).isInstanceOf(IllegalStateException.class);
         verifyNoInteractions(requester);
     }
 
@@ -342,7 +342,7 @@ class KrakenAPIAccountTest {
     void should_reject_orderAmends_when_credentials_are_missing() {
         KrakenAPI unit = new KrakenAPI(null, nonceGenerator, requester);
 
-        assertThatThrownBy(() -> unit.orderAmends()).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(unit::orderAmends).isInstanceOf(IllegalStateException.class);
         verifyNoInteractions(requester);
     }
 
@@ -375,7 +375,7 @@ class KrakenAPIAccountTest {
     void should_reject_tradesHistory_when_credentials_are_missing() {
         KrakenAPI unit = new KrakenAPI(null, nonceGenerator, requester);
 
-        assertThatThrownBy(() -> unit.tradesHistory()).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(unit::tradesHistory).isInstanceOf(IllegalStateException.class);
         verifyNoInteractions(requester);
     }
 
@@ -427,7 +427,7 @@ class KrakenAPIAccountTest {
     void should_reject_openPositions_when_credentials_are_missing() {
         KrakenAPI unit = new KrakenAPI(null, nonceGenerator, requester);
 
-        assertThatThrownBy(() -> unit.openPositions()).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(unit::openPositions).isInstanceOf(IllegalStateException.class);
         verifyNoInteractions(requester);
     }
 
@@ -460,7 +460,7 @@ class KrakenAPIAccountTest {
     void should_reject_tradeVolume_when_credentials_are_missing() {
         KrakenAPI unit = new KrakenAPI(null, nonceGenerator, requester);
 
-        assertThatThrownBy(() -> unit.tradeVolume()).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(unit::tradeVolume).isInstanceOf(IllegalStateException.class);
         verifyNoInteractions(requester);
     }
 
@@ -493,7 +493,7 @@ class KrakenAPIAccountTest {
     void should_reject_apiKeyInfo_when_credentials_are_missing() {
         KrakenAPI unit = new KrakenAPI(null, nonceGenerator, requester);
 
-        assertThatThrownBy(() -> unit.apiKeyInfo()).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(unit::apiKeyInfo).isInstanceOf(IllegalStateException.class);
         verifyNoInteractions(requester);
     }
 
@@ -526,7 +526,7 @@ class KrakenAPIAccountTest {
     void should_reject_walletAccounts_when_credentials_are_missing() {
         KrakenAPI unit = new KrakenAPI(null, nonceGenerator, requester);
 
-        assertThatThrownBy(() -> unit.walletAccounts()).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(unit::walletAccounts).isInstanceOf(IllegalStateException.class);
         verifyNoInteractions(requester);
     }
 

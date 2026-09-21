@@ -33,6 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DefaultKrakenRestRequester implements KrakenRestRequester {
 
+    private static final String CONTENT_TYPE = "Content-Type";
     private static final ObjectMapper OBJECT_MAPPER;
 
     static {
@@ -91,7 +92,7 @@ public class DefaultKrakenRestRequester implements KrakenRestRequester {
             log.info("Fetching private endpoint: {}", connection.getURL());
             connection.addRequestProperty("API-Key", credentials.getKey());
             connection.addRequestProperty("API-Sign", credentials.sign(connection.getURL(), nonce, postData));
-            connection.addRequestProperty("Content-Type", endpoint.getContentType());
+            connection.addRequestProperty(CONTENT_TYPE, endpoint.getContentType());
             connection.setDoOutput(true);
 
             try (OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream())) {
@@ -124,7 +125,7 @@ public class DefaultKrakenRestRequester implements KrakenRestRequester {
             connection.addRequestProperty("API-Nonce", nonce);
 
             if (!body.isEmpty()) {
-                connection.addRequestProperty("Content-Type", endpoint.getContentType());
+                connection.addRequestProperty(CONTENT_TYPE, endpoint.getContentType());
                 connection.setDoOutput(true);
 
                 try (OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream(), StandardCharsets.UTF_8)) {
@@ -147,7 +148,7 @@ public class DefaultKrakenRestRequester implements KrakenRestRequester {
     }
 
     private static <T> T parseResponse(HttpsURLConnection connection, Endpoint<T> endpoint) throws IOException {
-        String contentType = connection.getHeaderField("Content-Type");
+        String contentType = connection.getHeaderField(CONTENT_TYPE);
         if ("application/json".equals(contentType)) {
             JavaType krakenResponseType = endpoint.wrappedResponseType(OBJECT_MAPPER.getTypeFactory());
             KrakenResponse<T> response = OBJECT_MAPPER.readValue(connection.getInputStream(), krakenResponseType);
@@ -169,7 +170,7 @@ public class DefaultKrakenRestRequester implements KrakenRestRequester {
             throw new KrakenException(List.of("HTTP %d %s".formatted(status, readErrorBody(connection)).strip()));
         }
 
-        String contentType = connection.getHeaderField("Content-Type");
+        String contentType = connection.getHeaderField(CONTENT_TYPE);
         if (contentType == null || !contentType.startsWith("application/json")) {
             throw new IllegalStateException("Unsupported HTTP Content-Type");
         }

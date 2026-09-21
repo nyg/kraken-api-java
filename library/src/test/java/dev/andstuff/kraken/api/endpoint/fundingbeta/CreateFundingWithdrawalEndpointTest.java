@@ -120,12 +120,16 @@ class CreateFundingWithdrawalEndpointTest {
 
     @Test
     void should_reject_missing_amount_when_building_parameters() {
-        assertThatThrownBy(() -> CreateFundingWithdrawalParams.builder().scope(Scope.method("m")).addressId("AB1").build()).isInstanceOf(NullPointerException.class).hasMessageContaining("amount");
+        CreateFundingWithdrawalParams.CreateFundingWithdrawalParamsBuilder builder = CreateFundingWithdrawalParams.builder().scope(Scope.method("m")).addressId("AB1");
+
+        assertThatThrownBy(builder::build).isInstanceOf(NullPointerException.class).hasMessageContaining("amount");
     }
 
     @Test
     void should_reject_missing_address_when_building_parameters() {
-        assertThatThrownBy(() -> CreateFundingWithdrawalParams.builder().scope(Scope.method("m")).amount(new AssetAmount(new Asset(AssetClass.CURRENCY, "BTC"), BigDecimal.ONE)).build())
+        CreateFundingWithdrawalParams.CreateFundingWithdrawalParamsBuilder builder = CreateFundingWithdrawalParams.builder().scope(Scope.method("m")).amount(new AssetAmount(new Asset(AssetClass.CURRENCY, "BTC"), BigDecimal.ONE));
+
+        assertThatThrownBy(builder::build)
                 .isInstanceOf(NullPointerException.class).hasMessageContaining("addressId");
     }
 

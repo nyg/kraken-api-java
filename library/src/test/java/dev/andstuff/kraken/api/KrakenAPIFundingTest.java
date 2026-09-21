@@ -133,7 +133,7 @@ class KrakenAPIFundingTest {
     void should_reject_depositStatus_when_credentials_are_missing() {
         KrakenAPI unit = new KrakenAPI(null, nonceGenerator, requester);
 
-        assertThatThrownBy(() -> unit.depositStatus()).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(unit::depositStatus).isInstanceOf(IllegalStateException.class);
         verifyNoInteractions(requester);
     }
 
@@ -164,7 +164,7 @@ class KrakenAPIFundingTest {
     void should_reject_withdrawalMethods_when_credentials_are_missing() {
         KrakenAPI unit = new KrakenAPI(null, nonceGenerator, requester);
 
-        assertThatThrownBy(() -> unit.withdrawalMethods()).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(unit::withdrawalMethods).isInstanceOf(IllegalStateException.class);
         verifyNoInteractions(requester);
     }
 
@@ -195,7 +195,7 @@ class KrakenAPIFundingTest {
     void should_reject_withdrawalAddresses_when_credentials_are_missing() {
         KrakenAPI unit = new KrakenAPI(null, nonceGenerator, requester);
 
-        assertThatThrownBy(() -> unit.withdrawalAddresses()).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(unit::withdrawalAddresses).isInstanceOf(IllegalStateException.class);
         verifyNoInteractions(requester);
     }
 
@@ -272,7 +272,7 @@ class KrakenAPIFundingTest {
     void should_reject_withdrawalStatus_when_credentials_are_missing() {
         KrakenAPI unit = new KrakenAPI(null, nonceGenerator, requester);
 
-        assertThatThrownBy(() -> unit.withdrawalStatus()).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(unit::withdrawalStatus).isInstanceOf(IllegalStateException.class);
         verifyNoInteractions(requester);
     }
 

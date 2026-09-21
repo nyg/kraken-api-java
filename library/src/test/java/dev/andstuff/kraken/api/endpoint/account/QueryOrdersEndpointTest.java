@@ -51,7 +51,9 @@ class QueryOrdersEndpointTest {
 
     @Test
     void should_reject_missing_transactionIds_when_building_parameters() {
-        assertThatThrownBy(() -> QueryOrdersParams.builder().build()).isInstanceOf(NullPointerException.class).hasMessageContaining("transactionIds");
+        QueryOrdersParams.QueryOrdersParamsBuilder builder = QueryOrdersParams.builder();
+
+        assertThatThrownBy(builder::build).isInstanceOf(NullPointerException.class).hasMessageContaining("transactionIds");
     }
 
     @Test

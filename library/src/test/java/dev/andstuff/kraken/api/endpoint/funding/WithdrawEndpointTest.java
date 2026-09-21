@@ -53,17 +53,23 @@ class WithdrawEndpointTest {
 
     @Test
     void should_reject_missing_asset_when_building_parameters() {
-        assertThatThrownBy(() -> WithdrawParams.builder().key("id +/&=").amount(new BigDecimal("0.0000000012300")).build()).isInstanceOf(NullPointerException.class).hasMessageContaining("asset");
+        WithdrawParams.WithdrawParamsBuilder builder = WithdrawParams.builder().key("id +/&=").amount(new BigDecimal("0.0000000012300"));
+
+        assertThatThrownBy(builder::build).isInstanceOf(NullPointerException.class).hasMessageContaining("asset");
     }
 
     @Test
     void should_reject_missing_key_when_building_parameters() {
-        assertThatThrownBy(() -> WithdrawParams.builder().asset("id +/&=").amount(new BigDecimal("0.0000000012300")).build()).isInstanceOf(NullPointerException.class).hasMessageContaining("key");
+        WithdrawParams.WithdrawParamsBuilder builder = WithdrawParams.builder().asset("id +/&=").amount(new BigDecimal("0.0000000012300"));
+
+        assertThatThrownBy(builder::build).isInstanceOf(NullPointerException.class).hasMessageContaining("key");
     }
 
     @Test
     void should_reject_missing_amount_when_building_parameters() {
-        assertThatThrownBy(() -> WithdrawParams.builder().asset("id +/&=").key("id +/&=").build()).isInstanceOf(NullPointerException.class).hasMessageContaining("amount");
+        WithdrawParams.WithdrawParamsBuilder builder = WithdrawParams.builder().asset("id +/&=").key("id +/&=");
+
+        assertThatThrownBy(builder::build).isInstanceOf(NullPointerException.class).hasMessageContaining("amount");
     }
 
     @Test

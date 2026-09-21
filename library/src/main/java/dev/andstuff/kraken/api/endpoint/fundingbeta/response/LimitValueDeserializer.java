@@ -25,7 +25,7 @@ final class LimitValueDeserializer extends StdDeserializer<LimitValue> {
             try {
                 return new LimitValue(Long.valueOf(parser.getText()), null);
             }
-            catch (NumberFormatException e) {
+            catch (NumberFormatException _) {
                 return context.reportInputMismatch(LimitValue.class, "Expected a count or limit amounts");
             }
         }

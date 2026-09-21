@@ -128,7 +128,7 @@ class TradeVolumeEndpointTest {
     }
 
     @Test
-    void should_reuse_json_encoding_when_parameters_are_encoded_directly() throws Exception {
+    void should_reuse_json_encoding_when_parameters_are_encoded_directly() {
         TradeVolumeParams params = TradeVolumeParams.builder().pairs(List.of("XBTUSD")).feeSchedule(true).build();
         TradeVolumeEndpoint unit = new TradeVolumeEndpoint(params);
 

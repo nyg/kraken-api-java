@@ -71,7 +71,7 @@ class KrakenAPIEarnTest {
     void should_reject_earnStrategies_when_credentials_are_missing() {
         KrakenAPI unit = new KrakenAPI(null, nonceGenerator, requester);
 
-        assertThatThrownBy(() -> unit.earnStrategies()).isInstanceOf(IllegalStateException.class).hasMessageContaining("Earn/Strategies");
+        assertThatThrownBy(unit::earnStrategies).isInstanceOf(IllegalStateException.class).hasMessageContaining("Earn/Strategies");
         verifyNoInteractions(requester);
     }
 
@@ -104,7 +104,7 @@ class KrakenAPIEarnTest {
     void should_reject_earnAllocations_when_credentials_are_missing() {
         KrakenAPI unit = new KrakenAPI(null, nonceGenerator, requester);
 
-        assertThatThrownBy(() -> unit.earnAllocations()).isInstanceOf(IllegalStateException.class).hasMessageContaining("Earn/Allocations");
+        assertThatThrownBy(unit::earnAllocations).isInstanceOf(IllegalStateException.class).hasMessageContaining("Earn/Allocations");
         verifyNoInteractions(requester);
     }
 

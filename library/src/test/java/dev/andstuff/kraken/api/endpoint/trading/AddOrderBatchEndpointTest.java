@@ -97,27 +97,37 @@ class AddOrderBatchEndpointTest {
 
     @Test
     void should_reject_missing_pair_when_building_parameters() {
-        assertThatThrownBy(() -> AddOrderBatchParams.builder().orders(List.of()).build()).isInstanceOf(NullPointerException.class).hasMessageContaining("pair");
+        AddOrderBatchParams.AddOrderBatchParamsBuilder builder = AddOrderBatchParams.builder().orders(List.of());
+
+        assertThatThrownBy(builder::build).isInstanceOf(NullPointerException.class).hasMessageContaining("pair");
     }
 
     @Test
     void should_reject_missing_orders_when_building_parameters() {
-        assertThatThrownBy(() -> AddOrderBatchParams.builder().pair("BTC/USD").build()).isInstanceOf(NullPointerException.class).hasMessageContaining("orders");
+        AddOrderBatchParams.AddOrderBatchParamsBuilder builder = AddOrderBatchParams.builder().pair("BTC/USD");
+
+        assertThatThrownBy(builder::build).isInstanceOf(NullPointerException.class).hasMessageContaining("orders");
     }
 
     @Test
     void should_reject_missing_orderType_when_building_batch_order() {
-        assertThatThrownBy(() -> BatchOrder.builder().side(OrderSide.BUY).volume(BigDecimal.ONE).build()).isInstanceOf(NullPointerException.class).hasMessageContaining("orderType");
+        BatchOrder.BatchOrderBuilder builder = BatchOrder.builder().side(OrderSide.BUY).volume(BigDecimal.ONE);
+
+        assertThatThrownBy(builder::build).isInstanceOf(NullPointerException.class).hasMessageContaining("orderType");
     }
 
     @Test
     void should_reject_missing_side_when_building_batch_order() {
-        assertThatThrownBy(() -> BatchOrder.builder().orderType(OrderType.MARKET).volume(BigDecimal.ONE).build()).isInstanceOf(NullPointerException.class).hasMessageContaining("side");
+        BatchOrder.BatchOrderBuilder builder = BatchOrder.builder().orderType(OrderType.MARKET).volume(BigDecimal.ONE);
+
+        assertThatThrownBy(builder::build).isInstanceOf(NullPointerException.class).hasMessageContaining("side");
     }
 
     @Test
     void should_reject_missing_volume_when_building_batch_order() {
-        assertThatThrownBy(() -> BatchOrder.builder().orderType(OrderType.MARKET).side(OrderSide.BUY).build()).isInstanceOf(NullPointerException.class).hasMessageContaining("volume");
+        BatchOrder.BatchOrderBuilder builder = BatchOrder.builder().orderType(OrderType.MARKET).side(OrderSide.BUY);
+
+        assertThatThrownBy(builder::build).isInstanceOf(NullPointerException.class).hasMessageContaining("volume");
     }
 
     @Test

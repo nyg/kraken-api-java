@@ -116,25 +116,33 @@ class AddOrderEndpointTest {
 
     @Test
     void should_reject_missing_pair_when_building_parameters() {
-        assertThatThrownBy(() -> AddOrderParams.builder().side(OrderSide.BUY).orderType(OrderType.MARKET).volume(BigDecimal.ONE).build())
+        AddOrderParams.AddOrderParamsBuilder builder = AddOrderParams.builder().side(OrderSide.BUY).orderType(OrderType.MARKET).volume(BigDecimal.ONE);
+
+        assertThatThrownBy(builder::build)
                 .isInstanceOf(NullPointerException.class).hasMessageContaining("pair");
     }
 
     @Test
     void should_reject_missing_side_when_building_parameters() {
-        assertThatThrownBy(() -> AddOrderParams.builder().pair("XBTUSD").orderType(OrderType.MARKET).volume(BigDecimal.ONE).build())
+        AddOrderParams.AddOrderParamsBuilder builder = AddOrderParams.builder().pair("XBTUSD").orderType(OrderType.MARKET).volume(BigDecimal.ONE);
+
+        assertThatThrownBy(builder::build)
                 .isInstanceOf(NullPointerException.class).hasMessageContaining("side");
     }
 
     @Test
     void should_reject_missing_orderType_when_building_parameters() {
-        assertThatThrownBy(() -> AddOrderParams.builder().pair("XBTUSD").side(OrderSide.BUY).volume(BigDecimal.ONE).build())
+        AddOrderParams.AddOrderParamsBuilder builder = AddOrderParams.builder().pair("XBTUSD").side(OrderSide.BUY).volume(BigDecimal.ONE);
+
+        assertThatThrownBy(builder::build)
                 .isInstanceOf(NullPointerException.class).hasMessageContaining("orderType");
     }
 
     @Test
     void should_reject_missing_volume_when_building_parameters() {
-        assertThatThrownBy(() -> AddOrderParams.builder().pair("XBTUSD").side(OrderSide.BUY).orderType(OrderType.MARKET).build())
+        AddOrderParams.AddOrderParamsBuilder builder = AddOrderParams.builder().pair("XBTUSD").side(OrderSide.BUY).orderType(OrderType.MARKET);
+
+        assertThatThrownBy(builder::build)
                 .isInstanceOf(NullPointerException.class).hasMessageContaining("volume");
     }
 

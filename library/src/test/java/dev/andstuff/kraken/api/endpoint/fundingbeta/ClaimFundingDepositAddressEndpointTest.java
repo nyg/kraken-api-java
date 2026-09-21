@@ -38,7 +38,9 @@ class ClaimFundingDepositAddressEndpointTest {
 
     @Test
     void should_reject_missing_method_when_building_parameters() {
-        assertThatThrownBy(() -> ClaimFundingDepositAddressParams.builder().accountId("AA12").build()).isInstanceOf(NullPointerException.class).hasMessageContaining("methodId");
+        ClaimFundingDepositAddressParams.ClaimFundingDepositAddressParamsBuilder builder = ClaimFundingDepositAddressParams.builder().accountId("AA12");
+
+        assertThatThrownBy(builder::build).isInstanceOf(NullPointerException.class).hasMessageContaining("methodId");
     }
 
     @Test

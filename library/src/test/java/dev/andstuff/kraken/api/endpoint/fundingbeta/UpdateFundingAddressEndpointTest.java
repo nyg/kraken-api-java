@@ -45,7 +45,9 @@ class UpdateFundingAddressEndpointTest {
 
     @Test
     void should_reject_missing_address_when_building_parameters() {
-        assertThatThrownBy(() -> UpdateFundingAddressParams.builder().name("n").build()).isInstanceOf(NullPointerException.class).hasMessageContaining("addressId");
+        UpdateFundingAddressParams.UpdateFundingAddressParamsBuilder builder = UpdateFundingAddressParams.builder().name("n");
+
+        assertThatThrownBy(builder::build).isInstanceOf(NullPointerException.class).hasMessageContaining("addressId");
     }
 
     @Test
