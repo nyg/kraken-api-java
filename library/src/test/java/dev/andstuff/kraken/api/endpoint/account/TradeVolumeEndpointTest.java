@@ -114,7 +114,7 @@ class TradeVolumeEndpointTest {
         TradeVolumeEndpoint unit = new TradeVolumeEndpoint();
 
         assertThatThrownBy(() -> unit.encodedParamsWith(nonce)).isInstanceOf(IllegalStateException.class)
-                .hasMessage("TradeVolume requires KrakenNonceGenerator to return an unsigned 64-bit integer in canonical decimal form");
+                .hasMessage("TradeVolumeParams requires KrakenNonceGenerator to return an unsigned 64-bit integer in canonical decimal form");
     }
 
     @Test

@@ -1,15 +1,12 @@
 package dev.andstuff.kraken.api.endpoint.account.params;
 
-import java.math.BigInteger;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 
-import dev.andstuff.kraken.api.endpoint.priv.PostParams;
+import dev.andstuff.kraken.api.endpoint.priv.JsonPostParams;
 import dev.andstuff.kraken.api.endpoint.priv.RebaseMultiplier;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,9 +17,7 @@ import lombok.NonNull;
  */
 @Getter
 @Builder(toBuilder = true)
-public class TradeVolumeParams extends PostParams {
-
-    private static final JsonMapper OBJECT_MAPPER = JsonMapper.builder().build();
+public class TradeVolumeParams extends JsonPostParams {
 
     /**
      * The pairs for {@code TradeVolume}.
@@ -71,22 +66,6 @@ public class TradeVolumeParams extends PostParams {
             params.put("rebase_multiplier", rebaseMultiplier.getValue());
         }
         return params;
-    }
-
-    @Override
-    protected String encode(Map<String, Object> params) {
-        String nonce = (String) params.get("nonce");
-        BigInteger numericNonce = nonce != null && nonce.matches("0|[1-9][0-9]{0,19}") ? new BigInteger(nonce) : null;
-        if (numericNonce == null || numericNonce.bitLength() > 64) {
-            throw new IllegalStateException("TradeVolume requires KrakenNonceGenerator to return an unsigned 64-bit integer in canonical decimal form");
-        }
-        params.put("nonce", numericNonce);
-        try {
-            return OBJECT_MAPPER.writeValueAsString(params);
-        }
-        catch (JsonProcessingException e) {
-            throw new IllegalStateException("Cannot encode TradeVolume parameters", e);
-        }
     }
 
     /**

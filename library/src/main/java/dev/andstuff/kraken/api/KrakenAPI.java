@@ -148,6 +148,29 @@ import dev.andstuff.kraken.api.endpoint.subaccount.CreateSubaccountEndpoint;
 import dev.andstuff.kraken.api.endpoint.subaccount.params.AccountTransferParams;
 import dev.andstuff.kraken.api.endpoint.subaccount.params.CreateSubaccountParams;
 import dev.andstuff.kraken.api.endpoint.subaccount.response.AccountTransfer;
+import dev.andstuff.kraken.api.endpoint.trading.AddOrderBatchEndpoint;
+import dev.andstuff.kraken.api.endpoint.trading.AddOrderEndpoint;
+import dev.andstuff.kraken.api.endpoint.trading.AmendOrderEndpoint;
+import dev.andstuff.kraken.api.endpoint.trading.CancelAllOrdersAfterEndpoint;
+import dev.andstuff.kraken.api.endpoint.trading.CancelAllOrdersEndpoint;
+import dev.andstuff.kraken.api.endpoint.trading.CancelOrderBatchEndpoint;
+import dev.andstuff.kraken.api.endpoint.trading.CancelOrderEndpoint;
+import dev.andstuff.kraken.api.endpoint.trading.EditOrderEndpoint;
+import dev.andstuff.kraken.api.endpoint.trading.WebSocketsTokenEndpoint;
+import dev.andstuff.kraken.api.endpoint.trading.params.AddOrderBatchParams;
+import dev.andstuff.kraken.api.endpoint.trading.params.AddOrderParams;
+import dev.andstuff.kraken.api.endpoint.trading.params.AmendOrderParams;
+import dev.andstuff.kraken.api.endpoint.trading.params.CancelAllOrdersAfterParams;
+import dev.andstuff.kraken.api.endpoint.trading.params.CancelOrderBatchParams;
+import dev.andstuff.kraken.api.endpoint.trading.params.CancelOrderParams;
+import dev.andstuff.kraken.api.endpoint.trading.params.EditOrderParams;
+import dev.andstuff.kraken.api.endpoint.trading.response.DeadMansSwitch;
+import dev.andstuff.kraken.api.endpoint.trading.response.OrderAdded;
+import dev.andstuff.kraken.api.endpoint.trading.response.OrderAmended;
+import dev.andstuff.kraken.api.endpoint.trading.response.OrderBatchAdded;
+import dev.andstuff.kraken.api.endpoint.trading.response.OrderCancellation;
+import dev.andstuff.kraken.api.endpoint.trading.response.OrderEdited;
+import dev.andstuff.kraken.api.endpoint.trading.response.WebSocketsToken;
 import dev.andstuff.kraken.api.endpoint.transparency.PostTradeEndpoint;
 import dev.andstuff.kraken.api.endpoint.transparency.PreTradeEndpoint;
 import dev.andstuff.kraken.api.endpoint.transparency.params.PostTradeParams;
@@ -887,6 +910,115 @@ public class KrakenAPI {
      */
     public boolean cancelReport(String id) {
         return query(new RemoveReportEndpoint(RemoveReportParams.of(id, RemovalType.CANCEL))).wasCanceled();
+    }
+
+    /**
+     * Places an order using {@code AddOrder}. Set {@code validate} on the parameters to only validate the order without submitting it.
+     *
+     * @param params the order to place
+     * @return the order description and its Kraken identifiers
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public OrderAdded addOrder(AddOrderParams params) {
+        return query(new AddOrderEndpoint(params));
+    }
+
+    /**
+     * Places between 2 and 15 orders on the same pair using {@code AddOrderBatch}. The whole batch is rejected if one order fails validation, while an order failing pre-match checks is rejected alone.
+     *
+     * @param params the orders to place
+     * @return the added orders, in the order they were sent
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public OrderBatchAdded addOrderBatch(AddOrderBatchParams params) {
+        return query(new AddOrderBatchEndpoint(params));
+    }
+
+    /**
+     * Modifies an open order in place using {@code AmendOrder}, keeping its identifiers and, where possible, its queue priority.
+     *
+     * @param params the order to amend and its new values
+     * @return the identifier of the amend transaction
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     * @throws IllegalArgumentException if not exactly one order identifier is set
+     */
+    public OrderAmended amendOrder(AmendOrderParams params) {
+        return query(new AmendOrderEndpoint(params));
+    }
+
+    /**
+     * Replaces an open order with a new one using {@code EditOrder}. {@link #amendOrder(AmendOrderParams)} is preferred: it keeps the order identifiers and queue priority, and supports more order types.
+     *
+     * @param params the order to edit and its new values
+     * @return the new order and the identifier of the original order
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     * @throws IllegalArgumentException if not exactly one order identifier is set
+     */
+    public OrderEdited editOrder(EditOrderParams params) {
+        return query(new EditOrderEndpoint(params));
+    }
+
+    /**
+     * Cancels an open order, or every open order sharing a user reference, using {@code CancelOrder}.
+     *
+     * @param params the orders to cancel
+     * @return the number of orders cancelled
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     * @throws IllegalArgumentException if not exactly one order identifier is set
+     */
+    public OrderCancellation cancelOrder(CancelOrderParams params) {
+        return query(new CancelOrderEndpoint(params));
+    }
+
+    /**
+     * Cancels up to 50 open orders using {@code CancelOrderBatch}.
+     *
+     * @param params the orders to cancel
+     * @return the number of orders cancelled
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public OrderCancellation cancelOrderBatch(CancelOrderBatchParams params) {
+        return query(new CancelOrderBatchEndpoint(params));
+    }
+
+    /**
+     * Cancels all open orders using {@code CancelAll}.
+     *
+     * @return the number of orders cancelled
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public OrderCancellation cancelAllOrders() {
+        return query(new CancelAllOrdersEndpoint());
+    }
+
+    /**
+     * Sets, extends or disables the dead man's switch using {@code CancelAllOrdersAfter}. Kraken cancels all orders when the timer expires; call this method again before it does to extend it.
+     *
+     * @param params the timer delay
+     * @return the time the request was received and the time the timer expires
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public DeadMansSwitch cancelAllOrdersAfter(CancelAllOrdersAfterParams params) {
+        return query(new CancelAllOrdersAfterEndpoint(params));
+    }
+
+    /**
+     * Queries the {@code GetWebSocketsToken} endpoint for a token authenticating a connection to the Kraken WebSocket API.
+     *
+     * @return the token and its lifetime
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public WebSocketsToken webSocketsToken() {
+        return query(new WebSocketsTokenEndpoint());
     }
 
     /**

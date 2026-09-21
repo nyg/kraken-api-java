@@ -4,6 +4,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Map;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -19,6 +20,16 @@ import lombok.Getter;
 public class PrivateEndpoint<T> extends Endpoint<T> {
 
     private final PostParams postParams;
+
+    /**
+     * Creates a private endpoint whose request body only contains the nonce.
+     *
+     * @param path the endpoint path, e.g. {@code CancelAll} for {@code /0/private/CancelAll}
+     * @param responseType the type the response is deserialized into
+     */
+    public PrivateEndpoint(String path, TypeReference<T> responseType) {
+        this(path, new GenericPostParams(Map.of()), responseType);
+    }
 
     /**
      * Creates a private endpoint.
