@@ -13,6 +13,7 @@
 
     <properties>
         <log4j.version>2.25.3</log4j.version>
+        <sonar.skip>true</sonar.skip>
     </properties>
 
     <dependencies>

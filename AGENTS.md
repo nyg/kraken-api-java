@@ -11,7 +11,7 @@ mvn -pl library package    # build only the library module
 mvn -pl examples package   # build only the examples module
 ```
 
-The library's JUnit 5 tests use JSON fixtures and Mockito mocks of `KrakenRestRequester`, without network access or API keys. Run them with `mvn -pl library test`. CI runs `mvn clean package` on PRs targeting `master`.
+The library's JUnit 5 tests use JSON fixtures and Mockito mocks of `KrakenRestRequester`, without network access or API keys. Run them with `mvn -pl library test`. CI runs `mvn clean verify` on pushes and PRs targeting `master`, followed by a SonarCloud analysis with JaCoCo coverage of the `library` module.
 
 Java 25 with Temurin is required (configured via `maven-compiler-plugin` with `<release>25</release>`).
 
