@@ -92,6 +92,8 @@ The `perform` goal is simpler than the `prepare` goal. Its documentation can be 
 
 ## Summary
 
+`scripts/create-release.py patch|minor|major` bumps the latest `v*` tag accordingly, aborts if `api-keys.properties` exists, runs `release:prepare release:perform` in one go and then offers to open Sonatype's [publishing page](https://central.sonatype.com/publishing), where the validated deployment must be published manually. The equivalent manual steps are:
+
 ```sh
 # stay safe even if the examples module is not published
 rm examples/src/main/resources/api-keys.properties
