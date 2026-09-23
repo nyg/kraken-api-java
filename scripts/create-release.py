@@ -11,6 +11,7 @@ BUMPS = ("patch", "minor", "major")
 
 
 def latest_version():
+    subprocess.run(["git", "fetch", "--tags", "origin"], cwd=ROOT, check=True)
     tags = subprocess.run(
         ["git", "tag", "--list", "v[0-9]*", "--sort=-v:refname"],
         cwd=ROOT, check=True, capture_output=True, text=True,
