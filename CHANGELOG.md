@@ -1,7 +1,49 @@
 # Changelog
 
 
-## [3.0.1](https://github.com/nyg/kraken-api-java/compare/v3.0.0..3.0.1) - 2026-08-02
+## [4.0.0](https://github.com/nyg/kraken-api-java/compare/v3.0.1..4.0.0) - 2026-09-23
+
+### ⛰️  Features
+
+- [`c30be2e`](https://github.com/nyg/kraken-api-java/commit/c30be2e030059c9360e392fb39241bd095efd6b6) Type system status advisories and close remaining Spot REST spec gaps ([#108](https://github.com/nyg/kraken-api-java/issues/108))
+- [`386b448`](https://github.com/nyg/kraken-api-java/commit/386b448a03c7ae69ef63068cf770ee95882e26fa) Complete typed Funding (Beta) API ([#105](https://github.com/nyg/kraken-api-java/issues/105))
+- [`f381e9e`](https://github.com/nyg/kraken-api-java/commit/f381e9e6e63a9f3d29d17a373cf8ac9d02115a80) Complete typed Trading API ([#103](https://github.com/nyg/kraken-api-java/issues/103))
+- [`b4672b7`](https://github.com/nyg/kraken-api-java/commit/b4672b7f368e80fa8825d2f4f912ee413e28ebb9) Complete typed Funding API ([#101](https://github.com/nyg/kraken-api-java/issues/101))
+- [`2cd373c`](https://github.com/nyg/kraken-api-java/commit/2cd373c9fe8d11cf7f144db290e25a51b180eb35) Complete typed Account Data API ([#100](https://github.com/nyg/kraken-api-java/issues/100))
+- [`d6becf0`](https://github.com/nyg/kraken-api-java/commit/d6becf036e50913d48fdcd09cdaafab0f6083a82) Complete typed Market Data coverage ([#99](https://github.com/nyg/kraken-api-java/issues/99))
+- [`f6f4d5d`](https://github.com/nyg/kraken-api-java/commit/f6f4d5db8606b5975a900379ee591732ffa13c1b) Type the Earn endpoints and add example for earn strategies ([#96](https://github.com/nyg/kraken-api-java/issues/96))
+- [`b3fcb68`](https://github.com/nyg/kraken-api-java/commit/b3fcb6895b77a79b0e4b83d108eac7c223b17e74) Query user-defined endpoints through KrakenAPI ([#91](https://github.com/nyg/kraken-api-java/issues/91))
+- [`21547ae`](https://github.com/nyg/kraken-api-java/commit/21547aeffdfc15c69a30f1472dc39f3bdd8a40a4) Type the Transparency endpoints ([#90](https://github.com/nyg/kraken-api-java/issues/90))
+- [`ab6dc22`](https://github.com/nyg/kraken-api-java/commit/ab6dc22451557b1c1ede3fcbf8234a19fc3ba01f) Type the Subaccounts endpoints ([#89](https://github.com/nyg/kraken-api-java/issues/89))
+- [`06a4272`](https://github.com/nyg/kraken-api-java/commit/06a427264ca7fdfe81c470e5a359f25a40248934) **[breaking]** Align endpoint enums with the Kraken OpenAPI spec ([#88](https://github.com/nyg/kraken-api-java/issues/88))
+
+### 🐛 Bug Fixes
+
+- [`1be8c45`](https://github.com/nyg/kraken-api-java/commit/1be8c45e8660350f1dcd6e77c5e7f0ce9c0824a3) *(deps)* Update dependency org.junit:junit-bom to v6 ([#102](https://github.com/nyg/kraken-api-java/issues/102))
+- [`951c678`](https://github.com/nyg/kraken-api-java/commit/951c6788ed0b376d5bf465fba2ecb9fbee711e30) *(deps)* Update dependency com.fasterxml.jackson:jackson-bom to v2.22.2 ([#98](https://github.com/nyg/kraken-api-java/issues/98))
+
+### 🚜 Refactor
+
+- [`2a4b70a`](https://github.com/nyg/kraken-api-java/commit/2a4b70aacff24899e937d3ad8ea3d34ceb13de49) Resolve SonarCloud quick-win code smells ([#110](https://github.com/nyg/kraken-api-java/issues/110))
+- [`1a48444`](https://github.com/nyg/kraken-api-java/commit/1a48444a84fd70f2c27ab40c88f8472c098f24dd) Route the Transparency methods through the public query method ([#94](https://github.com/nyg/kraken-api-java/issues/94))
+- [`2392d93`](https://github.com/nyg/kraken-api-java/commit/2392d930cac5743bc561b8705c75893312f3cca6) Route every KrakenAPI method through the public query methods ([#92](https://github.com/nyg/kraken-api-java/issues/92))
+
+### 📚 Documentation
+
+- [`9bdc202`](https://github.com/nyg/kraken-api-java/commit/9bdc202b2da90b80a24019dd5bb1fb64fc721d50) Update kraken-api version in Maven section ([#112](https://github.com/nyg/kraken-api-java/issues/112))
+- [`182836b`](https://github.com/nyg/kraken-api-java/commit/182836b464a3d8ee01c965cbab0a512a5911cacb) **[breaking]** Single AGENTS.md and Javadoc on the library public API ([#83](https://github.com/nyg/kraken-api-java/issues/83))
+
+### 🧪 Testing
+
+- [`008e2c4`](https://github.com/nyg/kraken-api-java/commit/008e2c4a3b43af2f54cde0699917ec5b43f59268) Complete unit test coverage of typed Spot REST operations ([#107](https://github.com/nyg/kraken-api-java/issues/107))
+
+### ⚙️ Miscellaneous
+
+- [`b80db22`](https://github.com/nyg/kraken-api-java/commit/b80db22042c9143d4d050c1428b01dc07fc90cba) Add SonarCloud analysis with JaCoCo coverage ([#109](https://github.com/nyg/kraken-api-java/issues/109))
+- [`adc0b72`](https://github.com/nyg/kraken-api-java/commit/adc0b72ae7fad1ddfb4bd7fec294805beda5de70) *(deps)* Pin dependency java-jdk to 25.0.4+7.0.lts ([#104](https://github.com/nyg/kraken-api-java/issues/104))
+- [`699b70c`](https://github.com/nyg/kraken-api-java/commit/699b70c8afbd4231a27e43fff81f0ebf999754a5) *(deps)* Update actions/setup-java action to v6 ([#97](https://github.com/nyg/kraken-api-java/issues/97))
+
+## [3.0.1](https://github.com/nyg/kraken-api-java/compare/v3.0.0..v3.0.1) - 2026-08-02
 
 ### 🐛 Bug Fixes
 
