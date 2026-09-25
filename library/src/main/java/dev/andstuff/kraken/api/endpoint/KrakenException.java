@@ -15,11 +15,12 @@ public class KrakenException extends RuntimeException {
     private final List<String> errors;
 
     /**
-     * Creates an exception holding the errors returned by Kraken.
+     * Creates an exception holding the errors returned by Kraken, whose message lists them separated by commas.
      *
      * @param errors the errors, as returned by Kraken
      */
     public KrakenException(List<String> errors) {
+        super(errors == null ? null : String.join(", ", errors));
         this.errors = errors;
     }
 }
