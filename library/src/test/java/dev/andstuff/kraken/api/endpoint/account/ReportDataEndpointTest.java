@@ -72,6 +72,32 @@ class ReportDataEndpointTest {
     }
 
     @Test
+    void should_ignore_unknown_column_when_export_has_more_columns_than_ledger_entry_binds() throws Exception {
+        // Given
+        ReportDataEndpoint unit = new ReportDataEndpoint(ReportDataParams.of("TCJA"));
+        ByteArrayOutputStream archive = new ByteArrayOutputStream();
+        try (ZipOutputStream zip = new ZipOutputStream(archive)) {
+            zip.putNextEntry(new ZipEntry("ledgers.csv"));
+            zip.write("""
+                    "txid","refid","time","type","subtype","aclass","subclass","asset","wallet","amount","fee","balance","amountusd"
+                    "L4UESK-KG3EQ-UFO4T5","TJKLXF-PGMUI-4NTLXU","2023-07-04 09:54:44","trade","","currency","fiat","ZGBP","spot / main",-24.5000,0.0490,459567.9171,-31.1150
+                    """.getBytes(StandardCharsets.UTF_8));
+            zip.closeEntry();
+        }
+
+        // When
+        List<LedgerEntry> result;
+        try (ZipInputStream zipStream = new ZipInputStream(new ByteArrayInputStream(archive.toByteArray()))) {
+            result = unit.processZipResponse(zipStream);
+        }
+
+        // Then
+        assertThat(result).containsExactly(new LedgerEntry("L4UESK-KG3EQ-UFO4T5", "TJKLXF-PGMUI-4NTLXU", Instant.parse("2023-07-04T09:54:44Z"),
+                LedgerEntry.Type.TRADE, "", "currency", "fiat", "ZGBP", "spot / main",
+                new BigDecimal("-24.5000"), new BigDecimal("0.0490"), new BigDecimal("459567.9171"), null));
+    }
+
+    @Test
     void should_return_no_entries_when_archive_is_empty() throws Exception {
         ReportDataEndpoint unit = new ReportDataEndpoint(ReportDataParams.of("TCJA"));
         ByteArrayOutputStream archive = new ByteArrayOutputStream();

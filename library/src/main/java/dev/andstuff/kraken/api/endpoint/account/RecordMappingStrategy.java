@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import com.opencsv.bean.AbstractCsvConverter;
+import com.opencsv.bean.BeanField;
 import com.opencsv.bean.HeaderColumnNameMappingStrategy;
 import com.opencsv.exceptions.CsvBeanIntrospectionException;
 import com.opencsv.exceptions.CsvConstraintViolationException;
@@ -32,10 +33,6 @@ class RecordMappingStrategy<T extends Record> extends HeaderColumnNameMappingStr
     @Override
     public T populateNewBean(String[] line) throws CsvBeanIntrospectionException, CsvFieldAssignmentException {
         RecordComponent[] recordComponents = type.getRecordComponents();
-        if (line.length > recordComponents.length) {
-            throw new CsvRuntimeException("Mismatch between line values and record components");
-        }
-
         Map<String, Object> valuesByRecordComponentName = createValuesMap(line);
         Object[] initArgs = Stream.of(recordComponents)
                 .map(recordComponent -> valuesByRecordComponentName.get(recordComponent.getName()))
@@ -54,7 +51,11 @@ class RecordMappingStrategy<T extends Record> extends HeaderColumnNameMappingStr
         Map<String, Object> valuesByRecordComponentName = new HashMap<>();
 
         for (int i = 0; i < line.length; i++) {
-            Field field = findField(i).getField();
+            BeanField<T, String> beanField = findField(i);
+            if (beanField == null) {
+                continue;
+            }
+            Field field = beanField.getField();
             valuesByRecordComponentName.put(
                     field.getName(),
                     determineConverter(

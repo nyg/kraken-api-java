@@ -9,14 +9,4 @@ import java.util.Map;
  * @param cursor the pagination cursor; null without cursor pagination or on the last page
  */
 public record OpenOrders(Map<String, Order> open,
-                         Cursor cursor) {
-
-    /**
-     * Returns the cursor of the next page.
-     *
-     * @return the token to pass as {@code cursor} for the next page, or null without cursor pagination or on the last page
-     */
-    public String nextCursor() {
-        return cursor == null ? null : cursor.next();
-    }
-}
+                         Cursor cursor) implements CursorPage {}

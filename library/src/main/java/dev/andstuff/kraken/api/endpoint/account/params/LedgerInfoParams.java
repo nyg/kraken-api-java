@@ -3,6 +3,7 @@ package dev.andstuff.kraken.api.endpoint.account.params;
 import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
@@ -84,7 +85,7 @@ public class LedgerInfoParams extends JsonPostParams {
         if (assets != null && assetsWithClass != null) {
             throw new IllegalArgumentException("Specify assets or assetsWithClass, not both");
         }
-        CursorPagination.validate(withCursor, cursor, resultOffset);
+        CursorPagination.validate(withCursor, cursor, "resultOffset", resultOffset);
         Map<String, Object> params = new LinkedHashMap<>();
         if (assets != null) {
             params.put("asset", String.join(",", assets));
@@ -93,7 +94,7 @@ public class LedgerInfoParams extends JsonPostParams {
             params.put("asset", assetsWithClass);
         }
         putIfPresent(params, "aclass", assetClass);
-        putIfPresent(params, "type", assetType == null ? null : assetType.toString().toLowerCase());
+        putIfPresent(params, "type", assetType == null ? null : assetType.toString().toLowerCase(Locale.ROOT));
         putIfPresent(params, "start", fromDate != null ? fromDate.getEpochSecond() : fromLedgerId);
         putIfPresent(params, "end", toDate != null ? toDate.getEpochSecond() : toLedgerId);
         params.put("without_count", withoutCount);

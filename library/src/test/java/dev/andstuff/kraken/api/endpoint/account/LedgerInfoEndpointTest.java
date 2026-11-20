@@ -9,6 +9,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -122,7 +123,28 @@ class LedgerInfoEndpointTest {
         Throwable result = catchThrowable(() -> unit.encodedParamsWith("123"));
 
         // Then
-        assertThat(result).isInstanceOf(IllegalArgumentException.class).hasMessage("offset must be absent or 0 when withCursor is true");
+        assertThat(result).isInstanceOf(IllegalArgumentException.class).hasMessage("resultOffset must be absent or 0 when withCursor is true");
+    }
+
+    @Test
+    void should_encode_type_in_root_locale_when_default_locale_is_turkish() throws Exception {
+        // Given
+        LedgerInfoEndpoint unit = new LedgerInfoEndpoint(LedgerInfoParams.builder().assetType(LedgerInfoParams.Type.WITHDRAWAL).build());
+        JsonMapper mapper = JsonMapper.builder().build();
+        Locale defaultLocale = Locale.getDefault();
+        Locale.setDefault(Locale.forLanguageTag("tr-TR"));
+
+        // When
+        String result;
+        try {
+            result = unit.encodedParamsWith("123456789");
+        }
+        finally {
+            Locale.setDefault(defaultLocale);
+        }
+
+        // Then
+        assertThat(mapper.readTree(result).get("type").asText()).isEqualTo("withdrawal");
     }
 
     @Test

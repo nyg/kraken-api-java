@@ -91,7 +91,7 @@ public class ClosedOrdersParams extends PostParams {
      */
     @Override
     protected Map<String, String> params() {
-        CursorPagination.validate(withCursor, cursor, offset);
+        CursorPagination.validate(withCursor, cursor, "offset", offset);
         Map<String, String> params = new HashMap<>();
         putIfNonNull(params, "trades", trades);
         putIfNonNull(params, "userref", userReference);

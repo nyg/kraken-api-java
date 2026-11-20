@@ -176,15 +176,17 @@ TradeVolume fees = api.tradeVolume(TradeVolumeParams.builder()
 
 ClosedOrdersParams filters = ClosedOrdersParams.builder().withCursor(true).build();
 ClosedOrders page = api.closedOrders(filters);
+Map<String, Order> closed = new HashMap<>(page.closed());
 while (page.nextCursor() != null) {
     page = api.closedOrders(filters.toBuilder().cursor(page.nextCursor()).build());
+    closed.putAll(page.closed());
 }
 
 LedgerInfo tokenized = api.ledgerInfo(LedgerInfoParams.builder()
         .assetsWithClass(List.of(new LedgerInfoParams.Asset("AAPLx", "tokenized_asset"))).build());
 ```
 
-`openOrders`, `closedOrders`, `tradesHistory` and `ledgerInfo` page with `withCursor(true)`: pass `nextCursor()` as the next `cursor`, repeating the filters, until it is null. Kraken deprecated `ofs`, so the `offset` of `ClosedOrdersParams` and `TradesHistoryParams` and the `resultOffset` of `LedgerInfoParams` are deprecated, and a non-zero offset with `withCursor(true)` throws an `IllegalArgumentException`, as does a `cursor` without it. `closedOrders` and `tradesHistory` expose the returned count, which is null when omitted by Kraken and 0 on cursor pages; `LedgerInfo.count()` is null on cursor pages and with `withoutCount(true)`. The `start` and `end` filters accept timestamp strings or transaction IDs. Monetary values use `BigDecimal`, timestamps use `Instant`, including fractional trade times and amendment times decoded from epoch nanoseconds. `creditLines` returns `Optional.empty()` when Kraken reports no credit lines.
+`openOrders`, `closedOrders`, `tradesHistory` and `ledgerInfo` page with `withCursor(true)`: pass `nextCursor()` of the returned `CursorPage` as the next `cursor`, repeating the filters, until it is null. `LedgerInfo.hasNext()` only applies to offset pagination. Kraken deprecated `ofs`, so the `offset` of `ClosedOrdersParams` and `TradesHistoryParams` and the `resultOffset` of `LedgerInfoParams` are deprecated, and a non-zero offset with `withCursor(true)` throws an `IllegalArgumentException`, as does a `cursor` without it. `closedOrders` and `tradesHistory` expose the returned count, which is null when omitted by Kraken and 0 on cursor pages; `LedgerInfo.count()` is null on cursor pages and with `withoutCount(true)`. The `start` and `end` filters accept timestamp strings or transaction IDs. Monetary values use `BigDecimal`, timestamps use `Instant`, including fractional trade times and amendment times decoded from epoch nanoseconds. `creditLines` returns `Optional.empty()` when Kraken reports no credit lines.
 
 The balance, credit line, order, trade, position and ledger operations select a wallet with the `accountId` of their parameters, sent as the `account_id` query parameter, while `walletAccounts` lists the available wallets. `consolidatedPositions` returns the open margin positions consolidated by pair, and `openPositions` rejects `Consolidation.MARKET` with an `IllegalArgumentException`. `LedgerInfoParams.assetsWithClass` replaces the deprecated `assetClass`, and `LedgerEntriesParams.includeTrades` is deprecated and only sent when `true`.
 

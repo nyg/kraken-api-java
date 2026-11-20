@@ -68,7 +68,7 @@ public class OpenOrdersParams extends PostParams {
      */
     @Override
     protected Map<String, String> params() {
-        CursorPagination.validate(withCursor, cursor, null);
+        CursorPagination.validate(withCursor, cursor);
         Map<String, String> params = new HashMap<>();
         putIfNonNull(params, "trades", trades);
         putIfNonNull(params, "userref", userReference);

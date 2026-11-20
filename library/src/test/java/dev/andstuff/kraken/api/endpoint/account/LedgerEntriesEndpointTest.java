@@ -52,10 +52,13 @@ class LedgerEntriesEndpointTest {
 
     @Test
     void should_omit_deprecated_trades_when_not_requested() {
+        // Given
         LedgerEntriesEndpoint unit = new LedgerEntriesEndpoint(LedgerEntriesParams.builder().entryIds(List.of("L4UESK-KG3EQ-UFO4T5")).build());
 
+        // When
         String result = unit.encodedParamsWith("123");
 
+        // Then
         assertThat(result).isEqualTo("id=L4UESK-KG3EQ-UFO4T5&nonce=123");
     }
 

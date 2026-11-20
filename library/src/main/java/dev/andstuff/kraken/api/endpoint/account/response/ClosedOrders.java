@@ -11,14 +11,4 @@ import java.util.Map;
  */
 public record ClosedOrders(Map<String, Order> closed,
                            Long count,
-                           Cursor cursor) {
-
-    /**
-     * Returns the cursor of the next page.
-     *
-     * @return the token to pass as {@code cursor} for the next page, or null without cursor pagination or on the last page
-     */
-    public String nextCursor() {
-        return cursor == null ? null : cursor.next();
-    }
-}
+                           Cursor cursor) implements CursorPage {}

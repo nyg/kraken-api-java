@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public record LedgerInfo(@JsonProperty("ledger") Map<String, LedgerEntry> entries,
                          Integer count,
-                         Cursor cursor) {
+                         Cursor cursor) implements CursorPage {
 
     /**
      * Returns the entries as a list, each entry carrying the identifier Kraken returned it under.
@@ -37,21 +37,12 @@ public record LedgerInfo(@JsonProperty("ledger") Map<String, LedgerEntry> entrie
     }
 
     /**
-     * Returns whether another page of entries may be available, i.e. whether this one is full.
+     * Returns whether another page of entries may be available, i.e. whether this one is full. This only applies to offset pagination: with cursor pagination, a full page can be the last one, so use {@link CursorPage#nextCursor() nextCursor()} instead.
      *
      * @return whether another page may follow
      */
     public boolean hasNext() {
         return entries.size() == 50;
-    }
-
-    /**
-     * Returns the cursor of the next page.
-     *
-     * @return the token to pass as {@code cursor} for the next page, or null without cursor pagination or on the last page
-     */
-    public String nextCursor() {
-        return cursor == null ? null : cursor.next();
     }
 
     /**
