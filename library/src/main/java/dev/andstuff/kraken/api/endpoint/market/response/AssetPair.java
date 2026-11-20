@@ -22,8 +22,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @param lotMultiplier the amount to multiply the volume by to get the currency volume
  * @param leverageBuy the leverage amounts available when buying
  * @param leverageSell the leverage amounts available when selling
- * @param takerFees the taker fee schedule, by volume tier
- * @param makerFees the maker fee schedule, by volume tier, {@code null} if the pair has no maker/taker distinction
+ * @param takerFees deprecated: the taker fee schedule, by volume tier, always empty since Kraken deprecated {@code fees} on 8 September 2026. Use {@link dev.andstuff.kraken.api.KrakenAPI#tradeVolume(dev.andstuff.kraken.api.endpoint.account.params.TradeVolumeParams) tradeVolume} with {@code feeSchedule(true)} instead.
+ * @param makerFees deprecated: the maker fee schedule, by volume tier, always empty since Kraken deprecated {@code fees_maker} on 8 September 2026. Use {@link dev.andstuff.kraken.api.KrakenAPI#tradeVolume(dev.andstuff.kraken.api.endpoint.account.params.TradeVolumeParams) tradeVolume} with {@code feeSchedule(true)} instead.
  * @param volumeCurrencyFee the asset the fee volume tiers are expressed in
  * @param marginCallLevel the margin level at which a margin call occurs
  * @param marginStopLevel the margin level at which positions are liquidated
@@ -46,8 +46,8 @@ public record AssetPair(@JsonProperty("altname") String alternateName,
                         @JsonProperty("lot_multiplier") int lotMultiplier,
                         @JsonProperty("leverage_buy") List<Integer> leverageBuy,
                         @JsonProperty("leverage_sell") List<Integer> leverageSell,
-                        @JsonProperty("fees") List<FeeSchedule> takerFees,
-                        @JsonProperty("fees_maker") List<FeeSchedule> makerFees,
+                        @Deprecated(since = "5.0.0") @JsonProperty("fees") List<FeeSchedule> takerFees,
+                        @Deprecated(since = "5.0.0") @JsonProperty("fees_maker") List<FeeSchedule> makerFees,
                         @JsonProperty("fee_volume_currency") String volumeCurrencyFee,
                         @JsonProperty("margin_call") int marginCallLevel,
                         @JsonProperty("margin_stop") int marginStopLevel,

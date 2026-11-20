@@ -82,7 +82,7 @@ JsonNode trades = api.queryPublic("Trades", Map.of("pair", "XBTUSD", "count", "1
 
 ### Market Data
 
-All 12 Market Data endpoints in Kraken's current Spot REST specification have typed methods. In addition to `serverTime`, `systemStatus`, `assetInfo`, `assetPairs`, and `ticker`:
+All 12 Market Data endpoints in Kraken's current Spot REST specification have typed methods. `AssetPair.takerFees()` and `makerFees()` are deprecated: Kraken has returned empty lists for them since 8 September 2026, and `tradeVolume` with `feeSchedule(true)` returns the fee schedules instead. In addition to `serverTime`, `systemStatus`, `assetInfo`, `assetPairs`, and `ticker`:
 
 | Endpoint | Typed method | Response |
 |---|---|---|
