@@ -2,6 +2,7 @@ package dev.andstuff.kraken.api.endpoint.account.params;
 
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import dev.andstuff.kraken.api.endpoint.priv.PostParams;
@@ -29,7 +30,7 @@ public class RequestReportParams extends PostParams {
     @Override
     protected Map<String, String> params() {
         Map<String, String> params = new HashMap<>();
-        putIfNonNull(params, "report", type, t -> t.toString().toLowerCase());
+        putIfNonNull(params, "report", type, t -> t.toString().toLowerCase(Locale.ROOT));
         putIfNonNull(params, "format", format);
         putIfNonNull(params, "description", description);
         putIfNonNull(params, "fields", fields);
