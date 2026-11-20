@@ -122,7 +122,7 @@ class CreditLinesEndpointTest {
         CreditLines result = unit.unwrapResponse(response).orElseThrow();
 
         // Then
-        assertThat(result.assetDetails().get("USD")).isEqualTo(new CreditLines.AssetDetails(new BigDecimal("1000.5000"), new BigDecimal("0.0000"),
+        assertThat(result.assetDetails()).containsEntry("USD", new CreditLines.AssetDetails(new BigDecimal("1000.5000"), new BigDecimal("0.0000"),
                 new BigDecimal("0.99"), new BigDecimal("50000.0000"), new BigDecimal("12500.0000"), new BigDecimal("0.0055"), new BigDecimal("0.0038")));
         assertThat(result.limitsMonitor().totalCreditUsd()).isNull();
     }

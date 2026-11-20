@@ -24,7 +24,7 @@ public class LedgerEntriesParams extends PostParams {
      *
      * @deprecated Kraken deprecated {@code trades} on {@code QueryLedgers} and advises not to rely on it.
      */
-    @Deprecated
+    @Deprecated(since = "5.0.0")
     private final boolean includeTrades;
 
     private final RebaseMultiplier rebaseMultiplier;

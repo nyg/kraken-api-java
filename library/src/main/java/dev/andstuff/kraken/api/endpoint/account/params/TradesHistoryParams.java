@@ -40,7 +40,7 @@ public class TradesHistoryParams extends PostParams {
      *
      * @deprecated Kraken deprecated {@code ofs}: use {@code withCursor} and {@code cursor} instead.
      */
-    @Deprecated
+    @Deprecated(since = "5.0.0")
     private final Integer offset;
 
     /**

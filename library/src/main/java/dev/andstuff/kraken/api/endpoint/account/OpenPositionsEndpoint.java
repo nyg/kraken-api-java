@@ -27,9 +27,9 @@ public class OpenPositionsEndpoint extends WalletScopedEndpoint<Map<String, Open
      * @throws IllegalArgumentException if {@code consolidation} is {@code market}, whose response is read by {@link ConsolidatedPositionsEndpoint}
      */
     public OpenPositionsEndpoint(OpenPositionsParams params) {
-        super("OpenPositions", params, params.getAccountId(), new TypeReference<>() {});
         if (params.getConsolidation() == Consolidation.MARKET) {
             throw new IllegalArgumentException("Use ConsolidatedPositionsEndpoint for positions consolidated by market");
         }
+        super("OpenPositions", params, params.getAccountId(), new TypeReference<>() {});
     }
 }

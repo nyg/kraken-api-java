@@ -37,7 +37,7 @@ public class LedgerInfoParams extends JsonPostParams {
      *
      * @deprecated Kraken deprecated {@code aclass}: use {@code assetsWithClass} instead.
      */
-    @Deprecated
+    @Deprecated(since = "5.0.0")
     private final String assetClass;
 
     private final Type assetType;
@@ -68,7 +68,7 @@ public class LedgerInfoParams extends JsonPostParams {
      *
      * @deprecated Kraken deprecated {@code ofs}: use {@code withCursor} and {@code cursor} instead.
      */
-    @Deprecated
+    @Deprecated(since = "5.0.0")
     @With
     @Builder.Default
     private final int resultOffset = 0;
@@ -118,7 +118,7 @@ public class LedgerInfoParams extends JsonPostParams {
      * @return the parameters of the next page
      * @deprecated Kraken deprecated {@code ofs}: use {@code withCursor} and {@code toBuilder().cursor(page.nextCursor())} instead.
      */
-    @Deprecated
+    @Deprecated(since = "5.0.0")
     public LedgerInfoParams withNextResultOffset() {
         return this.withResultOffset(resultOffset + 50);
     }
