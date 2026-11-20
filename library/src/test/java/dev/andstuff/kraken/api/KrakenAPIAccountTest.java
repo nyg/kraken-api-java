@@ -2,6 +2,7 @@ package dev.andstuff.kraken.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.same;
@@ -22,6 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import dev.andstuff.kraken.api.endpoint.account.AccountBalanceEndpoint;
 import dev.andstuff.kraken.api.endpoint.account.ApiKeyInfoEndpoint;
 import dev.andstuff.kraken.api.endpoint.account.ClosedOrdersEndpoint;
+import dev.andstuff.kraken.api.endpoint.account.ConsolidatedPositionsEndpoint;
 import dev.andstuff.kraken.api.endpoint.account.CreditLinesEndpoint;
 import dev.andstuff.kraken.api.endpoint.account.ExtendedBalanceEndpoint;
 import dev.andstuff.kraken.api.endpoint.account.LedgerEntriesEndpoint;
@@ -42,6 +44,7 @@ import dev.andstuff.kraken.api.endpoint.account.WalletAccountsEndpoint;
 import dev.andstuff.kraken.api.endpoint.account.params.AccountBalanceParams;
 import dev.andstuff.kraken.api.endpoint.account.params.ApiKeyInfoParams;
 import dev.andstuff.kraken.api.endpoint.account.params.ClosedOrdersParams;
+import dev.andstuff.kraken.api.endpoint.account.params.Consolidation;
 import dev.andstuff.kraken.api.endpoint.account.params.CreditLinesParams;
 import dev.andstuff.kraken.api.endpoint.account.params.ExtendedBalanceParams;
 import dev.andstuff.kraken.api.endpoint.account.params.LedgerEntriesParams;
@@ -64,6 +67,7 @@ import dev.andstuff.kraken.api.endpoint.account.params.WalletAccountsParams;
 import dev.andstuff.kraken.api.endpoint.account.response.AccountTrade;
 import dev.andstuff.kraken.api.endpoint.account.response.ApiKeyInfo;
 import dev.andstuff.kraken.api.endpoint.account.response.ClosedOrders;
+import dev.andstuff.kraken.api.endpoint.account.response.ConsolidatedPosition;
 import dev.andstuff.kraken.api.endpoint.account.response.CreditLines;
 import dev.andstuff.kraken.api.endpoint.account.response.ExtendedBalance;
 import dev.andstuff.kraken.api.endpoint.account.response.LedgerEntry;
@@ -94,6 +98,7 @@ class KrakenAPIAccountTest {
     @Mock private Map<String, Order> queryOrdersResponse;
     @Mock private Map<String, AccountTrade> queryTradesResponse;
     @Mock private Map<String, OpenPosition> openPositionsResponse;
+    @Mock private List<ConsolidatedPosition> consolidatedPositionsResponse;
     @Mock private Map<String, LedgerEntry> ledgerEntriesResponse;
     @Mock private List<Report> reportsStatusesResponse;
     @Mock private List<LedgerEntry> reportDataResponse;
@@ -228,7 +233,7 @@ class KrakenAPIAccountTest {
 
     @Test
     void should_route_openOrders_options_when_called() {
-        OpenOrders openOrdersResponse = new OpenOrders(Map.of());
+        OpenOrders openOrdersResponse = new OpenOrders(Map.of(), null);
         KrakenAPI unit = new KrakenAPI(credentials, nonceGenerator, requester);
         OpenOrdersParams params = OpenOrdersParams.builder().build();
         when(requester.execute(any(OpenOrdersEndpoint.class), same(credentials), same(nonceGenerator))).thenReturn(openOrdersResponse);
@@ -241,7 +246,7 @@ class KrakenAPIAccountTest {
 
     @Test
     void should_route_openOrders_defaults_when_called() {
-        OpenOrders openOrdersResponse = new OpenOrders(Map.of());
+        OpenOrders openOrdersResponse = new OpenOrders(Map.of(), null);
         KrakenAPI unit = new KrakenAPI(credentials, nonceGenerator, requester);
         when(requester.execute(any(OpenOrdersEndpoint.class), same(credentials), same(nonceGenerator))).thenReturn(openOrdersResponse);
 
@@ -261,7 +266,7 @@ class KrakenAPIAccountTest {
 
     @Test
     void should_route_closedOrders_options_when_called() {
-        ClosedOrders closedOrdersResponse = new ClosedOrders(Map.of(), null);
+        ClosedOrders closedOrdersResponse = new ClosedOrders(Map.of(), null, null);
         KrakenAPI unit = new KrakenAPI(credentials, nonceGenerator, requester);
         ClosedOrdersParams params = ClosedOrdersParams.builder().build();
         when(requester.execute(any(ClosedOrdersEndpoint.class), same(credentials), same(nonceGenerator))).thenReturn(closedOrdersResponse);
@@ -274,7 +279,7 @@ class KrakenAPIAccountTest {
 
     @Test
     void should_route_closedOrders_defaults_when_called() {
-        ClosedOrders closedOrdersResponse = new ClosedOrders(Map.of(), null);
+        ClosedOrders closedOrdersResponse = new ClosedOrders(Map.of(), null, null);
         KrakenAPI unit = new KrakenAPI(credentials, nonceGenerator, requester);
         when(requester.execute(any(ClosedOrdersEndpoint.class), same(credentials), same(nonceGenerator))).thenReturn(closedOrdersResponse);
 
@@ -348,7 +353,7 @@ class KrakenAPIAccountTest {
 
     @Test
     void should_route_tradesHistory_options_when_called() {
-        TradesHistory tradesHistoryResponse = new TradesHistory(Map.of(), null);
+        TradesHistory tradesHistoryResponse = new TradesHistory(Map.of(), null, null);
         KrakenAPI unit = new KrakenAPI(credentials, nonceGenerator, requester);
         TradesHistoryParams params = TradesHistoryParams.builder().build();
         when(requester.execute(any(TradesHistoryEndpoint.class), same(credentials), same(nonceGenerator))).thenReturn(tradesHistoryResponse);
@@ -361,7 +366,7 @@ class KrakenAPIAccountTest {
 
     @Test
     void should_route_tradesHistory_defaults_when_called() {
-        TradesHistory tradesHistoryResponse = new TradesHistory(Map.of(), null);
+        TradesHistory tradesHistoryResponse = new TradesHistory(Map.of(), null, null);
         KrakenAPI unit = new KrakenAPI(credentials, nonceGenerator, requester);
         when(requester.execute(any(TradesHistoryEndpoint.class), same(credentials), same(nonceGenerator))).thenReturn(tradesHistoryResponse);
 
@@ -428,6 +433,49 @@ class KrakenAPIAccountTest {
         KrakenAPI unit = new KrakenAPI(null, nonceGenerator, requester);
 
         assertThatThrownBy(unit::openPositions).isInstanceOf(IllegalStateException.class);
+        verifyNoInteractions(requester);
+    }
+
+    @Test
+    void should_route_consolidatedPositions_with_market_consolidation_when_called_with_options() {
+        // Given
+        KrakenAPI unit = new KrakenAPI(credentials, nonceGenerator, requester);
+        OpenPositionsParams params = OpenPositionsParams.builder().calculateValues(true).accountId("WX6V-JUKW-KKPB-QE36").build();
+        when(requester.execute(any(ConsolidatedPositionsEndpoint.class), same(credentials), same(nonceGenerator))).thenReturn(consolidatedPositionsResponse);
+
+        // When
+        List<ConsolidatedPosition> result = unit.consolidatedPositions(params);
+
+        // Then
+        assertThat(result).isSameAs(consolidatedPositionsResponse);
+        verify(requester).execute(argThat((ConsolidatedPositionsEndpoint endpoint) -> endpoint.getPostParams() instanceof OpenPositionsParams sent
+                && sent.getConsolidation() == Consolidation.MARKET && sent.getCalculateValues() && "WX6V-JUKW-KKPB-QE36".equals(sent.getAccountId())),
+                same(credentials), same(nonceGenerator));
+    }
+
+    @Test
+    void should_route_consolidatedPositions_defaults_when_called() {
+        // Given
+        KrakenAPI unit = new KrakenAPI(credentials, nonceGenerator, requester);
+        when(requester.execute(any(ConsolidatedPositionsEndpoint.class), same(credentials), same(nonceGenerator))).thenReturn(consolidatedPositionsResponse);
+
+        // When
+        List<ConsolidatedPosition> result = unit.consolidatedPositions();
+
+        // Then
+        assertThat(result).isSameAs(consolidatedPositionsResponse);
+    }
+
+    @Test
+    void should_reject_consolidatedPositions_when_credentials_are_missing() {
+        // Given
+        KrakenAPI unit = new KrakenAPI(null, nonceGenerator, requester);
+
+        // When
+        Throwable result = catchThrowable(unit::consolidatedPositions);
+
+        // Then
+        assertThat(result).isInstanceOf(IllegalStateException.class);
         verifyNoInteractions(requester);
     }
 
@@ -532,7 +580,7 @@ class KrakenAPIAccountTest {
 
     @Test
     void should_route_ledgerInfo_options_when_called() {
-        LedgerInfo ledgerInfoResponse = new LedgerInfo(Map.of(), 0);
+        LedgerInfo ledgerInfoResponse = new LedgerInfo(Map.of(), 0, null);
         KrakenAPI unit = new KrakenAPI(credentials, nonceGenerator, requester);
         LedgerInfoParams params = LedgerInfoParams.builder().assets(List.of("XXBT")).build().withNextResultOffset();
         when(requester.execute(any(LedgerInfoEndpoint.class), same(credentials), same(nonceGenerator))).thenReturn(ledgerInfoResponse);

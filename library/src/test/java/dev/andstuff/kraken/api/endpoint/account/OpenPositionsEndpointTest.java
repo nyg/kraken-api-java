@@ -1,8 +1,10 @@
 package dev.andstuff.kraken.api.endpoint.account;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 import java.io.InputStream;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -31,7 +33,7 @@ class OpenPositionsEndpointTest {
 
     @Test
     void should_encode_all_options_when_supplied() {
-        OpenPositionsEndpoint unit = new OpenPositionsEndpoint(OpenPositionsParams.builder().transactionIds(List.of("ID-1", "ID+2")).calculateValues(false).consolidation(Consolidation.MARKET).rebaseMultiplier(RebaseMultiplier.BASE).build());
+        OpenPositionsEndpoint unit = new OpenPositionsEndpoint(OpenPositionsParams.builder().transactionIds(List.of("ID-1", "ID+2")).calculateValues(false).rebaseMultiplier(RebaseMultiplier.BASE).build());
 
         Map<String, String> result = Arrays.stream(unit.encodedParamsWith("123456789").split("&"))
                 .map(value -> value.split("=", 2))
@@ -41,7 +43,6 @@ class OpenPositionsEndpointTest {
                 Map.entry("nonce", "123456789"),
                 Map.entry("txid", "ID-1,ID+2"),
                 Map.entry("docalcs", "false"),
-                Map.entry("consolidation", "market"),
                 Map.entry("rebase_multiplier", "base")));
         assertThat(unit.buildURL().getPath()).isEqualTo("/0/private/OpenPositions");
         assertThat(unit.getHttpMethod()).isEqualTo("POST");
@@ -73,5 +74,30 @@ class OpenPositionsEndpointTest {
         assertThat(result.get("TF5GVO-T7ZZ2-6NBKBI").net()).isEqualByComparingTo("154186.9728");
         assertThat(result.get("TF5GVO-T7ZZ2-6NBKBI").closedVolume()).isEqualByComparingTo("0.20200000");
         assertThat(result.get("TF5GVO-T7ZZ2-6NBKBI").rolloverTime()).isEqualTo("1616672637");
+    }
+
+    @Test
+    void should_encode_wallet_in_query_when_wallet_is_selected() {
+        // Given
+        OpenPositionsEndpoint unit = new OpenPositionsEndpoint(OpenPositionsParams.builder().accountId("WX6V-JUKW-KKPB-QE36").build());
+
+        // When
+        URL result = unit.buildURL();
+
+        // Then
+        assertThat(result).hasPath("/0/private/OpenPositions").hasQuery("account_id=WX6V-JUKW-KKPB-QE36");
+        assertThat(unit.encodedParamsWith("123")).isEqualTo("nonce=123");
+    }
+
+    @Test
+    void should_reject_market_consolidation_when_reading_positions_by_transaction() {
+        // Given
+        OpenPositionsParams params = OpenPositionsParams.builder().consolidation(Consolidation.MARKET).build();
+
+        // When
+        Throwable result = catchThrowable(() -> new OpenPositionsEndpoint(params));
+
+        // Then
+        assertThat(result).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("ConsolidatedPositionsEndpoint");
     }
 }

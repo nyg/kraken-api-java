@@ -4,12 +4,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import dev.andstuff.kraken.api.endpoint.account.params.LedgerInfoParams;
 import dev.andstuff.kraken.api.endpoint.account.response.LedgerInfo;
-import dev.andstuff.kraken.api.endpoint.priv.PrivateEndpoint;
 
 /**
  * The private {@code Ledgers} endpoint, returning the ledger entries of the account, 50 at a time.
  */
-public class LedgerInfoEndpoint extends PrivateEndpoint<LedgerInfo> {
+public class LedgerInfoEndpoint extends WalletScopedEndpoint<LedgerInfo> {
 
     /**
      * Creates the endpoint.
@@ -17,6 +16,16 @@ public class LedgerInfoEndpoint extends PrivateEndpoint<LedgerInfo> {
      * @param params the filtering and pagination parameters
      */
     public LedgerInfoEndpoint(LedgerInfoParams params) {
-        super("Ledgers", params, new TypeReference<>() {});
+        super("Ledgers", params, params.getAccountId(), new TypeReference<>() {});
+    }
+
+    /**
+     * Returns the media type used by the {@code Ledgers} request body.
+     *
+     * @return {@code application/json}
+     */
+    @Override
+    public String getContentType() {
+        return "application/json";
     }
 }

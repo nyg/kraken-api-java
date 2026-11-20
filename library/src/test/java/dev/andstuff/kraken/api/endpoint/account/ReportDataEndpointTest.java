@@ -62,7 +62,7 @@ class ReportDataEndpointTest {
         assertThat(result).hasSize(2);
         assertThat(result.getFirst()).isEqualTo(new LedgerEntry("L4UESK-KG3EQ-UFO4T5", "TJKLXF-PGMUI-4NTLXU", Instant.parse("2023-07-04T09:54:44Z"),
                 LedgerEntry.Type.TRADE, "", "currency", "fiat", "ZGBP", "spot / main",
-                new BigDecimal("-24.5000"), new BigDecimal("0.0490"), new BigDecimal("459567.9171")));
+                new BigDecimal("-24.5000"), new BigDecimal("0.0490"), new BigDecimal("459567.9171"), null));
         assertThat(result.getLast()).satisfies(entry -> {
             assertThat(entry.isStakingReward()).isTrue();
             assertThat(entry.underlyingAsset()).isEqualTo("DOT");

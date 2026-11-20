@@ -1,13 +1,13 @@
 package dev.andstuff.kraken.api.endpoint.account;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.net.URLDecoder;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -34,44 +34,142 @@ import dev.andstuff.kraken.api.endpoint.priv.RebaseMultiplier;
 class LedgerInfoEndpointTest {
 
     @Test
-    void should_encode_dates_over_ledger_ids_when_both_bounds_are_supplied() {
+    void should_encode_dates_over_ledger_ids_as_json_when_both_bounds_are_supplied() throws Exception {
+        // Given
         LedgerInfoEndpoint unit = new LedgerInfoEndpoint(LedgerInfoParams.builder().assets(List.of("XXBT", "ZUSD")).assetClass("currency")
                 .assetType(LedgerInfoParams.Type.NFT_REBATE).fromDate(Instant.ofEpochSecond(1688444262L)).toDate(Instant.ofEpochSecond(1688464484L))
                 .fromLedgerId("LMKZCZ-Z3GVL-CXKK4H").toLedgerId("L4UESK-KG3EQ-UFO4T5").withoutCount(true).resultOffset(50).rebaseMultiplier(RebaseMultiplier.BASE).build());
+        JsonMapper mapper = JsonMapper.builder().build();
 
-        Map<String, String> result = Arrays.stream(unit.encodedParamsWith("123456789").split("&"))
-                .map(value -> value.split("=", 2))
-                .collect(Collectors.toMap(value -> value[0], value -> URLDecoder.decode(value[1], StandardCharsets.UTF_8)));
+        // When
+        String result = unit.encodedParamsWith("123456789");
 
-        assertThat(result).containsExactlyInAnyOrderEntriesOf(Map.ofEntries(
-                Map.entry("nonce", "123456789"),
-                Map.entry("asset", "XXBT,ZUSD"),
-                Map.entry("aclass", "currency"),
-                Map.entry("type", "nft_rebate"),
-                Map.entry("start", "1688444262"),
-                Map.entry("end", "1688464484"),
-                Map.entry("without_count", "true"),
-                Map.entry("ofs", "50"),
-                Map.entry("rebase_multiplier", "base")));
-        assertThat(unit.buildURL().getPath()).isEqualTo("/0/private/Ledgers");
+        // Then
+        assertThat(mapper.readTree(result)).isEqualTo(mapper.readTree("""
+                {
+                  "asset": "XXBT,ZUSD",
+                  "aclass": "currency",
+                  "type": "nft_rebate",
+                  "start": 1688444262,
+                  "end": 1688464484,
+                  "without_count": true,
+                  "ofs": 50,
+                  "rebase_multiplier": "base",
+                  "nonce": 123456789
+                }
+                """));
+        assertThat(unit.buildURL()).hasPath("/0/private/Ledgers").hasNoQuery();
         assertThat(unit.getHttpMethod()).isEqualTo("POST");
-        assertThat(unit.getContentType()).isEqualTo("application/x-www-form-urlencoded");
+        assertThat(unit.getContentType()).isEqualTo("application/json");
     }
 
     @Test
-    void should_encode_ledger_ids_and_first_page_when_dates_are_absent() {
+    void should_encode_ledger_ids_and_omit_offset_when_dates_are_absent() throws Exception {
+        // Given
         LedgerInfoEndpoint unit = new LedgerInfoEndpoint(LedgerInfoParams.builder().fromLedgerId("LMKZCZ-Z3GVL-CXKK4H").toLedgerId("L4UESK-KG3EQ-UFO4T5").build());
+        JsonMapper mapper = JsonMapper.builder().build();
 
-        Map<String, String> result = Arrays.stream(unit.encodedParamsWith("123456789").split("&"))
-                .map(value -> value.split("=", 2))
-                .collect(Collectors.toMap(value -> value[0], value -> URLDecoder.decode(value[1], StandardCharsets.UTF_8)));
+        // When
+        String result = unit.encodedParamsWith("123456789");
 
-        assertThat(result).containsExactlyInAnyOrderEntriesOf(Map.ofEntries(
-                Map.entry("nonce", "123456789"),
-                Map.entry("start", "LMKZCZ-Z3GVL-CXKK4H"),
-                Map.entry("end", "L4UESK-KG3EQ-UFO4T5"),
-                Map.entry("without_count", "false"),
-                Map.entry("ofs", "0")));
+        // Then
+        assertThat(mapper.readTree(result)).isEqualTo(mapper.readTree("""
+                {"start": "LMKZCZ-Z3GVL-CXKK4H", "end": "L4UESK-KG3EQ-UFO4T5", "without_count": false, "nonce": 123456789}
+                """));
+    }
+
+    @Test
+    void should_encode_class_qualified_assets_and_cursor_when_paging_with_cursor() throws Exception {
+        // Given
+        LedgerInfoEndpoint unit = new LedgerInfoEndpoint(LedgerInfoParams.builder()
+                .assetsWithClass(List.of(new LedgerInfoParams.Asset("AAPLx", "tokenized_asset"), new LedgerInfoParams.Asset("XXBT", "currency")))
+                .withCursor(true).cursor("TEVER0VSOjE2ODg0NjQ0ODQ").build());
+        JsonMapper mapper = JsonMapper.builder().build();
+
+        // When
+        String result = unit.encodedParamsWith("123456789");
+
+        // Then
+        assertThat(mapper.readTree(result)).isEqualTo(mapper.readTree("""
+                {
+                  "asset": [{"asset": "AAPLx", "aclass": "tokenized_asset"}, {"asset": "XXBT", "aclass": "currency"}],
+                  "without_count": false,
+                  "with_cursor": true,
+                  "cursor": "TEVER0VSOjE2ODg0NjQ0ODQ",
+                  "nonce": 123456789
+                }
+                """));
+    }
+
+    @Test
+    void should_reject_both_asset_forms_when_both_are_set() {
+        // Given
+        LedgerInfoEndpoint unit = new LedgerInfoEndpoint(LedgerInfoParams.builder().assets(List.of("XXBT"))
+                .assetsWithClass(List.of(new LedgerInfoParams.Asset("AAPLx", "tokenized_asset"))).build());
+
+        // When
+        Throwable result = catchThrowable(() -> unit.encodedParamsWith("123"));
+
+        // Then
+        assertThat(result).isInstanceOf(IllegalArgumentException.class).hasMessage("Specify assets or assetsWithClass, not both");
+    }
+
+    @Test
+    void should_reject_offset_when_paging_with_cursor() {
+        // Given
+        LedgerInfoEndpoint unit = new LedgerInfoEndpoint(LedgerInfoParams.builder().withCursor(true).build().withNextResultOffset());
+
+        // When
+        Throwable result = catchThrowable(() -> unit.encodedParamsWith("123"));
+
+        // Then
+        assertThat(result).isInstanceOf(IllegalArgumentException.class).hasMessage("offset must be absent or 0 when withCursor is true");
+    }
+
+    @Test
+    void should_reject_cursor_when_cursor_pagination_is_off() {
+        // Given
+        LedgerInfoEndpoint unit = new LedgerInfoEndpoint(LedgerInfoParams.builder().cursor("TEVER0VSOjE2ODg0NjQ0ODQ").build());
+
+        // When
+        Throwable result = catchThrowable(() -> unit.encodedParamsWith("123"));
+
+        // Then
+        assertThat(result).isInstanceOf(IllegalArgumentException.class).hasMessage("cursor requires withCursor to be true");
+    }
+
+    @Test
+    void should_encode_wallet_in_query_when_wallet_is_selected() {
+        // Given
+        LedgerInfoEndpoint unit = new LedgerInfoEndpoint(LedgerInfoParams.builder().accountId("WX6V-JUKW-KKPB-QE36").build());
+
+        // When
+        URL result = unit.buildURL();
+
+        // Then
+        assertThat(result).hasPath("/0/private/Ledgers").hasQuery("account_id=WX6V-JUKW-KKPB-QE36");
+    }
+
+    @Test
+    void should_decode_null_count_and_next_cursor_when_reading_cursor_page() throws Exception {
+        // Given
+        LedgerInfoEndpoint unit = new LedgerInfoEndpoint(LedgerInfoParams.builder().withCursor(true).build());
+        JsonMapper mapper = JsonMapper.builder().addModules(new JavaTimeModule(), new Jdk8Module())
+                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
+        String json = """
+                {"error":[],"result":{"ledger":{"L4UESK-KG3EQ-UFO4T5":{"refid":"TJKLXF-PGMUI-4NTLXU","time":1688464484.1787,"type":"trade","subtype":"",
+                "aclass":"currency","asset":"ZGBP","amount":"-24.5000","fee":"0.0490","balance":"459567.9171"}},"count":null,"cursor":{"next":"TEVER0VSOjE2ODg0NjQ0ODQ"}}}
+                """;
+        KrakenResponse<LedgerInfo> response = mapper.readValue(json, unit.wrappedResponseType(mapper.getTypeFactory()));
+
+        // When
+        LedgerInfo result = unit.unwrapResponse(response);
+
+        // Then
+        assertThat(result.count()).isNull();
+        assertThat(result.nextCursor()).isEqualTo("TEVER0VSOjE2ODg0NjQ0ODQ");
+        assertThat(result.asList()).extracting(LedgerEntry::id).containsExactly("L4UESK-KG3EQ-UFO4T5");
     }
 
     @Test
@@ -107,10 +205,11 @@ class LedgerInfoEndpointTest {
         assertThat(result.asList()).extracting(LedgerEntry::id).containsExactlyInAnyOrder("L4UESK-KG3EQ-UFO4T5", "LMKZCZ-Z3GVL-CXKK4H");
         assertThat(result.entries()).containsEntry("L4UESK-KG3EQ-UFO4T5", new LedgerEntry(null, "TJKLXF-PGMUI-4NTLXU",
                 Instant.ofEpochSecond(1688464484L, 178_700_000L), LedgerEntry.Type.TRADE, "", "currency", null, "ZGBP", null,
-                new BigDecimal("-24.5000"), new BigDecimal("0.0490"), new BigDecimal("459567.9171")));
+                new BigDecimal("-24.5000"), new BigDecimal("0.0490"), new BigDecimal("459567.9171"), null));
         assertThat(result.entries().get("L4UESK-KG3EQ-UFO4T5").netAmount()).isEqualByComparingTo("-24.5490");
         assertThat(result.entries().get("LMKZCZ-Z3GVL-CXKK4H").underlyingAsset()).isEqualTo("USD");
         assertThat(result.stakingRewards()).isEmpty();
+        assertThat(result.nextCursor()).isNull();
     }
 
     @Test
@@ -147,9 +246,9 @@ class LedgerInfoEndpointTest {
     @Test
     void should_announce_next_page_when_kraken_returns_a_full_page() {
         LedgerEntry entry = new LedgerEntry(null, "TJKLXF-PGMUI-4NTLXU", Instant.ofEpochSecond(1688464484L), LedgerEntry.Type.TRADE, "", "currency",
-                null, "ZGBP", null, new BigDecimal("-24.5000"), new BigDecimal("0.0490"), new BigDecimal("459567.9171"));
+                null, "ZGBP", null, new BigDecimal("-24.5000"), new BigDecimal("0.0490"), new BigDecimal("459567.9171"), null);
         LedgerInfo unit = new LedgerInfo(IntStream.range(0, 50).mapToObj("L-%02d"::formatted)
-                .collect(Collectors.toMap(Function.identity(), id -> entry)), 120);
+                .collect(Collectors.toMap(Function.identity(), id -> entry)), 120, null);
 
         boolean result = unit.hasNext();
 

@@ -26,6 +26,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @param price the price
  * @param stopPrice the stop price
  * @param limitPrice the limit price
+ * @param displayVolume the visible quantity of an iceberg order
+ * @param remainingDisplayVolume the remaining visible quantity of an iceberg order
+ * @param externalOrderId the external order ID
+ * @param linkId the original order ID of an edited order
+ * @param reduceOnly whether this is a reduce-only order; only returned when {@code true}
  * @param trigger the trigger
  * @param margin whether this is a margin order
  * @param miscellaneous the miscellaneous
@@ -51,6 +56,11 @@ public record Order(@JsonProperty("refid") String referenceId,
                     BigDecimal price,
                     @JsonProperty("stopprice") BigDecimal stopPrice,
                     @JsonProperty("limitprice") BigDecimal limitPrice,
+                    @JsonProperty("displayvol") BigDecimal displayVolume,
+                    @JsonProperty("displayvolremain") BigDecimal remainingDisplayVolume,
+                    @JsonProperty("ext_ord_id") String externalOrderId,
+                    @JsonProperty("link_id") String linkId,
+                    @JsonProperty("reduce_only") Boolean reduceOnly,
                     Trigger trigger,
                     Boolean margin,
                     @JsonProperty("misc") String miscellaneous,

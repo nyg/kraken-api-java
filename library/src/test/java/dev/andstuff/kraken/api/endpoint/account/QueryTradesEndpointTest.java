@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.InputStream;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -31,7 +32,7 @@ class QueryTradesEndpointTest {
 
     @Test
     void should_encode_all_options_when_supplied() {
-        QueryTradesEndpoint unit = new QueryTradesEndpoint(QueryTradesParams.builder().transactionIds(List.of("ID-1", "ID+2")).trades(false).rebaseMultiplier(RebaseMultiplier.BASE).build());
+        QueryTradesEndpoint unit = new QueryTradesEndpoint(QueryTradesParams.builder().transactionIds(List.of("ID-1", "ID+2")).trades(false).ledgers(true).rebaseMultiplier(RebaseMultiplier.BASE).build());
 
         Map<String, String> result = Arrays.stream(unit.encodedParamsWith("123456789").split("&"))
                 .map(value -> value.split("=", 2))
@@ -40,6 +41,7 @@ class QueryTradesEndpointTest {
         assertThat(result).containsExactlyInAnyOrderEntriesOf(Map.ofEntries(
                 Map.entry("nonce", "123456789"),
                 Map.entry("txid", "ID-1,ID+2"),
+                Map.entry("ledgers", "true"),
                 Map.entry("trades", "false"),
                 Map.entry("rebase_multiplier", "base")));
         assertThat(unit.buildURL().getPath()).isEqualTo("/0/private/QueryTrades");
@@ -71,5 +73,18 @@ class QueryTradesEndpointTest {
 
         assertThat(result.get("TTEUX3-HDAAA-RC2RUO").tradeId()).isEqualTo(74625834L);
         assertThat(result.get("TTEUX3-HDAAA-RC2RUO").volume()).isEqualByComparingTo("0.00020000");
+    }
+
+    @Test
+    void should_encode_wallet_in_query_when_wallet_is_selected() {
+        // Given
+        QueryTradesEndpoint unit = new QueryTradesEndpoint(QueryTradesParams.builder().transactionIds(List.of("THVRQM-33VKH-UCI7BS")).accountId("WX6V-JUKW-KKPB-QE36").build());
+
+        // When
+        URL result = unit.buildURL();
+
+        // Then
+        assertThat(result).hasPath("/0/private/QueryTrades").hasQuery("account_id=WX6V-JUKW-KKPB-QE36");
+        assertThat(unit.encodedParamsWith("123")).isEqualTo("txid=THVRQM-33VKH-UCI7BS&nonce=123");
     }
 }

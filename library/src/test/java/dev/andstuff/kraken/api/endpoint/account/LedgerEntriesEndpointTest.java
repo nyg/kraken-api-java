@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -50,12 +51,12 @@ class LedgerEntriesEndpointTest {
     }
 
     @Test
-    void should_exclude_trades_when_not_requested() {
+    void should_omit_deprecated_trades_when_not_requested() {
         LedgerEntriesEndpoint unit = new LedgerEntriesEndpoint(LedgerEntriesParams.builder().entryIds(List.of("L4UESK-KG3EQ-UFO4T5")).build());
 
         String result = unit.encodedParamsWith("123");
 
-        assertThat(result).contains("trades=false").contains("id=L4UESK-KG3EQ-UFO4T5").doesNotContain("rebase_multiplier").endsWith("nonce=123");
+        assertThat(result).isEqualTo("id=L4UESK-KG3EQ-UFO4T5&nonce=123");
     }
 
     @Test
@@ -76,6 +77,40 @@ class LedgerEntriesEndpointTest {
 
         assertThat(result).containsOnlyKeys("L4UESK-KG3EQ-UFO4T5").containsEntry("L4UESK-KG3EQ-UFO4T5", new LedgerEntry(null, "TJKLXF-PGMUI-4NTLXU",
                 Instant.ofEpochSecond(1688464484L, 178_700_000L), LedgerEntry.Type.TRADE, "", "currency", null, "ZGBP", null,
-                new BigDecimal("-24.5000"), new BigDecimal("0.0490"), new BigDecimal("459567.9171")));
+                new BigDecimal("-24.5000"), new BigDecimal("0.0490"), new BigDecimal("459567.9171"), null));
+    }
+
+    @Test
+    void should_encode_wallet_in_query_when_wallet_is_selected() {
+        // Given
+        LedgerEntriesEndpoint unit = new LedgerEntriesEndpoint(LedgerEntriesParams.builder().entryIds(List.of("L4UESK-KG3EQ-UFO4T5")).accountId("WX6V-JUKW-KKPB-QE36").build());
+
+        // When
+        URL result = unit.buildURL();
+
+        // Then
+        assertThat(result).hasPath("/0/private/QueryLedgers").hasQuery("account_id=WX6V-JUKW-KKPB-QE36");
+        assertThat(unit.encodedParamsWith("123")).isEqualTo("id=L4UESK-KG3EQ-UFO4T5&nonce=123");
+    }
+
+    @Test
+    void should_decode_token_amount_when_reading_tokenized_asset_entry() throws Exception {
+        // Given
+        LedgerEntriesEndpoint unit = new LedgerEntriesEndpoint(LedgerEntriesParams.builder().entryIds(List.of("L-TOKEN")).build());
+        JsonMapper mapper = JsonMapper.builder().addModules(new JavaTimeModule(), new Jdk8Module())
+                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
+        String json = """
+                {"error":[],"result":{"L-TOKEN":{"refid":"TJKLXF-PGMUI-4NTLXU","time":1688464484,"type":"trade","subtype":"","aclass":"tokenized_asset",
+                "asset":"AAPLx","amount":"1.5000","fee":"0","balance":"1.5000","amount_token":"1500000000000000000"}}}
+                """;
+        KrakenResponse<Map<String, LedgerEntry>> response = mapper.readValue(json, unit.wrappedResponseType(mapper.getTypeFactory()));
+
+        // When
+        Map<String, LedgerEntry> result = unit.unwrapResponse(response);
+
+        // Then
+        assertThat(result.get("L-TOKEN").tokenAmount()).isEqualByComparingTo("1500000000000000000");
+        assertThat(result.get("L-TOKEN").assetClass()).isEqualTo("tokenized_asset");
     }
 }

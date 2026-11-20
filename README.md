@@ -167,19 +167,30 @@ All Account Data operations have typed methods, including balances, credit lines
 
 ```java
 Map<String, BigDecimal> balances = api.accountBalance();
-OpenOrders orders = api.openOrders(OpenOrdersParams.builder().trades(true).build());
-ClosedOrders page = api.closedOrders(ClosedOrdersParams.builder().offset(50).withoutCount(true).build());
-Map<String, AccountTrade> trades = api.queryTrades(QueryTradesParams.builder().transactionIds(List.of("THVRQM-33VKH-UCI7BS")).build());
+OpenOrders orders = api.openOrders(OpenOrdersParams.builder().trades(true).accountId("WX6V-JUKW-KKPB-QE36").build());
+Map<String, AccountTrade> trades = api.queryTrades(QueryTradesParams.builder().transactionIds(List.of("THVRQM-33VKH-UCI7BS")).ledgers(true).build());
+List<ConsolidatedPosition> positions = api.consolidatedPositions();
 TradeVolume fees = api.tradeVolume(TradeVolumeParams.builder()
         .pairsWithClass(List.of(new TradeVolumeParams.Pair("TSLAx/USD", "equity_pair")))
         .feeSchedule(true).build());
+
+ClosedOrdersParams filters = ClosedOrdersParams.builder().withCursor(true).build();
+ClosedOrders page = api.closedOrders(filters);
+while (page.nextCursor() != null) {
+    page = api.closedOrders(filters.toBuilder().cursor(page.nextCursor()).build());
+}
+
+LedgerInfo tokenized = api.ledgerInfo(LedgerInfoParams.builder()
+        .assetsWithClass(List.of(new LedgerInfoParams.Asset("AAPLx", "tokenized_asset"))).build());
 ```
 
-`closedOrders` and `tradesHistory` expose the returned count, which is null when omitted by Kraken. Their `start` and `end` filters accept timestamp strings or transaction IDs. Monetary values use `BigDecimal`, timestamps use `Instant`, including fractional trade times and amendment times decoded from epoch nanoseconds. `creditLines` returns `Optional.empty()` when Kraken reports no credit lines. `accountBalance` can select a wallet using `AccountBalanceParams.accountId`, while `walletAccounts` lists the available wallets.
+`openOrders`, `closedOrders`, `tradesHistory` and `ledgerInfo` page with `withCursor(true)`: pass `nextCursor()` as the next `cursor`, repeating the filters, until it is null. Kraken deprecated `ofs`, so the `offset` of `ClosedOrdersParams` and `TradesHistoryParams` and the `resultOffset` of `LedgerInfoParams` are deprecated, and a non-zero offset with `withCursor(true)` throws an `IllegalArgumentException`, as does a `cursor` without it. `closedOrders` and `tradesHistory` expose the returned count, which is null when omitted by Kraken and 0 on cursor pages; `LedgerInfo.count()` is null on cursor pages and with `withoutCount(true)`. The `start` and `end` filters accept timestamp strings or transaction IDs. Monetary values use `BigDecimal`, timestamps use `Instant`, including fractional trade times and amendment times decoded from epoch nanoseconds. `creditLines` returns `Optional.empty()` when Kraken reports no credit lines.
 
-`TradeVolumeParams` encodes requests as JSON to support class-qualified pairs. Custom REST requesters should send `endpoint.encodedParamsWith(nonce)` unchanged with `endpoint.getContentType()` and use `endpoint.unwrapResponse(response)` to handle endpoint-specific nullable results.
+The balance, credit line, order, trade, position and ledger operations select a wallet with the `accountId` of their parameters, sent as the `account_id` query parameter, while `walletAccounts` lists the available wallets. `consolidatedPositions` returns the open margin positions consolidated by pair, and `openPositions` rejects `Consolidation.MARKET` with an `IllegalArgumentException`. `LedgerInfoParams.assetsWithClass` replaces the deprecated `assetClass`, and `LedgerEntriesParams.includeTrades` is deprecated and only sent when `true`.
 
-Custom `KrakenNonceGenerator` implementations must produce increasing unsigned 64-bit integers as canonical decimal strings. `TradeVolume`, `AddOrderBatch`, `CancelOrderBatch` and the Algo Trading operations encode the nonce as a JSON number and reject malformed, out-of-range or noncanonical values with an `IllegalStateException` that names the parameter type and the generator contract. Canonical formatting keeps the nonce used for signing identical to the number in the JSON body.
+`TradeVolumeParams` and `LedgerInfoParams` encode requests as JSON to support class-qualified pairs and assets. Custom REST requesters should send `endpoint.encodedParamsWith(nonce)` unchanged with `endpoint.getContentType()` and use `endpoint.unwrapResponse(response)` to handle endpoint-specific nullable results.
+
+Custom `KrakenNonceGenerator` implementations must produce increasing unsigned 64-bit integers as canonical decimal strings. `TradeVolume`, `Ledgers`, `AddOrderBatch`, `CancelOrderBatch` and the Algo Trading operations encode the nonce as a JSON number and reject malformed, out-of-range or noncanonical values with an `IllegalStateException` that names the parameter type and the generator contract. Canonical formatting keeps the nonce used for signing identical to the number in the JSON body.
 
 ### Trading
 

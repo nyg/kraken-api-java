@@ -26,6 +26,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @param tradeId the trade id
  * @param maker the maker
  * @param assetClass the asset class
+ * @param externalExecutionId the external execution ID, if any
  * @param tradeOrderType the trade order type
  * @param positionStatus the position status
  * @param closedPrice the closed price
@@ -53,6 +54,7 @@ public record AccountTrade(@JsonProperty("ordertxid") String orderId,
                            @JsonProperty("trade_id") Long tradeId,
                            Boolean maker,
                            @JsonProperty("aclass") String assetClass,
+                           @JsonProperty("ext_exec_id") String externalExecutionId,
                            @JsonProperty("tradeordertype") String tradeOrderType,
                            @JsonProperty("posstatus") String positionStatus,
                            @JsonProperty("cprice") BigDecimal closedPrice,

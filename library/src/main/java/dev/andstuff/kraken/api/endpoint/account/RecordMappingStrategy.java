@@ -32,7 +32,7 @@ class RecordMappingStrategy<T extends Record> extends HeaderColumnNameMappingStr
     @Override
     public T populateNewBean(String[] line) throws CsvBeanIntrospectionException, CsvFieldAssignmentException {
         RecordComponent[] recordComponents = type.getRecordComponents();
-        if (recordComponents.length != line.length) {
+        if (line.length > recordComponents.length) {
             throw new CsvRuntimeException("Mismatch between line values and record components");
         }
 

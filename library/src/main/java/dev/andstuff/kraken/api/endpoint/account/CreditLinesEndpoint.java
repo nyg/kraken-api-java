@@ -8,12 +8,11 @@ import dev.andstuff.kraken.api.endpoint.KrakenException;
 import dev.andstuff.kraken.api.endpoint.KrakenResponse;
 import dev.andstuff.kraken.api.endpoint.account.params.CreditLinesParams;
 import dev.andstuff.kraken.api.endpoint.account.response.CreditLines;
-import dev.andstuff.kraken.api.endpoint.priv.PrivateEndpoint;
 
 /**
  * The private {@code CreditLines} endpoint for credit lines.
  */
-public class CreditLinesEndpoint extends PrivateEndpoint<Optional<CreditLines>> {
+public class CreditLinesEndpoint extends WalletScopedEndpoint<Optional<CreditLines>> {
 
     /**
      * Creates the {@code CreditLines} endpoint with default options.
@@ -28,7 +27,7 @@ public class CreditLinesEndpoint extends PrivateEndpoint<Optional<CreditLines>> 
      * @param params the request parameters
      */
     public CreditLinesEndpoint(CreditLinesParams params) {
-        super("CreditLines", params, new TypeReference<>() {});
+        super("CreditLines", params, params.getAccountId(), new TypeReference<>() {});
     }
 
     /**

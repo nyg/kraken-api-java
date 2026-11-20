@@ -7,12 +7,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import dev.andstuff.kraken.api.endpoint.account.params.QueryTradesParams;
 import dev.andstuff.kraken.api.endpoint.account.response.AccountTrade;
-import dev.andstuff.kraken.api.endpoint.priv.PrivateEndpoint;
 
 /**
  * The private {@code QueryTrades} endpoint for query trades.
  */
-public class QueryTradesEndpoint extends PrivateEndpoint<Map<String, AccountTrade>> {
+public class QueryTradesEndpoint extends WalletScopedEndpoint<Map<String, AccountTrade>> {
 
     /**
      * Creates the {@code QueryTrades} endpoint for the selected transaction IDs.
@@ -29,6 +28,6 @@ public class QueryTradesEndpoint extends PrivateEndpoint<Map<String, AccountTrad
      * @param params the request parameters
      */
     public QueryTradesEndpoint(QueryTradesParams params) {
-        super("QueryTrades", params, new TypeReference<>() {});
+        super("QueryTrades", params, params.getAccountId(), new TypeReference<>() {});
     }
 }

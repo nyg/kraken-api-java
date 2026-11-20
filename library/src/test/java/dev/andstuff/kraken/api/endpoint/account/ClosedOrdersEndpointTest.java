@@ -1,8 +1,10 @@
 package dev.andstuff.kraken.api.endpoint.account;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 import java.io.InputStream;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -32,7 +34,7 @@ class ClosedOrdersEndpointTest {
 
     @Test
     void should_encode_all_options_when_supplied() {
-        ClosedOrdersEndpoint unit = new ClosedOrdersEndpoint(ClosedOrdersParams.builder().trades(false).userReference(0L).clientOrderId("id +/&=").start("1700000000").end("1700000000").offset(0).closeTime(CloseTime.BOTH).consolidateTaker(false).withoutCount(false).rebaseMultiplier(RebaseMultiplier.BASE).build());
+        ClosedOrdersEndpoint unit = new ClosedOrdersEndpoint(ClosedOrdersParams.builder().trades(false).userReference(0L).clientOrderId("id +/&=").start("1700000000").end("1700000000").offset(0).withCursor(true).cursor("Q0xPU0VEOjE2ODgxNDg0OTM").closeTime(CloseTime.BOTH).consolidateTaker(false).withoutCount(false).rebaseMultiplier(RebaseMultiplier.BASE).build());
 
         Map<String, String> result = Arrays.stream(unit.encodedParamsWith("123456789").split("&"))
                 .map(value -> value.split("=", 2))
@@ -46,6 +48,8 @@ class ClosedOrdersEndpointTest {
                 Map.entry("start", "1700000000"),
                 Map.entry("end", "1700000000"),
                 Map.entry("ofs", "0"),
+                Map.entry("with_cursor", "true"),
+                Map.entry("cursor", "Q0xPU0VEOjE2ODgxNDg0OTM"),
                 Map.entry("closetime", "both"),
                 Map.entry("consolidate_taker", "false"),
                 Map.entry("without_count", "false"),
@@ -80,5 +84,60 @@ class ClosedOrdersEndpointTest {
         assertThat(result.count()).isEqualTo(2L);
         assertThat(result.closed().get("O37652-RJWRT-IMO74O").status()).isEqualTo(Order.Status.CANCELED);
         assertThat(result.closed().get("O37652-RJWRT-IMO74O").closeTime()).isEqualTo(Instant.ofEpochSecond(1688148610L, 48200000L));
+    }
+
+    @Test
+    void should_encode_wallet_in_query_when_wallet_is_selected() {
+        // Given
+        ClosedOrdersEndpoint unit = new ClosedOrdersEndpoint(ClosedOrdersParams.builder().accountId("WX6V-JUKW-KKPB-QE36").build());
+
+        // When
+        URL result = unit.buildURL();
+
+        // Then
+        assertThat(result).hasPath("/0/private/ClosedOrders").hasQuery("account_id=WX6V-JUKW-KKPB-QE36");
+        assertThat(unit.encodedParamsWith("123")).isEqualTo("nonce=123");
+    }
+
+    @Test
+    void should_reject_offset_when_paging_with_cursor() {
+        // Given
+        ClosedOrdersEndpoint unit = new ClosedOrdersEndpoint(ClosedOrdersParams.builder().withCursor(true).offset(50).build());
+
+        // When
+        Throwable result = catchThrowable(() -> unit.encodedParamsWith("123"));
+
+        // Then
+        assertThat(result).isInstanceOf(IllegalArgumentException.class).hasMessage("offset must be absent or 0 when withCursor is true");
+    }
+
+    @Test
+    void should_reject_cursor_when_cursor_pagination_is_off() {
+        // Given
+        ClosedOrdersEndpoint unit = new ClosedOrdersEndpoint(ClosedOrdersParams.builder().withCursor(false).cursor("Q0xPU0VEOjE2ODgxNDg0OTM").build());
+
+        // When
+        Throwable result = catchThrowable(() -> unit.encodedParamsWith("123"));
+
+        // Then
+        assertThat(result).isInstanceOf(IllegalArgumentException.class).hasMessage("cursor requires withCursor to be true");
+    }
+
+    @Test
+    void should_decode_next_cursor_when_reading_cursor_page() throws Exception {
+        // Given
+        ClosedOrdersEndpoint unit = new ClosedOrdersEndpoint(ClosedOrdersParams.builder().withCursor(true).build());
+        JsonMapper mapper = JsonMapper.builder().addModules(new JavaTimeModule(), new Jdk8Module()).build();
+        String json = """
+                {"error":[],"result":{"closed":{},"count":0,"cursor":{"next":"Q0xPU0VEOjE2ODgxNDg0OTM"}}}
+                """;
+        KrakenResponse<ClosedOrders> response = mapper.readValue(json, unit.wrappedResponseType(mapper.getTypeFactory()));
+
+        // When
+        ClosedOrders result = unit.unwrapResponse(response);
+
+        // Then
+        assertThat(result.nextCursor()).isEqualTo("Q0xPU0VEOjE2ODgxNDg0OTM");
+        assertThat(result.count()).isZero();
     }
 }

@@ -9,10 +9,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * The response of the {@code Ledgers} endpoint.
  *
  * @param entries the ledger entries of the page, by identifier, at most 50 of them
- * @param count the total number of entries matching the request, all pages included
+ * @param count the total number of entries matching the request, all pages included; null with {@code withoutCount} or cursor pagination
+ * @param cursor the pagination cursor; null without cursor pagination or on the last page
  */
 public record LedgerInfo(@JsonProperty("ledger") Map<String, LedgerEntry> entries,
-                         int count) {
+                         Integer count,
+                         Cursor cursor) {
 
     /**
      * Returns the entries as a list, each entry carrying the identifier Kraken returned it under.
@@ -41,6 +43,15 @@ public record LedgerInfo(@JsonProperty("ledger") Map<String, LedgerEntry> entrie
      */
     public boolean hasNext() {
         return entries.size() == 50;
+    }
+
+    /**
+     * Returns the cursor of the next page.
+     *
+     * @return the token to pass as {@code cursor} for the next page, or null without cursor pagination or on the last page
+     */
+    public String nextCursor() {
+        return cursor == null ? null : cursor.next();
     }
 
     /**
