@@ -67,6 +67,19 @@ import dev.andstuff.kraken.api.endpoint.account.response.TradeBalance;
 import dev.andstuff.kraken.api.endpoint.account.response.TradeVolume;
 import dev.andstuff.kraken.api.endpoint.account.response.TradesHistory;
 import dev.andstuff.kraken.api.endpoint.account.response.WalletAccounts;
+import dev.andstuff.kraken.api.endpoint.algotrading.AddStrategyEndpoint;
+import dev.andstuff.kraken.api.endpoint.algotrading.CancelStrategyEndpoint;
+import dev.andstuff.kraken.api.endpoint.algotrading.ClosedStrategiesEndpoint;
+import dev.andstuff.kraken.api.endpoint.algotrading.OpenStrategiesEndpoint;
+import dev.andstuff.kraken.api.endpoint.algotrading.QueryStrategiesEndpoint;
+import dev.andstuff.kraken.api.endpoint.algotrading.params.AddStrategyParams;
+import dev.andstuff.kraken.api.endpoint.algotrading.params.ClosedStrategiesParams;
+import dev.andstuff.kraken.api.endpoint.algotrading.params.OpenStrategiesParams;
+import dev.andstuff.kraken.api.endpoint.algotrading.response.AlgoStrategy;
+import dev.andstuff.kraken.api.endpoint.algotrading.response.ClosedStrategies;
+import dev.andstuff.kraken.api.endpoint.algotrading.response.OpenStrategies;
+import dev.andstuff.kraken.api.endpoint.algotrading.response.StrategyAdded;
+import dev.andstuff.kraken.api.endpoint.algotrading.response.StrategyCancelled;
 import dev.andstuff.kraken.api.endpoint.earn.EarnAllocateEndpoint;
 import dev.andstuff.kraken.api.endpoint.earn.EarnAllocateStatusEndpoint;
 import dev.andstuff.kraken.api.endpoint.earn.EarnAllocationsEndpoint;
@@ -1078,6 +1091,88 @@ public class KrakenAPI {
     }
 
     /**
+     * Creates a TWAP strategy using {@code AddStrategy}, which Kraken executes as immediate-or-cancel child orders between its start and end times. Set {@code validate} on the parameters to only validate the strategy without creating it.
+     *
+     * @param params the strategy to create
+     * @return the identifier of the strategy, empty when it was only validated
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public StrategyAdded addStrategy(AddStrategyParams params) {
+        return query(new AddStrategyEndpoint(params));
+    }
+
+    /**
+     * Cancels a pending or open strategy using {@code CancelStrategy}. A child order already submitted may still fill, so the strategy can end up closed rather than cancelled.
+     *
+     * @param strategyId the identifier of the strategy to cancel
+     * @return the identifier of the cancelled strategy
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public StrategyCancelled cancelStrategy(String strategyId) {
+        return query(new CancelStrategyEndpoint(strategyId));
+    }
+
+    /**
+     * Queries the {@code GetOpenStrategies} endpoint for the pending and open strategies of every type.
+     *
+     * @return the strategies keyed by identifier
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public OpenStrategies openStrategies() {
+        return query(new OpenStrategiesEndpoint());
+    }
+
+    /**
+     * Queries the {@code GetOpenStrategies} endpoint for the pending and open strategies.
+     *
+     * @param params the strategy type to restrict the results to
+     * @return the strategies keyed by identifier
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public OpenStrategies openStrategies(OpenStrategiesParams params) {
+        return query(new OpenStrategiesEndpoint(params));
+    }
+
+    /**
+     * Queries the {@code QueryStrategies} endpoint for strategies of any status by identifier.
+     *
+     * @param strategyIds the identifiers of the strategies, 20 at most
+     * @return the strategies keyed by identifier, without the identifiers Kraken did not find
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public Map<String, AlgoStrategy> queryStrategies(List<String> strategyIds) {
+        return query(new QueryStrategiesEndpoint(strategyIds)).strategies();
+    }
+
+    /**
+     * Queries the {@code GetClosedStrategies} endpoint for the first page of closed, expired and cancelled strategies.
+     *
+     * @return the strategies, newest first, and the cursor of the next page
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public ClosedStrategies closedStrategies() {
+        return query(new ClosedStrategiesEndpoint());
+    }
+
+    /**
+     * Queries the {@code GetClosedStrategies} endpoint for a page of closed, expired and cancelled strategies. Repeat the filters with the cursor of the previous page to get the next one.
+     *
+     * @param params the filters, page size and cursor
+     * @return the strategies, newest first, and the cursor of the next page
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public ClosedStrategies closedStrategies(ClosedStrategiesParams params) {
+        return query(new ClosedStrategiesEndpoint(params));
+    }
+
+    /**
      * Queries the {@code DepositMethods} endpoint.
      *
      * @param params the request options
@@ -1797,6 +1892,7 @@ public class KrakenAPI {
         ADD_EXPORT("AddExport"),
         ADD_ORDER("AddOrder"),
         ADD_ORDER_BATCH("AddOrderBatch"),
+        ADD_STRATEGY("AddStrategy"),
         AMEND_ORDER("AmendOrder"),
         BALANCE("Balance"),
         BALANCE_EX("BalanceEx"),
@@ -1804,6 +1900,7 @@ public class KrakenAPI {
         CANCEL_ALL_ORDERS_AFTER("CancelAllOrdersAfter"),
         CANCEL_ORDER("CancelOrder"),
         CANCEL_ORDER_BATCH("CancelOrderBatch"),
+        CANCEL_STRATEGY("CancelStrategy"),
         CLOSED_ORDERS("ClosedOrders"),
         CREATE_SUB_ACCOUNT("CreateSubaccount"),
         CREDIT_LINES("CreditLines"),
@@ -1819,6 +1916,8 @@ public class KrakenAPI {
         EDIT_ORDER("EditOrder"),
         EXPORT_STATUS("ExportStatus"),
         GET_API_KEY_INFO("GetApiKeyInfo"),
+        GET_CLOSED_STRATEGIES("GetClosedStrategies"),
+        GET_OPEN_STRATEGIES("GetOpenStrategies"),
         GET_WEBSOCKETS_TOKEN("GetWebSocketsToken"),
         LEDGERS("Ledgers"),
         LEVEL3("Level3"),
@@ -1828,6 +1927,7 @@ public class KrakenAPI {
         ORDER_AMENDS("OrderAmends"),
         QUERY_LEDGERS("QueryLedgers"),
         QUERY_ORDERS("QueryOrders"),
+        QUERY_STRATEGIES("QueryStrategies"),
         QUERY_TRADES("QueryTrades"),
         REMOVE_EXPORT("RemoveExport"),
         RETRIEVE_EXPORT("RetrieveExport"),

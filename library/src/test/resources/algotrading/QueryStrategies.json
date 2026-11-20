@@ -1,0 +1,44 @@
+{
+  "error": [],
+  "result": {
+    "strategies": {
+      "ASPBVCI-6MKBA-QE4VF6": {
+        "strategy_id": "ASPBVCI-6MKBA-QE4VF6",
+        "status": "pending",
+        "details": {
+          "strategy_type": "twap",
+          "side": "buy",
+          "volume": "0.01000000",
+          "filled_volume": "0",
+          "avg_price": "",
+          "total_cost": "0",
+          "total_fee": "0",
+          "starttm": "1781169958",
+          "expiretm": "1781173558",
+          "symbol": "BTC/USD",
+          "asset_class": "forex",
+          "ordertype": "market"
+        }
+      },
+      "ASMBA64-R23M2-J7JRJV": {
+        "strategy_id": "ASMBA64-R23M2-J7JRJV",
+        "status": "open",
+        "details": {
+          "strategy_type": "twap",
+          "side": "sell",
+          "volume": "2.00000000",
+          "filled_volume": "0.50000000",
+          "avg_price": "67050.10",
+          "total_cost": "33525.05",
+          "total_fee": "53.64",
+          "starttm": "1781166400",
+          "expiretm": "1781173600",
+          "symbol": "BTC/USD",
+          "asset_class": "forex",
+          "ordertype": "limit",
+          "price": "67000.0"
+        }
+      }
+    }
+  }
+}

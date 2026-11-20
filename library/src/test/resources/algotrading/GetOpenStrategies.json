@@ -1,0 +1,25 @@
+{
+  "error": [],
+  "result": {
+    "open": {
+      "ASPBVCI-6MKBA-QE4VF6": {
+        "strategy_id": "ASPBVCI-6MKBA-QE4VF6",
+        "status": "pending",
+        "details": {
+          "strategy_type": "twap",
+          "side": "buy",
+          "volume": "0.01000000",
+          "filled_volume": "0",
+          "avg_price": "",
+          "total_cost": "0",
+          "total_fee": "0",
+          "starttm": "1781169958",
+          "expiretm": "1781173558",
+          "symbol": "BTC/USD",
+          "asset_class": "forex",
+          "ordertype": "market"
+        }
+      }
+    }
+  }
+}

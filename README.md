@@ -179,7 +179,7 @@ TradeVolume fees = api.tradeVolume(TradeVolumeParams.builder()
 
 `TradeVolumeParams` encodes requests as JSON to support class-qualified pairs. Custom REST requesters should send `endpoint.encodedParamsWith(nonce)` unchanged with `endpoint.getContentType()` and use `endpoint.unwrapResponse(response)` to handle endpoint-specific nullable results.
 
-Custom `KrakenNonceGenerator` implementations must produce increasing unsigned 64-bit integers as canonical decimal strings. `TradeVolume`, `AddOrderBatch` and `CancelOrderBatch` encode the nonce as a JSON number and reject malformed, out-of-range or noncanonical values with an `IllegalStateException` that names the parameter type and the generator contract. Canonical formatting keeps the nonce used for signing identical to the number in the JSON body.
+Custom `KrakenNonceGenerator` implementations must produce increasing unsigned 64-bit integers as canonical decimal strings. `TradeVolume`, `AddOrderBatch`, `CancelOrderBatch` and the Algo Trading operations encode the nonce as a JSON number and reject malformed, out-of-range or noncanonical values with an `IllegalStateException` that names the parameter type and the generator contract. Canonical formatting keeps the nonce used for signing identical to the number in the JSON body.
 
 ### Trading
 
@@ -206,6 +206,27 @@ DeadMansSwitch timer = api.cancelAllOrdersAfter(CancelAllOrdersAfterParams.build
 Prices accept a `BigDecimal` or a string, so relative prices such as `+1.5%` or `#10` are sent as Kraken documents them. With `validate(true)`, Kraken checks the order without submitting it and returns a description without transaction IDs. `amendOrder` changes an order in place, keeping its identifiers and, where possible, its queue priority; `editOrder` cancels the order and replaces it with a new one. `AmendOrderParams`, `EditOrderParams` and `CancelOrderParams` need exactly one order identifier and throw an `IllegalArgumentException` otherwise. In a batch, an order failing pre-match checks carries an `error()` while the other orders are still placed.
 
 `cancelAllOrdersAfter` sets Kraken's dead man's switch: Kraken recommends calling it every 15 to 30 seconds with a 60-second timeout. `Duration.ZERO` disables the timer, and `triggerTime()` is then null. `AddOrderBatch` and `CancelOrderBatch` send JSON bodies; the other Trading operations use form encoding.
+
+### Algo Trading
+
+All five Algo Trading operations have typed methods: `addStrategy`, `cancelStrategy`, `openStrategies`, `queryStrategies`, and `closedStrategies`. A TWAP strategy buys or sells a total volume evenly between its start and end times, as immediate-or-cancel child orders that appear in `closedOrders` and the trade history.
+
+```java
+StrategyAdded twap = api.addStrategy(AddStrategyParams.builder()
+        .symbol("BTC/USD").side(OrderSide.BUY).volume(new BigDecimal("1.5"))
+        .orderType(StrategyOrderType.LIMIT).price(new BigDecimal("67000"))
+        .expireTime("+3600").build());
+Map<String, AlgoStrategy> strategies = api.queryStrategies(List.of(twap.strategyId()));
+StrategyCancelled cancelled = api.cancelStrategy(twap.strategyId());
+
+ClosedStrategiesParams filters = ClosedStrategiesParams.builder().status(StrategyStatus.CANCELLED).limit(50).build();
+ClosedStrategies page = api.closedStrategies(filters);
+while (page.nextCursor() != null) {
+    page = api.closedStrategies(filters.toBuilder().cursor(page.nextCursor()).build());
+}
+```
+
+`AddStrategyParams` defaults to a `twap` strategy on a `forex` pair. Start and end times take Kraken's `0`, `+<n>` and Unix timestamp forms: the strategy must last at least 60 seconds and end within 30 days. With `validate(true)`, Kraken checks the strategy without creating it and returns an empty `strategyId()`. `averagePrice()` is null until the first fill. The `closedStrategies` cursor only stores a position, so repeat the filters on every page. All Algo Trading operations send JSON bodies.
 
 ### Custom endpoints
 
