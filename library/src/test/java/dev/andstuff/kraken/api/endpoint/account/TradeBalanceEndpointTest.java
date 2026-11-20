@@ -3,6 +3,7 @@ package dev.andstuff.kraken.api.endpoint.account;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.InputStream;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -69,5 +70,18 @@ class TradeBalanceEndpointTest {
         assertThat(result.equivalentBalance()).isEqualByComparingTo("1101.3425");
         assertThat(result.unrealizedNet()).isEqualByComparingTo("-10.0232");
         assertThat(result.marginLevel()).isEqualByComparingTo("5432.57");
+    }
+
+    @Test
+    void should_encode_wallet_in_query_when_wallet_is_selected() {
+        // Given
+        TradeBalanceEndpoint unit = new TradeBalanceEndpoint(TradeBalanceParams.builder().accountId("WX6V-JUKW-KKPB-QE36").build());
+
+        // When
+        URL result = unit.buildURL();
+
+        // Then
+        assertThat(result).hasPath("/0/private/TradeBalance").hasQuery("account_id=WX6V-JUKW-KKPB-QE36");
+        assertThat(unit.encodedParamsWith("123")).isEqualTo("nonce=123");
     }
 }

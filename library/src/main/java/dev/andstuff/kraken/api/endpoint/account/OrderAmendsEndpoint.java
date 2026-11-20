@@ -4,12 +4,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import dev.andstuff.kraken.api.endpoint.account.params.OrderAmendsParams;
 import dev.andstuff.kraken.api.endpoint.account.response.OrderAmends;
-import dev.andstuff.kraken.api.endpoint.priv.PrivateEndpoint;
 
 /**
  * The private {@code OrderAmends} endpoint for order amends.
  */
-public class OrderAmendsEndpoint extends PrivateEndpoint<OrderAmends> {
+public class OrderAmendsEndpoint extends WalletScopedEndpoint<OrderAmends> {
 
     /**
      * Creates the {@code OrderAmends} endpoint with default options.
@@ -24,6 +23,6 @@ public class OrderAmendsEndpoint extends PrivateEndpoint<OrderAmends> {
      * @param params the request parameters
      */
     public OrderAmendsEndpoint(OrderAmendsParams params) {
-        super("OrderAmends", params, new TypeReference<>() {});
+        super("OrderAmends", params, params.getAccountId(), new TypeReference<>() {});
     }
 }

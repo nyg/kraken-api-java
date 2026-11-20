@@ -9,7 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 /**
- * The parameters of {@code TradesHistory}; omitted options use Kraken's defaults.
+ * The parameters of {@code TradesHistory}; omitted options use Kraken's defaults. With cursor pagination, the filters must be repeated on every page, e.g. with {@code params.toBuilder().cursor(page.nextCursor()).build()}.
  */
 @Getter
 @Builder(toBuilder = true)
@@ -36,8 +36,11 @@ public class TradesHistoryParams extends PostParams {
     private final String end;
 
     /**
-     * The offset for {@code TradesHistory}.
+     * The result offset for {@code TradesHistory}.
+     *
+     * @deprecated Kraken deprecated {@code ofs}: use {@code withCursor} and {@code cursor} instead.
      */
+    @Deprecated(since = "5.0.0")
     private final Integer offset;
 
     /**
@@ -75,8 +78,30 @@ public class TradesHistoryParams extends PostParams {
      */
     private final Integer limit;
 
+    /**
+     * Whether to use cursor pagination instead of {@code offset}. Kraken defaults to {@code false} when omitted.
+     */
+    private final Boolean withCursor;
+
+    /**
+     * The {@code cursor.next} of the previous page, omitted for the first page. Requires {@code withCursor}.
+     */
+    private final String cursor;
+
+    /**
+     * The wallet ID, sent in the URL query; omit to use the default wallet.
+     */
+    private final String accountId;
+
+    /**
+     * Returns the parameters sent to Kraken.
+     *
+     * @return the POST parameters
+     * @throws IllegalArgumentException if {@code cursor} is set without {@code withCursor}, or if {@code offset} is not 0 with {@code withCursor}
+     */
     @Override
     protected Map<String, String> params() {
+        CursorPagination.validate(withCursor, cursor, "offset", offset);
         Map<String, String> params = new HashMap<>();
         putIfNonNull(params, "type", type, TradeType::getValue);
         putIfNonNull(params, "trades", trades);
@@ -90,6 +115,8 @@ public class TradesHistoryParams extends PostParams {
         putIfNonNull(params, "aclass", assetClass, AssetClass::getValue);
         putIfNonNull(params, "pair", pair);
         putIfNonNull(params, "limit", limit);
+        putIfNonNull(params, "with_cursor", withCursor);
+        putIfNonNull(params, "cursor", cursor);
         return params;
     }
 }

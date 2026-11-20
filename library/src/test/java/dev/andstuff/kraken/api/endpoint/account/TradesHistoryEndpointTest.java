@@ -1,8 +1,10 @@
 package dev.andstuff.kraken.api.endpoint.account;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 import java.io.InputStream;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -32,7 +34,8 @@ class TradesHistoryEndpointTest {
 
     @Test
     void should_encode_all_options_when_supplied() {
-        TradesHistoryEndpoint unit = new TradesHistoryEndpoint(TradesHistoryParams.builder().type(TradeType.NO_POSITION).trades(false).start("1700000000").end("1700000000").offset(0).withoutCount(false).consolidateTaker(false).ledgers(false).rebaseMultiplier(RebaseMultiplier.BASE).assetClass(AssetClass.EXTERNAL_PAIR).pair("id +/&=").limit(0).build());
+        TradesHistoryEndpoint unit = new TradesHistoryEndpoint(TradesHistoryParams.builder().type(TradeType.NO_POSITION).trades(false).start("1700000000").end("1700000000").offset(0).withoutCount(false).consolidateTaker(false).ledgers(false).rebaseMultiplier(RebaseMultiplier.BASE).assetClass(AssetClass.EXTERNAL_PAIR).pair("id +/&=").limit(0).withCursor(true)
+                .cursor("VFJBREVTOjE2ODg2Njc3OTY").build());
 
         Map<String, String> result = Arrays.stream(unit.encodedParamsWith("123456789").split("&"))
                 .map(value -> value.split("=", 2))
@@ -51,7 +54,9 @@ class TradesHistoryEndpointTest {
                 Map.entry("rebase_multiplier", "base"),
                 Map.entry("aclass", "external_pair"),
                 Map.entry("pair", "id +/&="),
-                Map.entry("limit", "0")));
+                Map.entry("limit", "0"),
+                Map.entry("with_cursor", "true"),
+                Map.entry("cursor", "VFJBREVTOjE2ODg2Njc3OTY")));
         assertThat(unit.buildURL().getPath()).isEqualTo("/0/private/TradesHistory");
         assertThat(unit.getHttpMethod()).isEqualTo("POST");
     }
@@ -82,5 +87,64 @@ class TradesHistoryEndpointTest {
         assertThat(result.trades().get("THVRQM-33VKH-UCI7BS").time()).isEqualTo(Instant.ofEpochSecond(1688667796L, 880200000L));
         assertThat(result.trades().get("THVRQM-33VKH-UCI7BS").volume()).isEqualByComparingTo("0.02000000");
         assertThat(result.count()).isNull();
+        assertThat(result.nextCursor()).isNull();
+    }
+
+    @Test
+    void should_encode_wallet_in_query_when_wallet_is_selected() {
+        // Given
+        TradesHistoryEndpoint unit = new TradesHistoryEndpoint(TradesHistoryParams.builder().accountId("WX6V-JUKW-KKPB-QE36").build());
+
+        // When
+        URL result = unit.buildURL();
+
+        // Then
+        assertThat(result).hasPath("/0/private/TradesHistory").hasQuery("account_id=WX6V-JUKW-KKPB-QE36");
+        assertThat(unit.encodedParamsWith("123")).isEqualTo("nonce=123");
+    }
+
+    @Test
+    void should_reject_offset_when_paging_with_cursor() {
+        // Given
+        TradesHistoryEndpoint unit = new TradesHistoryEndpoint(TradesHistoryParams.builder().withCursor(true).offset(50).build());
+
+        // When
+        Throwable result = catchThrowable(() -> unit.encodedParamsWith("123"));
+
+        // Then
+        assertThat(result).isInstanceOf(IllegalArgumentException.class).hasMessage("offset must be absent or 0 when withCursor is true");
+    }
+
+    @Test
+    void should_reject_cursor_when_cursor_pagination_is_off() {
+        // Given
+        TradesHistoryEndpoint unit = new TradesHistoryEndpoint(TradesHistoryParams.builder().cursor("VFJBREVTOjE2ODg2Njc3OTY").build());
+
+        // When
+        Throwable result = catchThrowable(() -> unit.encodedParamsWith("123"));
+
+        // Then
+        assertThat(result).isInstanceOf(IllegalArgumentException.class).hasMessage("cursor requires withCursor to be true");
+    }
+
+    @Test
+    void should_decode_external_execution_id_and_next_cursor_when_reading_cursor_page() throws Exception {
+        // Given
+        TradesHistoryEndpoint unit = new TradesHistoryEndpoint(TradesHistoryParams.builder().withCursor(true).build());
+        JsonMapper mapper = JsonMapper.builder().addModules(new JavaTimeModule(), new Jdk8Module())
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
+        String json = """
+                {"error":[],"result":{"count":0,"trades":{"THVRQM-33VKH-UCI7BS":{"ordertxid":"OQCLML-BW3P3-BUCMWZ","pair":"XXBTZUSD","ext_exec_id":"EXEC-7"}},
+                "cursor":{"next":"VFJBREVTOjE2ODg2Njc3OTY"}}}
+                """;
+        KrakenResponse<TradesHistory> response = mapper.readValue(json, unit.wrappedResponseType(mapper.getTypeFactory()));
+
+        // When
+        TradesHistory result = unit.unwrapResponse(response);
+
+        // Then
+        assertThat(result.nextCursor()).isEqualTo("VFJBREVTOjE2ODg2Njc3OTY");
+        assertThat(result.count()).isZero();
+        assertThat(result.trades().get("THVRQM-33VKH-UCI7BS").externalExecutionId()).isEqualTo("EXEC-7");
     }
 }

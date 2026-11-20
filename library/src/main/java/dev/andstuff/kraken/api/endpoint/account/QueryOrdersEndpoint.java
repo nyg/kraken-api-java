@@ -7,12 +7,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import dev.andstuff.kraken.api.endpoint.account.params.QueryOrdersParams;
 import dev.andstuff.kraken.api.endpoint.account.response.Order;
-import dev.andstuff.kraken.api.endpoint.priv.PrivateEndpoint;
 
 /**
  * The private {@code QueryOrders} endpoint for query orders.
  */
-public class QueryOrdersEndpoint extends PrivateEndpoint<Map<String, Order>> {
+public class QueryOrdersEndpoint extends WalletScopedEndpoint<Map<String, Order>> {
 
     /**
      * Creates the {@code QueryOrders} endpoint for the selected transaction IDs.
@@ -29,6 +28,6 @@ public class QueryOrdersEndpoint extends PrivateEndpoint<Map<String, Order>> {
      * @param params the request parameters
      */
     public QueryOrdersEndpoint(QueryOrdersParams params) {
-        super("QueryOrders", params, new TypeReference<>() {});
+        super("QueryOrders", params, params.getAccountId(), new TypeReference<>() {});
     }
 }

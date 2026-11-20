@@ -28,7 +28,7 @@ public class KrakenCredentials {
     private final String secret;
 
     /**
-     * Signs a private endpoint request, as described by Kraken's authentication documentation: the message is the endpoint path followed by the SHA-256 digest of the nonce and the request body, and it is signed with HMAC-SHA512 using the Base64 decoded secret.
+     * Signs a private endpoint request, as described by Kraken's authentication documentation: the message is the endpoint path, followed by its query string when present, e.g. {@code /0/private/Balance?account_id=WX6V+JUKW+KKPB+QE36}, then by the SHA-256 digest of the nonce and the request body, and it is signed with HMAC-SHA512 using the Base64 decoded secret.
      *
      * @param url the URL of the endpoint being queried
      * @param nonce the nonce of the request
@@ -36,7 +36,7 @@ public class KrakenCredentials {
      * @return the Base64 encoded signature, to be sent in the {@code API-Sign} header
      */
     public String sign(URL url, String nonce, String urlEncodedParams) {
-        return sign(url.getPath(), nonce, urlEncodedParams);
+        return sign(url.getFile(), nonce, urlEncodedParams);
     }
 
     /**

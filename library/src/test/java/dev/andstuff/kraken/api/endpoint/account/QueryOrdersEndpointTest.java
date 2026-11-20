@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.InputStream;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -32,7 +33,7 @@ class QueryOrdersEndpointTest {
 
     @Test
     void should_encode_all_options_when_supplied() {
-        QueryOrdersEndpoint unit = new QueryOrdersEndpoint(QueryOrdersParams.builder().trades(false).userReference(0L).transactionIds(List.of("ID-1", "ID+2")).consolidateTaker(false).rebaseMultiplier(RebaseMultiplier.BASE).build());
+        QueryOrdersEndpoint unit = new QueryOrdersEndpoint(QueryOrdersParams.builder().trades(false).userReference(0L).transactionIds(List.of("ID-1", "ID+2")).clientOrderId("id +/&=").consolidateTaker(false).rebaseMultiplier(RebaseMultiplier.BASE).build());
 
         Map<String, String> result = Arrays.stream(unit.encodedParamsWith("123456789").split("&"))
                 .map(value -> value.split("=", 2))
@@ -43,6 +44,7 @@ class QueryOrdersEndpointTest {
                 Map.entry("trades", "false"),
                 Map.entry("userref", "0"),
                 Map.entry("txid", "ID-1,ID+2"),
+                Map.entry("cl_ord_id", "id +/&="),
                 Map.entry("consolidate_taker", "false"),
                 Map.entry("rebase_multiplier", "base")));
         assertThat(unit.buildURL().getPath()).isEqualTo("/0/private/QueryOrders");
@@ -74,5 +76,18 @@ class QueryOrdersEndpointTest {
 
         assertThat(result.get("OBCMZD-JIEE7-77TH3F").closeTime()).isEqualTo(Instant.ofEpochSecond(1688665499L, 192200000L));
         assertThat(result.get("OBCMZD-JIEE7-77TH3F").reason()).isNull();
+    }
+
+    @Test
+    void should_encode_wallet_in_query_when_wallet_is_selected() {
+        // Given
+        QueryOrdersEndpoint unit = new QueryOrdersEndpoint(QueryOrdersParams.builder().transactionIds(List.of("OBCMZD-JIEE7-77TH3F")).accountId("WX6V-JUKW-KKPB-QE36").build());
+
+        // When
+        URL result = unit.buildURL();
+
+        // Then
+        assertThat(result).hasPath("/0/private/QueryOrders").hasQuery("account_id=WX6V-JUKW-KKPB-QE36");
+        assertThat(unit.encodedParamsWith("123")).isEqualTo("txid=OBCMZD-JIEE7-77TH3F&nonce=123");
     }
 }

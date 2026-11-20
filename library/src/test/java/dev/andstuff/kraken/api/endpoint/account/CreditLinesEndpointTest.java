@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.InputStream;
+import java.math.BigDecimal;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -68,7 +70,8 @@ class CreditLinesEndpointTest {
         KrakenResponse<Optional<CreditLines>> response = mapper.readValue(json, unit.wrappedResponseType(mapper.getTypeFactory()));
         CreditLines result = unit.unwrapResponse(response).orElseThrow();
 
-        assertThat(result.assetDetails().get("USD").availableCredit()).isEqualByComparingTo("37500.0000");
+        assertThat(result.assetDetails().get("USD").creditLimit()).isEqualByComparingTo("50000.0000");
+        assertThat(result.assetDetails().get("EUR").holdTrade()).isEqualByComparingTo("100.0000");
         assertThat(result.limitsMonitor().debtToEquity()).isEqualByComparingTo("0.2000");
     }
 
@@ -88,5 +91,39 @@ class CreditLinesEndpointTest {
         KrakenResponse<Optional<CreditLines>> response = mapper.readValue("{\"error\":[\"EGeneral:Permission denied\"]}", unit.wrappedResponseType(mapper.getTypeFactory()));
 
         assertThatThrownBy(() -> unit.unwrapResponse(response)).isInstanceOf(KrakenException.class);
+    }
+
+    @Test
+    void should_encode_wallet_in_query_when_wallet_is_selected() {
+        // Given
+        CreditLinesEndpoint unit = new CreditLinesEndpoint(CreditLinesParams.builder().accountId("WX6V-JUKW-KKPB-QE36").build());
+
+        // When
+        URL result = unit.buildURL();
+
+        // Then
+        assertThat(result).hasPath("/0/private/CreditLines").hasQuery("account_id=WX6V-JUKW-KKPB-QE36");
+        assertThat(unit.encodedParamsWith("123")).isEqualTo("nonce=123");
+    }
+
+    @Test
+    void should_decode_credit_rates_when_asset_has_a_credit_line() throws Exception {
+        // Given
+        CreditLinesEndpoint unit = new CreditLinesEndpoint();
+        JsonMapper mapper = JsonMapper.builder().addModules(new JavaTimeModule(), new Jdk8Module())
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
+        String json = """
+                {"error":[],"result":{"asset_details":{"USD":{"balance":"1000.5000","hold_trade":"0.0000","credit":"50000.0000","credit_used":"12500.0000",
+                "collateral_value":0.99,"rollover_fees":"0.0055","reserve_fees":"0.0038"}},"limits_monitor":{"total_credit_usd":null}}}
+                """;
+        KrakenResponse<Optional<CreditLines>> response = mapper.readValue(json, unit.wrappedResponseType(mapper.getTypeFactory()));
+
+        // When
+        CreditLines result = unit.unwrapResponse(response).orElseThrow();
+
+        // Then
+        assertThat(result.assetDetails()).containsEntry("USD", new CreditLines.AssetDetails(new BigDecimal("1000.5000"), new BigDecimal("0.0000"),
+                new BigDecimal("0.99"), new BigDecimal("50000.0000"), new BigDecimal("12500.0000"), new BigDecimal("0.0055"), new BigDecimal("0.0038")));
+        assertThat(result.limitsMonitor().totalCreditUsd()).isNull();
     }
 }

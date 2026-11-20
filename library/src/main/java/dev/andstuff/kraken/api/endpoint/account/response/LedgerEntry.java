@@ -28,6 +28,7 @@ import lombok.With;
  * @param amount the amount of the entry, fee excluded
  * @param fee the fee of the entry
  * @param balance the balance of the asset after the entry
+ * @param tokenAmount the amount in the token's raw base units, only returned by {@code QueryLedgers} for tokenized assets and absent from exported reports
  */
 public record LedgerEntry(@CsvBindByName(column = "txid") @With String id, // TODO see if jackson can set this value
                           @CsvBindByName(column = "refid") @JsonProperty("refid") String referenceId,
@@ -40,7 +41,8 @@ public record LedgerEntry(@CsvBindByName(column = "txid") @With String id, // TO
                           @CsvBindByName(column = "wallet") String wallet,
                           @CsvBindByName(column = "amount") BigDecimal amount,
                           @CsvBindByName(column = "fee") BigDecimal fee,
-                          @CsvBindByName(column = "balance") BigDecimal balance) {
+                          @CsvBindByName(column = "balance") BigDecimal balance,
+                          @JsonProperty("amount_token") BigDecimal tokenAmount) {
 
     /**
      * Attempts to extract the underlying asset, e.g. DOT28.S returns DOT, XXBT

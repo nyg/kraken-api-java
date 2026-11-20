@@ -11,6 +11,7 @@ import dev.andstuff.kraken.api.endpoint.KrakenException;
 import dev.andstuff.kraken.api.endpoint.account.AccountBalanceEndpoint;
 import dev.andstuff.kraken.api.endpoint.account.ApiKeyInfoEndpoint;
 import dev.andstuff.kraken.api.endpoint.account.ClosedOrdersEndpoint;
+import dev.andstuff.kraken.api.endpoint.account.ConsolidatedPositionsEndpoint;
 import dev.andstuff.kraken.api.endpoint.account.CreditLinesEndpoint;
 import dev.andstuff.kraken.api.endpoint.account.ExtendedBalanceEndpoint;
 import dev.andstuff.kraken.api.endpoint.account.LedgerEntriesEndpoint;
@@ -53,6 +54,7 @@ import dev.andstuff.kraken.api.endpoint.account.params.WalletAccountsParams;
 import dev.andstuff.kraken.api.endpoint.account.response.AccountTrade;
 import dev.andstuff.kraken.api.endpoint.account.response.ApiKeyInfo;
 import dev.andstuff.kraken.api.endpoint.account.response.ClosedOrders;
+import dev.andstuff.kraken.api.endpoint.account.response.ConsolidatedPosition;
 import dev.andstuff.kraken.api.endpoint.account.response.CreditLines;
 import dev.andstuff.kraken.api.endpoint.account.response.ExtendedBalance;
 import dev.andstuff.kraken.api.endpoint.account.response.LedgerEntry;
@@ -605,11 +607,12 @@ public class KrakenAPI {
     }
 
     /**
-     * Queries the private {@code Ledgers} endpoint, returning at most 50 ledger entries per call.
+     * Queries the private {@code Ledgers} endpoint, returning at most 50 ledger entries per call. The parameters are sent as JSON.
      *
      * @param params the filtering and pagination parameters
-     * @return the matching ledger entries and their total count
+     * @return the matching ledger entries, their total count unless omitted, and the cursor of the next page with cursor pagination
      * @throws KrakenException if Kraken returns an error
+     * @throws IllegalArgumentException if the parameters combine options Kraken rejects, e.g. a non-zero offset with cursor pagination
      */
     public LedgerInfo ledgerInfo(LedgerInfoParams params) {
         return query(new LedgerInfoEndpoint(params));
@@ -736,6 +739,7 @@ public class KrakenAPI {
      * @return the open orders returned by Kraken
      * @throws KrakenException if Kraken rejects the request
      * @throws IllegalStateException if credentials are missing
+     * @throws IllegalArgumentException if {@code cursor} is set without {@code withCursor}
      */
     public OpenOrders openOrders(OpenOrdersParams params) {
         return query(new OpenOrdersEndpoint(params));
@@ -759,6 +763,7 @@ public class KrakenAPI {
      * @return the closed orders returned by Kraken
      * @throws KrakenException if Kraken rejects the request
      * @throws IllegalStateException if credentials are missing
+     * @throws IllegalArgumentException if {@code cursor} is set without {@code withCursor}, or a non-zero offset is combined with {@code withCursor}
      */
     public ClosedOrders closedOrders(ClosedOrdersParams params) {
         return query(new ClosedOrdersEndpoint(params));
@@ -817,6 +822,7 @@ public class KrakenAPI {
      * @return the trades history returned by Kraken
      * @throws KrakenException if Kraken rejects the request
      * @throws IllegalStateException if credentials are missing
+     * @throws IllegalArgumentException if {@code cursor} is set without {@code withCursor}, or a non-zero offset is combined with {@code withCursor}
      */
     public TradesHistory tradesHistory(TradesHistoryParams params) {
         return query(new TradesHistoryEndpoint(params));
@@ -852,9 +858,33 @@ public class KrakenAPI {
      * @return the open positions returned by Kraken
      * @throws KrakenException if Kraken rejects the request
      * @throws IllegalStateException if credentials are missing
+     * @throws IllegalArgumentException if {@code consolidation} is {@code market}: use {@link #consolidatedPositions(OpenPositionsParams)} instead
      */
     public Map<String, OpenPosition> openPositions(OpenPositionsParams params) {
         return query(new OpenPositionsEndpoint(params));
+    }
+
+    /**
+     * Queries the {@code OpenPositions} endpoint with {@code consolidation=market}, returning the open margin positions consolidated by pair.
+     *
+     * @return the consolidated positions returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public List<ConsolidatedPosition> consolidatedPositions() {
+        return query(new ConsolidatedPositionsEndpoint());
+    }
+
+    /**
+     * Queries the {@code OpenPositions} endpoint with {@code consolidation=market}, returning the open margin positions consolidated by pair.
+     *
+     * @param params the request options, sent with {@code consolidation=market}
+     * @return the consolidated positions returned by Kraken
+     * @throws KrakenException if Kraken rejects the request
+     * @throws IllegalStateException if credentials are missing
+     */
+    public List<ConsolidatedPosition> consolidatedPositions(OpenPositionsParams params) {
+        return query(new ConsolidatedPositionsEndpoint(params));
     }
 
     /**

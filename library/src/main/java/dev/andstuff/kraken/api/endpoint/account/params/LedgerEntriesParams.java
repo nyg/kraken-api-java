@@ -18,14 +18,29 @@ public class LedgerEntriesParams extends PostParams {
 
     @Builder.Default
     private final List<String> entryIds = List.of();
+
+    /**
+     * Whether trades related to the position are included, sent only when {@code true}.
+     *
+     * @deprecated Kraken deprecated {@code trades} on {@code QueryLedgers} and advises not to rely on it.
+     */
+    @Deprecated(since = "5.0.0")
     private final boolean includeTrades;
+
     private final RebaseMultiplier rebaseMultiplier;
+
+    /**
+     * The wallet ID, sent in the URL query; omit to use the default wallet.
+     */
+    private final String accountId;
 
     @Override
     public Map<String, String> params() {
         Map<String, String> params = new HashMap<>();
         putIfNonNull(params, "id", entryIds, v -> String.join(",", v));
-        putIfNonNull(params, "trades", includeTrades);
+        if (includeTrades) {
+            params.put("trades", "true");
+        }
         putIfNonNull(params, "rebase_multiplier", rebaseMultiplier, RebaseMultiplier::getValue);
         return params;
     }

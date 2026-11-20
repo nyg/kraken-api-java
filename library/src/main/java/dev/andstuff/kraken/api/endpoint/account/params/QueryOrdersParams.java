@@ -34,6 +34,11 @@ public class QueryOrdersParams extends PostParams {
     private final List<String> transactionIds;
 
     /**
+     * The client order ID the results are restricted to.
+     */
+    private final String clientOrderId;
+
+    /**
      * The consolidate taker for {@code QueryOrders}. Kraken defaults to {@code true} when omitted.
      */
     private final Boolean consolidateTaker;
@@ -43,12 +48,18 @@ public class QueryOrdersParams extends PostParams {
      */
     private final RebaseMultiplier rebaseMultiplier;
 
+    /**
+     * The wallet ID, sent in the URL query; omit to use the default wallet.
+     */
+    private final String accountId;
+
     @Override
     protected Map<String, String> params() {
         Map<String, String> params = new HashMap<>();
         putIfNonNull(params, "trades", trades);
         putIfNonNull(params, "userref", userReference);
         putIfNonNull(params, "txid", transactionIds, v -> String.join(",", v));
+        putIfNonNull(params, "cl_ord_id", clientOrderId);
         putIfNonNull(params, "consolidate_taker", consolidateTaker);
         putIfNonNull(params, "rebase_multiplier", rebaseMultiplier, RebaseMultiplier::getValue);
         return params;

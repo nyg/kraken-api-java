@@ -19,17 +19,19 @@ public record CreditLines(@JsonProperty("asset_details") Map<String, AssetDetail
      *
      * @param balance the balance
      * @param holdTrade the hold trade
-     * @param collateralValue the collateral value
-     * @param creditLimit the credit limit
+     * @param collateralValue the collateral value factor, from 0 to 1
+     * @param creditLimit the credit limit, returned by Kraken as {@code credit}
      * @param creditUsed the credit used
-     * @param availableCredit the available credit
+     * @param rolloverFees the rollover rate charged on drawn credit, in percent per rollover period
+     * @param reserveFees the reserve rate charged on undrawn credit, in percent per rollover period
      */
     public record AssetDetails(BigDecimal balance,
                                @JsonProperty("hold_trade") BigDecimal holdTrade,
                                @JsonProperty("collateral_value") BigDecimal collateralValue,
-                               @JsonProperty("credit_limit") BigDecimal creditLimit,
+                               @JsonProperty("credit") BigDecimal creditLimit,
                                @JsonProperty("credit_used") BigDecimal creditUsed,
-                               @JsonProperty("available_credit") BigDecimal availableCredit) {}
+                               @JsonProperty("rollover_fees") BigDecimal rolloverFees,
+                               @JsonProperty("reserve_fees") BigDecimal reserveFees) {}
 
     /**
      * The limits monitor returned by {@code CreditLines}.

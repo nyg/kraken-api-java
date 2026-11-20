@@ -72,7 +72,7 @@ sequenceDiagram
     PrivateEndpoint-->>RestRequester: https://api.kraken.com/0/private/Ledgers
 
     RestRequester->>Credentials: sign(url, nonce, encodedParams)
-    Note over Credentials: SHA-256(nonce + params)<br/>HMAC-SHA512(base64(secret), path + sha256)
+    Note over Credentials: SHA-256(nonce + params)<br/>HMAC-SHA512(base64(secret), path + query + sha256)
     Credentials-->>RestRequester: Base64 signature
 
     RestRequester->>Kraken: POST with API-Key + API-Sign headers

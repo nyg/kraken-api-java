@@ -104,7 +104,7 @@ class DefaultKrakenRestRequesterAccountTest {
     }
 
     @Test
-    void should_sign_body_and_path_when_balance_selects_a_wallet() throws Exception {
+    void should_sign_body_path_and_query_when_balance_selects_a_wallet() throws Exception {
         DefaultKrakenRestRequester unit = new DefaultKrakenRestRequester(connectionFactory);
         AccountBalanceEndpoint endpoint = new AccountBalanceEndpoint(AccountBalanceParams.builder().accountId("wallet +/&=").build());
         KrakenCredentials signingCredentials = new KrakenCredentials("public-example", "kQH5HW/8p1uGOVjbgWA7FunAmGO8lsSUXNsu3eow76sz84Q18fWxnyRzBHCd3pd5nE9qa99HAZtuZuj6F1huXg==");
@@ -122,7 +122,7 @@ class DefaultKrakenRestRequesterAccountTest {
         assertThat(result.get("ZUSD")).isEqualByComparingTo("1.25");
         assertThat(url.getQuery()).isEqualTo("account_id=wallet+%2B%2F%26%3D");
         assertThat(output.toString(StandardCharsets.UTF_8)).isEqualTo("nonce=123");
-        verify(connection).addRequestProperty("API-Sign", "WRKuiZ89EQ2MHYfSRx7pHztnIMr+ivo8S8E5olq+GcpBVw97M1jKx1ElzpGgC36H/tn8Po28EwNryLvK+rl4ig==");
+        verify(connection).addRequestProperty("API-Sign", "ZbTb2tA17SBJwKXWlz6p8ct3r9U0Fc4slL6zc2ZdyGlOA/k6nGvTCI81SdlOYAdZrfyoDVjLIYRsv6FaMh4voA==");
     }
 
     @ParameterizedTest

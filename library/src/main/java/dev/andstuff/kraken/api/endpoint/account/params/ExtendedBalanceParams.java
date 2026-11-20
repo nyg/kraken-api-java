@@ -20,6 +20,11 @@ public class ExtendedBalanceParams extends PostParams {
      */
     private final RebaseMultiplier rebaseMultiplier;
 
+    /**
+     * The wallet ID, sent in the URL query; omit to use the default wallet.
+     */
+    private final String accountId;
+
     @Override
     protected Map<String, String> params() {
         Map<String, String> params = new HashMap<>();
