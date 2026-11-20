@@ -2,6 +2,7 @@ package dev.andstuff.kraken.api.endpoint.earn.params;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import dev.andstuff.kraken.api.endpoint.priv.PostParams;
@@ -38,7 +39,7 @@ public class EarnStrategiesParams extends PostParams {
         }
 
         for (int index = 0; index < lockTypes.size(); index++) {
-            params.put("lock_type[%d]".formatted(index), lockTypes.get(index).toString().toLowerCase());
+            params.put("lock_type[%d]".formatted(index), lockTypes.get(index).toString().toLowerCase(Locale.ROOT));
         }
     }
 }

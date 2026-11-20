@@ -2,6 +2,7 @@ package dev.andstuff.kraken.api.endpoint.subaccount.params;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import dev.andstuff.kraken.api.endpoint.priv.PostParams;
@@ -35,7 +36,7 @@ public class AccountTransferParams extends PostParams {
     protected Map<String, String> params() {
         Map<String, String> params = new HashMap<>();
         params.put("asset", asset);
-        putIfNonNull(params, "asset_class", assetClass, e -> e.toString().toLowerCase());
+        putIfNonNull(params, "asset_class", assetClass, e -> e.toString().toLowerCase(Locale.ROOT));
         params.put("amount", amount.toPlainString());
         params.put("from", from);
         params.put("to", to);

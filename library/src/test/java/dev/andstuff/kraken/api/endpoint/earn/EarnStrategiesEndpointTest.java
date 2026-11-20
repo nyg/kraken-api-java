@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -51,6 +52,26 @@ class EarnStrategiesEndpointTest {
         assertThat(unit.buildURL().getPath()).isEqualTo("/0/private/Earn/Strategies");
         assertThat(unit.getHttpMethod()).isEqualTo("POST");
         assertThat(unit.getContentType()).isEqualTo("application/x-www-form-urlencoded");
+    }
+
+    @Test
+    void should_encode_lock_types_in_root_locale_when_default_locale_is_turkish() {
+        // Given
+        EarnStrategiesEndpoint unit = new EarnStrategiesEndpoint(EarnStrategiesParams.builder().lockTypes(List.of(LockType.TIMED, LockType.INSTANT)).build());
+        Locale defaultLocale = Locale.getDefault();
+        Locale.setDefault(Locale.forLanguageTag("tr-TR"));
+
+        // When
+        String result;
+        try {
+            result = unit.encodedParamsWith("123");
+        }
+        finally {
+            Locale.setDefault(defaultLocale);
+        }
+
+        // Then
+        assertThat(URLDecoder.decode(result, StandardCharsets.UTF_8)).contains("lock_type[0]=timed", "lock_type[1]=instant");
     }
 
     @Test

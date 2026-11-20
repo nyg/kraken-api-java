@@ -1,6 +1,7 @@
 package dev.andstuff.kraken.api.endpoint.account.params;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import dev.andstuff.kraken.api.endpoint.priv.PostParams;
@@ -25,7 +26,7 @@ public class RemoveReportParams extends PostParams {
     protected Map<String, String> params() {
         Map<String, String> params = new HashMap<>();
         params.put("id", reportId);
-        params.put("type", type.toString().toLowerCase());
+        params.put("type", type.toString().toLowerCase(Locale.ROOT));
         return params;
     }
 }

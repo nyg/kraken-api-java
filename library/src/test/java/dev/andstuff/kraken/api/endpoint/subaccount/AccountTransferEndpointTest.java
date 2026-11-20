@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -48,6 +49,27 @@ class AccountTransferEndpointTest {
         assertThat(unit.buildURL().getPath()).isEqualTo("/0/private/AccountTransfer");
         assertThat(unit.getHttpMethod()).isEqualTo("POST");
         assertThat(unit.getContentType()).isEqualTo("application/x-www-form-urlencoded");
+    }
+
+    @Test
+    void should_encode_asset_class_in_root_locale_when_default_locale_is_turkish() {
+        // Given
+        AccountTransferEndpoint unit = new AccountTransferEndpoint(AccountTransferParams.builder().asset("AAPLx").assetClass(AssetClass.TOKENIZED_ASSET)
+                .amount(BigDecimal.ONE).from("ABCD 1234 EFGH 5678").to("IJKL 0987 MNOP 6543").build());
+        Locale defaultLocale = Locale.getDefault();
+        Locale.setDefault(Locale.forLanguageTag("tr-TR"));
+
+        // When
+        String result;
+        try {
+            result = unit.encodedParamsWith("123");
+        }
+        finally {
+            Locale.setDefault(defaultLocale);
+        }
+
+        // Then
+        assertThat(result).contains("asset_class=tokenized_asset");
     }
 
     @Test
